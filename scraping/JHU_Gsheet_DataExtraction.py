@@ -21,4 +21,4 @@ if __name__== "__main__":
     # Download Contents
     url = 'https://docs.google.com/spreadsheets/d/169AP3oaJZSMTquxtrkgFYMSp4gTApLTTWqo25qCpjL0/gviz/tq?tqx=out:csv&sheet=' + date_time_ampm
     r = requests.get(url, allow_redirects=True)
-    open(date_time_ampm + '_JHU_data.csv', 'wb').write(r.content)
+    open('JHU_data/'+date_time_ampm + '_JHU_data.csv', 'wb').write(r.content)

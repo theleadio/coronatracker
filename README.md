@@ -1,11 +1,8 @@
-# coronatracker
-
-# Motivation
-Keep track of the development of Wuhan Corona virus.
-
 # What is CoronaTracker
 CoronaTracker is a full-stack web app for the public to track the latest development of Coronavirus, including data, news, and social media.
 
+# Motivation
+Keep track of the development of Wuhan Corona virus.
 
 # 2019-nCoV - World Health Organization
 Link: https://www.who.int/westernpacific/emergencies/novel-coronavirus

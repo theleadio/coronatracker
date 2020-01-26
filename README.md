@@ -52,6 +52,11 @@ https://www.facebook.com/drhanlau/posts/2775625775829452?__xts__[0]=68.ARCO5xAn3
 
 10. Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30183-5/fulltext#seccestitle200
 
+11. The effect of disease breakout on businesses: https://www.bloomberg.com/news/articles/2020-01-24/coronavirus-update-how-the-virus-is-affecting-global-business
+
+12. Mapping the Outbreak of CoronaVirus: https://www.bloomberg.com/graphics/2020-wuhan-novel-coronavirus-outbreak/
+
+13. 2019-nCoV Prevention & Treatment: https://www.cdc.gov/coronavirus/2019-ncov/about/prevention-treatment.html
 
 
 

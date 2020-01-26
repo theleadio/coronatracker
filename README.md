@@ -46,9 +46,11 @@ https://www.facebook.com/drhanlau/posts/2775625775829452?__xts__[0]=68.ARCO5xAn3
 
 7. https://www.cdc.gov/coronavirus/2019-ncov/index.html
 
-8. https://news.sina.cn/zt_d/yiqing0121?ua=samsung-SM N960F__weibo__9.9.3__android__android10&from=1099395010&wm=3200_0002&isappinstalled=0
+8. https://news.sina.cn/zt_d/yiqing0121?ua=samsung-SMN960F__weibo__9.9.3__android__android10&from=1099395010&wm=3200_0002&isappinstalled=0
 
 9. https://new.qq.com/rain/a/20200122A04NV1
+
+10. Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30183-5/fulltext#seccestitle200
 
 
 

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 #
-# ddipto.pratyaksa@carltondigital.com.au
+# dipto.pratyaksa@carltondigital.com.au
 # ref: https://santhoshveer.com/rss-feed-reader-using-python/
+#
+# TO DO:
+# Store the relevant RSS feed into shared repo, like Google sheet
+# Algo to extract the casualty stats from linked news article
 
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
@@ -16,21 +20,24 @@ def news(xml_news_url, words_list):
     soup_page = BeautifulSoup(xml_page, "xml")
     news_list = soup_page.findAll("item")
 
+    print(soup_page.channel.title.text)
+
     for getfeed in news_list:
-        #if(keywords[0] in getfeed.title.text):
-        #if any(ext in keywords for ext in getfeed):
+       
         res = [ele.lower() for ele in keywords if(ele in getfeed.title.text.lower())]
         if bool(res):
             print("\n")
-            print('\033[1;33m %s \033[1;m' %getfeed.title.text)
-            print('\033[1;32m %s \033[1;m' %getfeed.link.text)
+            print('Title:\t %s' %getfeed.title.text)
+            print('Desc:\t %s' %getfeed.description.text)
+            print('Link:\t %s' %getfeed.link.text)
             if getfeed.pubDate:
-                print('\033[1;35m %s \033[1;m' %getfeed.pubDate.text)
+                print('Pub Date:\t %s' %getfeed.pubDate.text)
             print("\n")
 
-#NEWS_URL = "https://news.ycombinator.com/rss"
 NEWS_URLs = ["https://www.theage.com.au/rss/feed.xml",
+             "https://www.theage.com.au/rss/world.xml",
              "http://www.heraldsun.com.au/news/breaking-news/rss",
+             "http://www.heraldsun.com.au/rss",
              "https://www.news.com.au/content-feeds/latest-news-world/",
              "https://www.news.com.au/content-feeds/latest-news-national/"]         
 keywords = ["corona", "coronavirus", "epidemic", "epidemy", "disease"]

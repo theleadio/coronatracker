@@ -11,12 +11,12 @@ import os, subprocess
 import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
 now = datetime.datetime.now()
 chrome_options = webdriver.ChromeOptions()
-#chrome_options.add_experimental_option("debuggerAddress", "localhost:9014")
 driver = webdriver.Chrome('chromedriver', options=chrome_options)
 driver.get("https://www.globaltimes.cn/content/1177737.shtml")
 WebDriverWait(driver,100000000).until(EC.presence_of_element_located((By.XPATH,'//*[@id="left"]/div[4]/div')))

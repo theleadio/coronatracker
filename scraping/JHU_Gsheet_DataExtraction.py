@@ -8,15 +8,23 @@ from datetime import datetime, timedelta
 if __name__== "__main__":
     # Data posted by JHU at Maryland. Considering the time difference
     now = datetime.now() - timedelta(hours=16, minutes=0)
-
     date = now.date()
+
+    #Extract Month and day
     Month = date.strftime("%b")
     day_of_month = date.strftime("%d")
-    hour_12 = date.strftime("%I")
-    am_pm = date.strftime("%p")
+
+    am_pm = ""
+    #Extract Time
+    if now.hour > 11:
+        am_pm = "pm"
+    else:
+        am_pm = "am"
 
     # Concat required fields for URL
-    date_time_ampm = Month + day_of_month + '_' + hour_12 + am_pm.lower()
+    date_time_ampm = Month + day_of_month + '_' + "12" + am_pm.lower()
+
+    print(date_time_ampm)
 
     # Download Contents
     url = 'https://docs.google.com/spreadsheets/d/169AP3oaJZSMTquxtrkgFYMSp4gTApLTTWqo25qCpjL0/gviz/tq?tqx=out:csv&sheet=' + date_time_ampm

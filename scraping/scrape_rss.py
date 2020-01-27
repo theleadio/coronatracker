@@ -15,6 +15,11 @@
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 from datetime import datetime
+from dateutil.parser import parse
+import re
+
+import db_connector
+
 
 import nltk
 from newspaper import Article
@@ -44,33 +49,37 @@ def news(xml_news_url, words_list):
         if bool(res_title or res_desc): #check if any of the keywords occur in title or description
             rss_record['title'] = getfeed.title.text
             rss_record['description'] = getfeed.description.text            
-            rss_record['link'] = getfeed.link.text
+            rss_record['url'] = getfeed.link.text
             
             now = datetime.now()
  
             # dd/mm/YY H:M:S
-            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            rss_record['access_date'] = dt_string
+            dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
+            rss_record['accessDateTime'] = dt_string
             rss_record['source']= soup_page.channel.title.text
 
-            article = extract_article(rss_record['link'])
+            article = extract_article(rss_record['url'])
 
             #Get the authors
-            rss_record['author'] =  article.authors
+            rss_record['author'] =  ', '.join(map(str, article.authors)) 
+
+            
             #Get the publish date 
             if getfeed.pubDate:
-                rss_record['pub_date'] = getfeed.pubDate.text
+                rss_record['publishDateTime'] = date_convert(getfeed.pubDate.text)
             elif article.publish_date:
-                rss_record['pub_date'] = article.publish_date
+                rss_record['publishDateTime'] = article.publish_date
+                
             elif soup_page.lastBuildDate:
-                rss_record['pub_date'] = soup_page.lastBuildDate.text
+                rss_record['publishDateTime'] = date_convert(soup_page.lastBuildDate.text)
                 
             #Get the article text
             #print(article.text)
             #Get a summary of the article
             rss_record['summary' ] = article.summary
+            rss_record['content' ] = article.text
             #Get the top image 
-            rss_record['top_image_url'] = article.top_image
+            rss_record['urlToImage'] = article.top_image
             rss_record['images'] = article.images
             rss_stack.append(rss_record)
             
@@ -80,16 +89,39 @@ def print_pretty(stack):
         to_print = ""
         to_print += "\nTitle:\t" + rss_record['title']
         to_print += "\nDesc:\t" + rss_record['description']
-        to_print += "\nLink:\t" + rss_record['link']
-        to_print += "\nPub Date:\t" + str(rss_record['pub_date'])
-        to_print += "\nAccessed:\t" + rss_record['access_date']
+        to_print += "\nLink:\t" + rss_record['url']
+        to_print += "\nPub Date:\t" + str(rss_record['publishDateTime'])
+        to_print += "\nAccessed:\t" + rss_record['accessDateTime']
         to_print += "\nSource:\t" + rss_record['source']
-        to_print += "\nAuthor:\t" + ', '.join(map(str, rss_record['author'])) 
+        to_print += "\nAuthor:\t" +  rss_record['author']
         to_print += "\nSummary:\n" + rss_record['summary']
-        to_print += "\nTop Image:\t" + rss_record['top_image_url']
+        to_print += "\nContent:\n" + rss_record['content']
+        to_print += "\nTop Image:\t" + rss_record['urlToImage']
         #to_print += "\nImages:\n" + '\n'.join(map(str, rss_record['images']))
-        print(to_print.expandtabs())
+        try:
+            #to_print  = str(to_print , encoding='utf-8', errors = 'ignore')
+            print(to_print.expandtabs())
+        except:
+            pass
         
+def save_to_db(stack):
+
+    db_connector.connect()
+    for rss_record in stack:
+        db_connector.insert(rss_record)
+
+def date_convert(date_string):
+    print("input date" + date_string)
+    all = re.findall(r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\b", date_string)
+    if len(all)>0:
+        datetime_str = all[0] # '09/19/18 13:55:26'
+        datetime_object = datetime.strptime(datetime_str, '%d %b %Y %H:%M:%S')
+
+        print(type(datetime_object))
+        print(datetime_object)  # printed in default format
+    else:
+        datetime_object = date_string
+    return datetime_object
 
 def extract_article(link):
     print("Extracting from: ", link)
@@ -123,3 +155,4 @@ for rss in NEWS_URLs:
     news(rss, keywords)
 
 print_pretty(rss_stack)
+save_to_db(rss_stack)

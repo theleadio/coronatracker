@@ -13,7 +13,7 @@ from .exceptions import DocumentNotSaved, DocumentExistInFirestore
 class FireStoreModel(object):
 
     def __init__(self, collection_id):
-        cred = credentials.Certificate('path/to/serviceAccount.json')
+        cred = credentials.Certificate('./cred/coronatracker-f8eea1bc1612.json')
         firebase_admin.initialize_app(cred)
         self.client = firestore.client()
         self.collection = self.client.collection(collection_id)

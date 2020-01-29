@@ -25,23 +25,26 @@ import queue
 
 import argparse
 import json
+import os
 
 import db_connector
 
 
-NEWS_URLs = [
-    "https://www.theage.com.au/rss/feed.xml",
-    "https://www.theage.com.au/rss/world.xml",
-    "http://www.heraldsun.com.au/news/breaking-news/rss",
-    "http://www.heraldsun.com.au/rss",
-    "https://www.news.com.au/content-feeds/latest-news-world/",
-    "https://www.news.com.au/content-feeds/latest-news-national/",
-    "http://www.dailytelegraph.com.au/news/breaking-news/rss",
-    "http://www.dailytelegraph.com.au/news/national/rss",
-    "http://www.dailytelegraph.com.au/newslocal/rss",
-    "http://www.dailytelegraph.com.au/news/world/rss",
-    "https://www.sbs.com.au/news/topic/latest/feed",
-]
+NEWS_URLs = {
+    "au": [
+        "https://www.theage.com.au/rss/feed.xml",
+        "https://www.theage.com.au/rss/world.xml",
+        "http://www.heraldsun.com.au/news/breaking-news/rss",
+        "http://www.heraldsun.com.au/rss",
+        "https://www.news.com.au/content-feeds/latest-news-world/",
+        "https://www.news.com.au/content-feeds/latest-news-national/",
+        "http://www.dailytelegraph.com.au/news/breaking-news/rss",
+        "http://www.dailytelegraph.com.au/news/national/rss",
+        "http://www.dailytelegraph.com.au/newslocal/rss",
+        "http://www.dailytelegraph.com.au/news/world/rss",
+        "https://www.sbs.com.au/news/topic/latest/feed",
+    ]
+}
 
 OUTPUT_FILENAME = "output.jsonl"
 DATE_REGEX_RULE = (
@@ -60,7 +63,7 @@ RSS_STACK = []
 def news():
     while not XML_QUEUE.empty():
         try:
-            xml_news_url = XML_QUEUE.get()
+            lang, xml_news_url = XML_QUEUE.get()
             hdr = {"User-Agent": "Mozilla/5.0"}
             req = Request(xml_news_url, headers=hdr)
             parse_xml_url = urlopen(req)
@@ -71,7 +74,7 @@ def news():
             news_list = soup_page.findAll("item")
 
             for getfeed in news_list:
-                EXTRACT_FEED_QUEUE.put((soup_page, getfeed))
+                EXTRACT_FEED_QUEUE.put((lang, soup_page, getfeed))
         except queue.Empty:
             break
 
@@ -79,7 +82,7 @@ def news():
 def extract_feed_data():
     while not EXTRACT_FEED_QUEUE.empty():
         try:
-            soup_page, feed_source = EXTRACT_FEED_QUEUE.get()
+            lang, soup_page, feed_source = EXTRACT_FEED_QUEUE.get()
 
             res_title = feed_source.title.text
             res_desc = feed_source.description.text
@@ -142,13 +145,14 @@ def extract_feed_data():
             )
             # rss_record["images"] = article.images if hasattr(article, 'images') else None
 
-            RSS_STACK.append(rss_record)
+            RSS_STACK.append((lang, rss_record))
         except queue.Empty:
             break
 
 
 def print_pretty():
-    for rss_record in RSS_STACK:
+    for lang_rss in RSS_STACK:
+        lang, rss = lang_rss
         to_print = ""
         to_print += "\ntitle:\t" + rss_record["title"]
         to_print += "\ndescription:\t" + rss_record["description"]
@@ -170,9 +174,10 @@ def print_pretty():
 
 
 def write_output():
-    with open("output.jsonl", "w") as fh:
-        for rss in RSS_STACK:
-            print(rss)
+    for lang_rss in RSS_STACK:
+        lang, rss = lang_rss
+
+        with open("data/{}/output.jsonl".format(lang), "w") as fh:
             json.dump(rss, fh)
             fh.write("\n")
 
@@ -212,22 +217,23 @@ def extract_article(link):
 def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
     parser.add_argument("-v", "--verbose", help="Verbose", default=False)
-    parser.add_argument(
-        "-o",
-        "--output",
-        help="Output result in json line format.",
-        default=OUTPUT_FILENAME,
-    )
     return parser.parse_args()
 
 
+# arguments
 args = parser()
 verbose = args.verbose
-output = args.output
+
+# create required folders
+if not os.path.isdir("data"):
+    os.mkdir("./data")
 
 # place initial xml urls to queue
-for rss in NEWS_URLs:
-    XML_QUEUE.put(rss)
+for lang, all_rss in NEWS_URLs.items():
+    if not os.path.isdir("./data/{}".format(lang)):
+        os.mkdir("./data/{}".format(lang))
+    for rss in all_rss:
+        XML_QUEUE.put((lang, rss))
 
 # extract all xml data
 for i in range(THREAD_LIMIT):
@@ -246,11 +252,11 @@ for i in range(len(THREADS)):
 for thread in THREADS:
     thread.join()
 
+# Store to DB
 save_to_db()
 
-if output:
-    OUTPUT_FILENAME = output
-    write_output()
+# Write to json file
+write_output()
 
 if verbose:
     print_pretty()

@@ -57,7 +57,7 @@ THREAD_LIMIT = 10
 THREADS = []
 XML_QUEUE = queue.Queue()
 EXTRACT_FEED_QUEUE = queue.Queue()
-RSS_STACK = []
+RSS_STACK = {}
 
 
 def news():
@@ -145,14 +145,14 @@ def extract_feed_data():
             )
             # rss_record["images"] = article.images if hasattr(article, 'images') else None
 
-            RSS_STACK.append((lang, rss_record))
+            if lang not in RSS_STACK: RSS_STACK[lang] = []
+            RSS_STACK[lang].append(rss_record)
         except queue.Empty:
             break
 
 
 def print_pretty():
-    for lang_rss in RSS_STACK:
-        lang, rss = lang_rss
+    for lang, rss in RSS_STACK.items():
         to_print = ""
         to_print += "\ntitle:\t" + rss_record["title"]
         to_print += "\ndescription:\t" + rss_record["description"]
@@ -174,9 +174,7 @@ def print_pretty():
 
 
 def write_output():
-    for lang_rss in RSS_STACK:
-        lang, rss = lang_rss
-
+    for lang, rss in RSS_STACK.items():
         with open("data/{}/output.jsonl".format(lang), "w") as fh:
             json.dump(rss, fh)
             fh.write("\n")
@@ -184,7 +182,7 @@ def write_output():
 
 def save_to_db():
     db_connector.connect()
-    for rss_record in RSS_STACK:
+    for lang, rss_record in RSS_STACK.items():
         db_connector.insert(rss_record)
 
 

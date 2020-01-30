@@ -101,7 +101,7 @@ OUTPUT_FILENAME = "output.jsonl"
 DATE_REGEX_RULE = (
     r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\b"
 )
-DATE_FORMAT = "%d %b %Y %H:%M:%S"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 CORONA_KEYWORDS = set(["corona", "coronavirus"])
 THREAD_LIMIT = 10
 
@@ -165,7 +165,7 @@ def extract_feed_data():
             rss_record["url"] = feed_source.find(schema["url"]).text
 
             # dd/mm/YY H:M:S
-            dt_string = datetime.now().strftime("%d %b %Y %H:%M:%S")
+            dt_string = datetime.now().strftime(DATE_FORMAT)
             rss_record["addedOn"] = dt_string
             # rss_record["source"] = soup_page.channel.title.text
 
@@ -175,7 +175,7 @@ def extract_feed_data():
             rss_record["language"] = article.meta_lang
 
             # Get siteName
-            rss_record["siteName"] = article.source_url
+            rss_record["siteName"] = re.sub(r"https?://(www\.)?","", article.source_url)
 
             # Get the authors
             rss_record["author"] = ", ".join(article.authors)
@@ -244,7 +244,7 @@ def date_convert(date_string):
     all = re.findall(DATE_REGEX_RULE, date_string,)
     if len(all) > 0:
         datetime_str = all[0]
-        datetime_object = datetime.strptime(datetime_str, DATE_FORMAT)
+        datetime_object = datetime.strptime(datetime_str, "%d %b %Y %H:%M:%S").strftime(DATE_FORMAT)
     else:
         datetime_object = date_string
     if verbose:

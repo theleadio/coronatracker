@@ -29,20 +29,71 @@ import os
 
 import db_connector
 
+"""
+https://www.theage.com.au/rss/feed.xml
+https://www.theage.com.au/rss/world.xml
+http://www.heraldsun.com.au/news/breaking-news/rss
+http://www.heraldsun.com.au/rss
+https://www.news.com.au/content-feeds/latest-news-world/
+https://www.news.com.au/content-feeds/latest-news-national/
+http://www.dailytelegraph.com.au/news/breaking-news/rss
+http://www.dailytelegraph.com.au/news/national/rss
+http://www.dailytelegraph.com.au/newslocal/rss
+http://www.dailytelegraph.com.au/news/world/rss
+https://www.sbs.com.au/news/topic/latest/feed
+https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
+"""
 
 NEWS_URLs = {
-    "au": [
-        "https://www.theage.com.au/rss/feed.xml",
-        "https://www.theage.com.au/rss/world.xml",
-        "http://www.heraldsun.com.au/news/breaking-news/rss",
-        "http://www.heraldsun.com.au/rss",
-        "https://www.news.com.au/content-feeds/latest-news-world/",
-        "https://www.news.com.au/content-feeds/latest-news-national/",
-        "http://www.dailytelegraph.com.au/news/breaking-news/rss",
-        "http://www.dailytelegraph.com.au/news/national/rss",
-        "http://www.dailytelegraph.com.au/newslocal/rss",
-        "http://www.dailytelegraph.com.au/news/world/rss",
-        "https://www.sbs.com.au/news/topic/latest/feed",
+    "en": [
+        (
+            "https://www.theage.com.au/rss/feed.xml",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "https://www.theage.com.au/rss/world.xml",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.heraldsun.com.au/news/breaking-news/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.heraldsun.com.au/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "https://www.news.com.au/content-feeds/latest-news-world/",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "https://www.news.com.au/content-feeds/latest-news-national/",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.dailytelegraph.com.au/news/breaking-news/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.dailytelegraph.com.au/news/national/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.dailytelegraph.com.au/newslocal/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "http://www.dailytelegraph.com.au/news/world/rss",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "https://www.sbs.com.au/news/topic/latest/feed",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
+            "https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml",
+            {"title": "title", "description": "news:keywords", "url": "loc",},
+        ),
     ]
 }
 
@@ -63,9 +114,10 @@ RSS_STACK = {}
 def news():
     while not XML_QUEUE.empty():
         try:
-            lang, xml_news_url = XML_QUEUE.get()
+            lang, root_url_schema = XML_QUEUE.get()
+            root_url, schema = root_url_schema
             hdr = {"User-Agent": "Mozilla/5.0"}
-            req = Request(xml_news_url, headers=hdr)
+            req = Request(root_url, headers=hdr)
             parse_xml_url = urlopen(req)
             xml_page = parse_xml_url.read()
             parse_xml_url.close()
@@ -73,8 +125,11 @@ def news():
             soup_page = BeautifulSoup(xml_page, "xml")
             news_list = soup_page.findAll("item")
 
+            if not news_list:
+                news_list = soup_page.findAll("url")
+
             for getfeed in news_list:
-                EXTRACT_FEED_QUEUE.put((lang, soup_page, getfeed))
+                EXTRACT_FEED_QUEUE.put((lang, root_url, soup_page, getfeed, schema))
         except queue.Empty:
             break
 
@@ -82,15 +137,24 @@ def news():
 def extract_feed_data():
     while not EXTRACT_FEED_QUEUE.empty():
         try:
-            lang, soup_page, feed_source = EXTRACT_FEED_QUEUE.get()
+            lang, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
 
-            res_title = feed_source.title.text
-            res_desc = feed_source.description.text
+            res_title = feed_source.find(schema["title"]).text
+            res_desc = feed_source.find(schema["description"]).text
 
             # check if any of the CORONA_KEYWORDS occur in title or description
             if (
-                len(set(res_title.lower().split()).intersection(CORONA_KEYWORDS)) == 0
-                and len(set(res_desc.lower().split()).intersection(CORONA_KEYWORDS))
+                len(
+                    set(re.findall(r"\w+", res_title.lower())).intersection(
+                        CORONA_KEYWORDS
+                    )
+                )
+                == 0
+                and len(
+                    set(re.findall(r"\w+", res_desc.lower())).intersection(
+                        CORONA_KEYWORDS
+                    )
+                )
                 == 0
             ):
                 continue
@@ -98,7 +162,7 @@ def extract_feed_data():
             rss_record = {}
             rss_record["title"] = res_title
             rss_record["description"] = res_desc
-            rss_record["url"] = feed_source.link.text
+            rss_record["url"] = feed_source.find(schema["url"]).text
 
             # dd/mm/YY H:M:S
             dt_string = datetime.now().strftime("%d %b %Y %H:%M:%S")
@@ -108,21 +172,13 @@ def extract_feed_data():
             article = extract_article(rss_record["url"])
 
             # Get language
-            rss_record["language"] = (
-                article.meta_lang if hasattr(article, "meta_lang") else None
-            )
+            rss_record["language"] = article.meta_lang
 
             # Get siteName
-            rss_record["siteName"] = (
-                article.source_url if hasattr(article, "source_url") else None
-            )
+            rss_record["siteName"] = article.source_url
 
             # Get the authors
-            rss_record["author"] = (
-                ", ".join(map(str, article.authors))
-                if hasattr(article, "authors")
-                else None
-            )
+            rss_record["author"] = ", ".join(article.authors)
 
             # Get the publish date
             if feed_source.pubDate:
@@ -132,20 +188,14 @@ def extract_feed_data():
             elif soup_page.lastBuildDate:
                 rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
             else:
-                rss_record["publishedAt"] = None
+                rss_record["publishedAt"] = ""
 
-            # Get the article text
-            # print(article.text)
-            # Get a summary of the article
-            # rss_record["summary"] = article.summary if hasattr(article, 'summary') else None
-            rss_record["content"] = article.text if hasattr(article, "text") else None
+            rss_record["content"] = article.text
             # Get the top image
-            rss_record["urlToImage"] = (
-                article.top_image if hasattr(article, "top_image") else None
-            )
-            # rss_record["images"] = article.images if hasattr(article, 'images') else None
+            rss_record["urlToImage"] = article.top_image
 
-            if lang not in RSS_STACK: RSS_STACK[lang] = []
+            if lang not in RSS_STACK:
+                RSS_STACK[lang] = []
             RSS_STACK[lang].append(rss_record)
         except queue.Empty:
             break
@@ -153,31 +203,33 @@ def extract_feed_data():
 
 def print_pretty():
     for lang, rss in RSS_STACK.items():
-        to_print = ""
-        to_print += "\ntitle:\t" + rss_record["title"]
-        to_print += "\ndescription:\t" + rss_record["description"]
-        to_print += "\nurl:\t" + rss_record["url"]
-        to_print += "\npublishedAt:\t" + rss_record["publishedAt"]
-        to_print += "\naddedOn:\t" + rss_record["addedOn"]
-        to_print += "\nauthor:\t" + rss_record["author"]
-        to_print += "\ncontent:\n" + rss_record["content"]
-        to_print += "\nurlToImage:\t" + rss_record["urlToImage"]
-        to_print += "\nlanguage:\t" + rss_record["language"]
-        to_print += "\nsiteName:\t" + rss_record["siteName"]
-        to_print += ""
-        try:
-            # to_print  = str(to_print , encoding='utf-8', errors = 'ignore')
-            if verbose:
-                print(to_print.expandtabs())
-        except:
-            pass
+        for rss_record in rss:
+            to_print = ""
+            to_print += "\ntitle:\t" + rss_record["title"]
+            to_print += "\ndescription:\t" + rss_record["description"]
+            to_print += "\nurl:\t" + rss_record["url"]
+            to_print += "\npublishedAt:\t" + rss_record["publishedAt"]
+            to_print += "\naddedOn:\t" + rss_record["addedOn"]
+            to_print += "\nauthor:\t" + rss_record["author"]
+            to_print += "\ncontent:\n" + rss_record["content"]
+            to_print += "\nurlToImage:\t" + rss_record["urlToImage"]
+            to_print += "\nlanguage:\t" + rss_record["language"]
+            to_print += "\nsiteName:\t" + rss_record["siteName"]
+            to_print += ""
+            try:
+                # to_print  = str(to_print , encoding='utf-8', errors = 'ignore')
+                if verbose:
+                    print(to_print.expandtabs())
+            except:
+                pass
 
 
 def write_output():
     for lang, rss in RSS_STACK.items():
         with open("data/{}/output.jsonl".format(lang), "w") as fh:
-            json.dump(rss, fh)
-            fh.write("\n")
+            for rss_record in rss:
+                json.dump(rss_record, fh)
+                fh.write("\n")
 
 
 def save_to_db():
@@ -214,7 +266,7 @@ def extract_article(link):
 
 def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
-    parser.add_argument("-v", "--verbose", help="Verbose", default=False)
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     return parser.parse_args()
 
 
@@ -259,4 +311,7 @@ write_output()
 if verbose:
     print_pretty()
 if verbose:
-    print("Total feeds: {}".format(len(RSS_STACK)))
+    count = 0
+    for lang, RSS in RSS_STACK.items():
+        count += len(RSS)
+    print("Total feeds: {}".format(count))

@@ -40,7 +40,7 @@ def select():
 def insert(data_dict, target_table="test"):
     table_name = PROD_TABLE_NAME if target_table == "prod" else TEST_TABLE_NAME
     mycursor = mydb.cursor()
-    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d)".format(
+    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(
         table_name
     )
     val = (
@@ -54,7 +54,7 @@ def insert(data_dict, target_table="test"):
         data_dict["addedOn"],
         data_dict["siteName"],
         data_dict["language"],
-        1 # Status
+        "1" # Status
     )
     print("SQL query: ", sql)
     try:

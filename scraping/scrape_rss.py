@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 #
+# -*- coding: utf-8 -*-
+#
 # Last update: 31/01/2020
 # Authors:
 #   - dipto.pratyaksa@carltondigital.com.au
@@ -317,7 +319,7 @@ def extract_article(link):
         print("Extracting from: ", link)
     article = Article(link)
     # Do some NLP
-    article.download()  # Downloads the link’s HTML content
+    article.download()  # Downloads the link's HTML content
     article.parse()  # Parse the article
     nltk.download("punkt")  # 1 time download of the sentence tokenizer
     article.nlp()  #  Keyword extraction wrapper

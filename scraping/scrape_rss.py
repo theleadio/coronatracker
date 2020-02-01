@@ -185,7 +185,8 @@ def extract_feed_data():
             if rss_record["url"] in CACHE:
                 continue
 
-            add_to_cache(rss_record["url"])
+            if not READ_ALL_SKIP_CACHE:
+                add_to_cache(rss_record["url"])
 
             rss_record["addedOn"] = datetime.now().strftime(DATE_FORMAT)
             # rss_record["source"] = soup_page.channel.title.text
@@ -312,6 +313,7 @@ def parser():
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
+    parser.add_argument("-a", "--all", action="store_true", help="Write all, don't r/w cache")
     return parser.parse_args()
 
 
@@ -332,6 +334,9 @@ def add_to_cache(url):
 args = parser()
 verbose = args.verbose
 
+global READ_ALL_SKIP_CACHE
+READ_ALL_SKIP_CACHE = args.all
+
 # create required folders
 if not os.path.isdir("data"):
     os.mkdir("./data")
@@ -340,10 +345,12 @@ if not os.path.isdir("data"):
 if args.clear:
     os.system("rm {}".format(CACHE_FILE))
 
-# read cache
+# check cache file exists
 if not os.path.isfile(CACHE_FILE):
     os.system("touch {}".format(CACHE_FILE))
-else:
+
+# if set READ_ALL_SKIP_CACHE, skip reading cache
+if not READ_ALL_SKIP_CACHE:
     read_cache()
 
 # place initial xml urls to queue

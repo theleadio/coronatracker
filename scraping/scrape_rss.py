@@ -35,7 +35,7 @@
 
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.parser import parse
 import re
 
@@ -114,7 +114,7 @@ NEWS_URLs = {
         ),
         (
             "https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml",
-            {"title": "title", "description": "news:keywords", "url": "loc",},
+            {"title": "title", "description": "news:keywords", "url": "loc", "publish_date" : "news:publication_date"},
         ),
     ]
 }
@@ -128,11 +128,13 @@ CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
 
 # "Sat, 25 Jan 2020 01:52:22 +0000"
-DATE_REGEX_RULE = (
-    r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\b"
+DATE_RFC_2822_REGEX_RULE = (
+    r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
 )
+DATE_RFC_2822_DATE_FORMAT = "%d %b %Y %H:%M:%S %z"
 # ISO 8601 | 2020-01-31T22:10:38+0800
-DATE_ISO_8601_REGEX_RULE = r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}"
+DATE_ISO_8601_REGEX_RULE = r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\+[0-9]{2}\:?[0-9]{2}"
+ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 CORONA_KEYWORDS = set(["corona", "coronavirus"])
@@ -210,7 +212,7 @@ def extract_feed_data():
         if not READ_ALL_SKIP_CACHE:
             add_to_cache(rss_record["url"])
 
-        rss_record["addedOn"] = datetime.now().strftime(DATE_FORMAT)
+        rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
         # rss_record["source"] = soup_page.channel.title.text
 
         article = extract_article(rss_record["url"])
@@ -222,6 +224,8 @@ def extract_feed_data():
             and len(article.meta_data["og"]["description"])
         ):
             rss_record["description"] = article.meta_data["og"]["description"]
+        else:
+            rss_record["description"] = res_desc
 
         # Get language
         rss_record["language"] = article.meta_lang
@@ -235,7 +239,9 @@ def extract_feed_data():
         rss_record["author"] = ", ".join(article.authors)
 
         # Get the publish date
-        if feed_source.pubDate:
+        if "publish_date" in schema:
+            rss_record["publishedAt"] = date_convert(feed_source.find(schema["publish_date"]).text)
+        elif feed_source.pubDate:
             rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
         elif article.publish_date:
             rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
@@ -297,22 +303,25 @@ def save_to_db():
             db_connector.insert(rss_record, "prod" if WRITE_TO_PROD_TABLE else "test")
 
 
-def date_convert(date_string, from_format="%d %b %Y %H:%M:%S"):
+def date_convert(date_string):
     if VERBOSE:
         print("input date: " + date_string)
 
-    if len(re.findall(DATE_REGEX_RULE, date_string,)) > 0:
-        match_dateformat = re.findall(DATE_REGEX_RULE, date_string,)
+    if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
+        match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
         datetime_str = match_dateformat[0]
-        date_string = datetime.strptime(datetime_str, from_format).strftime(DATE_FORMAT)
+        original_datetime_format = datetime.strptime(datetime_str, DATE_RFC_2822_DATE_FORMAT)
 
     elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
         # Fall back to try datetime ISO 8601 format
         match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
         datetime_str = match_dateformat[0]
-        date_string = re.sub("T", " ", datetime_str)
+        original_datetime_format = datetime.strptime(datetime_str, ISO_8601_DATE_FORMAT)
 
-    datetime_object = date_string
+    else:
+        original_datetime_format = date_string
+
+    datetime_object = original_datetime_format.astimezone(timezone.utc).strftime(DATE_FORMAT)
     return str(datetime_object)
 
 

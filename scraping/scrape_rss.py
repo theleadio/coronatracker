@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 #
-# dipto.pratyaksa@carltondigital.com.au
-# 26/1/2020
+# Last update: 31/01/2020
+# Authors:
+#   - dipto.pratyaksa@carltondigital.com.au
+#   - samueljklee@gmail.com
 #
 # REF:
 # https://santhoshveer.com/rss-feed-reader-using-python/
@@ -11,6 +13,15 @@
 # TO DO:
 # Store the relevant RSS feed into shared repo, like Google sheet
 # Algo to extract the casualty stats from linked news article
+#
+# USAGE:
+# python scrape_rss.py -c -d -v
+#   -v : verbose, show some log messages. default=False
+#   -d : debug mode, print output, else, write to db. default=True
+#   -c : clear cache, default=False
+#   -a : get all, skip cache. api uses this to crawl everything
+#        - update database doesn't use this, to prevent duplicated entries
+#
 
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
@@ -44,6 +55,7 @@ https://www.sbs.com.au/news/topic/latest/feed
 https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
 """
 
+# some sitemap contains different attributes
 NEWS_URLs = {
     "en": [
         (
@@ -96,15 +108,21 @@ NEWS_URLs = {
         ),
     ]
 }
-
+CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
+
+# "Sat, 25 Jan 2020 01:52:22 +0000"
 DATE_REGEX_RULE = (
     r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\b"
 )
+# ISO 8601 | 2020-01-31T22:10:38+0800
+DATE_ISO_8601_REGEX_RULE = r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 CORONA_KEYWORDS = set(["corona", "coronavirus"])
 THREAD_LIMIT = 10
 
+CACHE = set()
 THREADS = []
 XML_QUEUE = queue.Queue()
 EXTRACT_FEED_QUEUE = queue.Queue()
@@ -139,6 +157,7 @@ def extract_feed_data():
         try:
             lang, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
 
+            # Extract from xml
             res_title = feed_source.find(schema["title"]).text
             res_desc = feed_source.find(schema["description"]).text
 
@@ -161,21 +180,33 @@ def extract_feed_data():
 
             rss_record = {}
             rss_record["title"] = res_title
-            rss_record["description"] = res_desc
             rss_record["url"] = feed_source.find(schema["url"]).text
 
-            # dd/mm/YY H:M:S
-            dt_string = datetime.now().strftime(DATE_FORMAT)
-            rss_record["addedOn"] = dt_string
+            if rss_record["url"] in CACHE:
+                continue
+
+            add_to_cache(rss_record["url"])
+
+            rss_record["addedOn"] = datetime.now().strftime(DATE_FORMAT)
             # rss_record["source"] = soup_page.channel.title.text
 
             article = extract_article(rss_record["url"])
+
+            # Overwrite description if exists in meta tag
+            if (
+                "og" in article.meta_data
+                and "description" in article.meta_data["og"]
+                and len(article.meta_data["og"]["description"])
+            ):
+                rss_record["description"] = article.meta_data["og"]["description"]
 
             # Get language
             rss_record["language"] = article.meta_lang
 
             # Get siteName
-            rss_record["siteName"] = re.sub(r"https?://(www\.)?","", article.source_url)
+            rss_record["siteName"] = re.sub(
+                r"https?://(www\.)?", "", article.source_url
+            )
 
             # Get the authors
             rss_record["author"] = ", ".join(article.authors)
@@ -185,6 +216,13 @@ def extract_feed_data():
                 rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
             elif article.publish_date:
                 rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
+            elif (
+                "article" in article.meta_data
+                and "modified_time" in article.meta_data["article"]
+            ):
+                rss_record["publishedAt"] = date_convert(
+                    article.meta_data["article"]["modified_time"]
+                )
             elif soup_page.lastBuildDate:
                 rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
             else:
@@ -202,8 +240,8 @@ def extract_feed_data():
 
 
 def print_pretty():
-    for lang, rss in RSS_STACK.items():
-        for rss_record in rss:
+    for lang, rss_records in RSS_STACK.items():
+        for rss_record in rss_records:
             to_print = ""
             to_print += "\ntitle:\t" + rss_record["title"]
             to_print += "\ndescription:\t" + rss_record["description"]
@@ -217,7 +255,6 @@ def print_pretty():
             to_print += "\nsiteName:\t" + rss_record["siteName"]
             to_print += ""
             try:
-                # to_print  = str(to_print , encoding='utf-8', errors = 'ignore')
                 if verbose:
                     print(to_print.expandtabs())
             except:
@@ -225,30 +262,36 @@ def print_pretty():
 
 
 def write_output():
-    for lang, rss in RSS_STACK.items():
+    for lang, rss_records in RSS_STACK.items():
         with open("data/{}/output.jsonl".format(lang), "w") as fh:
-            for rss_record in rss:
+            for rss_record in rss_records:
                 json.dump(rss_record, fh)
                 fh.write("\n")
 
 
 def save_to_db():
     db_connector.connect()
-    for lang, rss_record in RSS_STACK.items():
-        db_connector.insert(rss_record)
+    for lang, rss_records in RSS_STACK.items():
+        for rss_record in rss_records:
+            db_connector.insert(rss_record)
 
 
-def date_convert(date_string):
+def date_convert(date_string, from_format="%d %b %Y %H:%M:%S"):
     if verbose:
         print("input date: " + date_string)
-    all = re.findall(DATE_REGEX_RULE, date_string,)
-    if len(all) > 0:
-        datetime_str = all[0]
-        datetime_object = datetime.strptime(datetime_str, "%d %b %Y %H:%M:%S").strftime(DATE_FORMAT)
-    else:
-        datetime_object = date_string
-    if verbose:
-        print(datetime_object, datetime_str, date_string)
+
+    if len(re.findall(DATE_REGEX_RULE, date_string,)) > 0:
+        match_dateformat = re.findall(DATE_REGEX_RULE, date_string,)
+        datetime_str = match_dateformat[0]
+        date_string = datetime.strptime(datetime_str, from_format).strftime(DATE_FORMAT)
+
+    elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
+        # Fall back to try datetime ISO 8601 format
+        match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
+        datetime_str = match_dateformat[0]
+        date_string = re.sub("T", " ", datetime_str)
+
+    datetime_object = date_string
     return str(datetime_object)
 
 
@@ -267,7 +310,22 @@ def extract_article(link):
 def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
+    parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
+    parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
     return parser.parse_args()
+
+
+def read_cache():
+    with open(CACHE_FILE, "r") as fh:
+        stream = fh.read()
+        for row in stream.split("\n"):
+            CACHE.add(row)
+
+
+def add_to_cache(url):
+    with open(CACHE_FILE, "a+") as fh:
+        fh.write(url + "\n")
+    CACHE.add(url)
 
 
 # arguments
@@ -277,6 +335,16 @@ verbose = args.verbose
 # create required folders
 if not os.path.isdir("data"):
     os.mkdir("./data")
+
+# reset cache
+if args.clear:
+    os.system("rm {}".format(CACHE_FILE))
+
+# read cache
+if not os.path.isfile(CACHE_FILE):
+    os.system("touch {}".format(CACHE_FILE))
+else:
+    read_cache()
 
 # place initial xml urls to queue
 for lang, all_rss in NEWS_URLs.items():
@@ -303,15 +371,17 @@ for thread in THREADS:
     thread.join()
 
 # Store to DB
-save_to_db()
+if args.debug:
+    print_pretty()
+else:
+    save_to_db()
 
 # Write to json file
 write_output()
 
-if verbose:
-    print_pretty()
+# if verbose:
 if verbose:
     count = 0
-    for lang, RSS in RSS_STACK.items():
-        count += len(RSS)
+    for lang, rss_records in RSS_STACK.items():
+        count += len(rss_records)
     print("Total feeds: {}".format(count))

@@ -26,7 +26,8 @@
 #
 # Example:
 #   - write to db with log messages, doesn't update ./data/<lang>/output.jsonl
-#       - python scrape_rss.py -v
+#       - python scrape_rss.py -v       # writes to test table
+#       - python scrape_rss.py -v -p    # writes to production table
 #   - server runs api endpoint that reads from ./data/<lang>/output.jsonl
 #       to show all latest news without log messages, skip cache as well
 #       - python scrape_rss.py -d -a
@@ -119,6 +120,7 @@ NEWS_URLs = {
 }
 
 global READ_ALL_SKIP_CACHE
+global WRITE_TO_PROD_TABLE
 global WRITE_TO_DB_MODE
 global VERBOSE
 
@@ -292,7 +294,7 @@ def save_to_db():
     db_connector.connect()
     for lang, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
-            db_connector.insert(rss_record)
+            db_connector.insert(rss_record, "prod" if WRITE_TO_PROD_TABLE else "test")
 
 
 def date_convert(date_string, from_format="%d %b %Y %H:%M:%S"):
@@ -331,6 +333,7 @@ def parser():
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
+    parser.add_argument("-p", "--production", action="store_true", help="Writes to production table")
     parser.add_argument("-a", "--all", action="store_true", help="Skip read and write on cache")
     return parser.parse_args()
 
@@ -354,6 +357,7 @@ args = parser()
 VERBOSE = args.verbose
 READ_ALL_SKIP_CACHE = args.all
 WRITE_TO_DB_MODE = not args.debug
+WRITE_TO_PROD_TABLE = args.production
 
 # create required folders
 if not os.path.isdir("data"):
@@ -398,10 +402,12 @@ for i in range(len(THREADS)):
 for thread in THREADS:
     thread.join()
 
+if VERBOSE:
+    print("Done extracting all feed data")
+
 if WRITE_TO_DB_MODE:
     # Store to DB
-    # save_to_db()
-    print("write to db")
+    save_to_db()
 else:
     # print output and write to jsonl file
     print_pretty()

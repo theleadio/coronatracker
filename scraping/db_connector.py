@@ -1,43 +1,62 @@
 import mysql.connector
 import json
 
+# TABLE_SCHEMA
+# ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'status']
+
 mydb = None
+TEST_TABLE_NAME = "TABLE_NAME"
+PROD_TABLE_NAME = "newsapi_n"
+
 
 def connect():
     global mydb
 
-    #populate this from env file
+    # populate this from env file
     path_to_json = "./db.json"
 
     with open(path_to_json, "r") as handler:
         info = json.load(handler)
         print(info)
 
-    
         mydb = mysql.connector.connect(
-          host=info["host"],
-          user=info["user"],
-          passwd=info["passwd"],
-          database=info["database"]
+            host=info["host"],
+            user=info["user"],
+            passwd=info["passwd"],
+            database=info["database"],
         )
 
     print(mydb)
 
+
 def select():
-    
     mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM newsapi_oceania")
+    mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
     myresult = mycursor.fetchall()
     for x in myresult:
         print(x)
 
-def insert(data_dict):
 
+def insert(data_dict, target_table="test"):
+    table_name = PROD_TABLE_NAME if target_table == "prod" else TEST_TABLE_NAME
     mycursor = mydb.cursor()
-    sql = "INSERT INTO newsapi_oceania (`title`, `description`, `author`, `url`, `summary`, `content`, `urlToImage`, `publishedAt`, `source`, `accessDateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    val = (data_dict["title"], data_dict["description"], data_dict["author"], data_dict["url"], data_dict["summary"],
-           data_dict["content"], data_dict["urlToImage"], data_dict["publishDateTime"], data_dict["source"], data_dict["accessDateTime"])
-    print(sql)
+    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d)".format(
+        table_name
+    )
+    val = (
+        data_dict["title"],
+        data_dict["description"],
+        data_dict["author"],
+        data_dict["url"],
+        data_dict["content"],
+        data_dict["urlToImage"],
+        data_dict["publishedAt"],
+        data_dict["addedOn"],
+        data_dict["siteName"],
+        data_dict["language"],
+        1 # Status
+    )
+    print("SQL query: ", sql)
     try:
         mycursor.execute(sql, val)
         mydb.commit()

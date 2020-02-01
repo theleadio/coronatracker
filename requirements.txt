@@ -7,7 +7,6 @@ coala-utils==0.5.1
 cssselect==1.1.0
 feedfinder2==0.0.4
 feedparser==5.2.1
-Flask==1.1.1
 idna==2.8
 jieba3k==0.35.1
 lxml==4.4.2

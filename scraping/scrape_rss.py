@@ -27,7 +27,7 @@
 #       - python scrape_rss.py -v
 #   - server runs api endpoint that reads from ./data/<lang>/output.jsonl
 #       to show all latest news without log messages, skip cache as well
-#       - python scrape_rss.py -d
+#       - python scrape_rss.py -d -a
 #
 
 from urllib.request import urlopen, Request

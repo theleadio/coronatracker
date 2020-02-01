@@ -17,10 +17,17 @@
 # USAGE:
 # python scrape_rss.py -c -d -v
 #   -v : verbose, show some log messages. default=False
-#   -d : debug mode, print output, else, write to db. default=True
+#   -d : debug mode, write to output.jsonl, else, write to db. default=True
 #   -c : clear cache, default=False
 #   -a : get all, skip cache. api uses this to crawl everything
 #        - update database doesn't use this, to prevent duplicated entries
+#
+# Example:
+#   - write to db with log messages, doesn't update ./data/<lang>/output.jsonl
+#       - python scrape_rss.py -v
+#   - server runs api endpoint that reads from ./data/<lang>/output.jsonl
+#       to show all latest news without log messages, skip cache as well
+#       - python scrape_rss.py -d
 #
 
 from urllib.request import urlopen, Request
@@ -108,6 +115,11 @@ NEWS_URLs = {
         ),
     ]
 }
+
+global READ_ALL_SKIP_CACHE
+global WRITE_TO_DB_MODE
+global VERBOSE
+
 CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
 
@@ -133,111 +145,115 @@ def news():
     while not XML_QUEUE.empty():
         try:
             lang, root_url_schema = XML_QUEUE.get()
-            root_url, schema = root_url_schema
-            hdr = {"User-Agent": "Mozilla/5.0"}
-            req = Request(root_url, headers=hdr)
-            parse_xml_url = urlopen(req)
-            xml_page = parse_xml_url.read()
-            parse_xml_url.close()
-
-            soup_page = BeautifulSoup(xml_page, "xml")
-            news_list = soup_page.findAll("item")
-
-            if not news_list:
-                news_list = soup_page.findAll("url")
-
-            for getfeed in news_list:
-                EXTRACT_FEED_QUEUE.put((lang, root_url, soup_page, getfeed, schema))
         except queue.Empty:
-            break
+            if VERBOSE:
+                print("Root/xml queue is empty")
+            return
+        root_url, schema = root_url_schema
+        hdr = {"User-Agent": "Mozilla/5.0"}
+        req = Request(root_url, headers=hdr)
+        parse_xml_url = urlopen(req)
+        xml_page = parse_xml_url.read()
+        parse_xml_url.close()
+
+        soup_page = BeautifulSoup(xml_page, "xml")
+        news_list = soup_page.findAll("item")
+
+        if not news_list:
+            news_list = soup_page.findAll("url")
+
+        for getfeed in news_list:
+            EXTRACT_FEED_QUEUE.put((lang, root_url, soup_page, getfeed, schema))
 
 
 def extract_feed_data():
     while not EXTRACT_FEED_QUEUE.empty():
         try:
             lang, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
-
-            # Extract from xml
-            res_title = feed_source.find(schema["title"]).text
-            res_desc = feed_source.find(schema["description"]).text
-
-            # check if any of the CORONA_KEYWORDS occur in title or description
-            if (
-                len(
-                    set(re.findall(r"\w+", res_title.lower())).intersection(
-                        CORONA_KEYWORDS
-                    )
-                )
-                == 0
-                and len(
-                    set(re.findall(r"\w+", res_desc.lower())).intersection(
-                        CORONA_KEYWORDS
-                    )
-                )
-                == 0
-            ):
-                continue
-
-            rss_record = {}
-            rss_record["title"] = res_title
-            rss_record["url"] = feed_source.find(schema["url"]).text
-
-            if rss_record["url"] in CACHE:
-                continue
-
-            if not READ_ALL_SKIP_CACHE:
-                add_to_cache(rss_record["url"])
-
-            rss_record["addedOn"] = datetime.now().strftime(DATE_FORMAT)
-            # rss_record["source"] = soup_page.channel.title.text
-
-            article = extract_article(rss_record["url"])
-
-            # Overwrite description if exists in meta tag
-            if (
-                "og" in article.meta_data
-                and "description" in article.meta_data["og"]
-                and len(article.meta_data["og"]["description"])
-            ):
-                rss_record["description"] = article.meta_data["og"]["description"]
-
-            # Get language
-            rss_record["language"] = article.meta_lang
-
-            # Get siteName
-            rss_record["siteName"] = re.sub(
-                r"https?://(www\.)?", "", article.source_url
-            )
-
-            # Get the authors
-            rss_record["author"] = ", ".join(article.authors)
-
-            # Get the publish date
-            if feed_source.pubDate:
-                rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
-            elif article.publish_date:
-                rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
-            elif (
-                "article" in article.meta_data
-                and "modified_time" in article.meta_data["article"]
-            ):
-                rss_record["publishedAt"] = date_convert(
-                    article.meta_data["article"]["modified_time"]
-                )
-            elif soup_page.lastBuildDate:
-                rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
-            else:
-                rss_record["publishedAt"] = ""
-
-            rss_record["content"] = article.text
-            # Get the top image
-            rss_record["urlToImage"] = article.top_image
-
-            if lang not in RSS_STACK:
-                RSS_STACK[lang] = []
-            RSS_STACK[lang].append(rss_record)
         except queue.Empty:
-            break
+            if VERBOSE:
+                print("Feed Queue is empty")
+            return
+
+        # Extract from xml
+        res_title = feed_source.find(schema["title"]).text
+        res_desc = feed_source.find(schema["description"]).text
+
+        # check if any of the CORONA_KEYWORDS occur in title or description
+        if (
+            len(
+                set(re.findall(r"\w+", res_title.lower())).intersection(
+                    CORONA_KEYWORDS
+                )
+            )
+            == 0
+            and len(
+                set(re.findall(r"\w+", res_desc.lower())).intersection(
+                    CORONA_KEYWORDS
+                )
+            )
+            == 0
+        ):
+            continue
+
+        rss_record = {}
+        rss_record["title"] = res_title
+        rss_record["url"] = feed_source.find(schema["url"]).text
+
+        if rss_record["url"] in CACHE:
+            continue
+
+        if not READ_ALL_SKIP_CACHE:
+            add_to_cache(rss_record["url"])
+
+        rss_record["addedOn"] = datetime.now().strftime(DATE_FORMAT)
+        # rss_record["source"] = soup_page.channel.title.text
+
+        article = extract_article(rss_record["url"])
+
+        # Overwrite description if exists in meta tag
+        if (
+            "og" in article.meta_data
+            and "description" in article.meta_data["og"]
+            and len(article.meta_data["og"]["description"])
+        ):
+            rss_record["description"] = article.meta_data["og"]["description"]
+
+        # Get language
+        rss_record["language"] = article.meta_lang
+
+        # Get siteName
+        rss_record["siteName"] = re.sub(
+            r"https?://(www\.)?", "", article.source_url
+        )
+
+        # Get the authors
+        rss_record["author"] = ", ".join(article.authors)
+
+        # Get the publish date
+        if feed_source.pubDate:
+            rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
+        elif article.publish_date:
+            rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
+        elif (
+            "article" in article.meta_data
+            and "modified_time" in article.meta_data["article"]
+        ):
+            rss_record["publishedAt"] = date_convert(
+                article.meta_data["article"]["modified_time"]
+            )
+        elif soup_page.lastBuildDate:
+            rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
+        else:
+            rss_record["publishedAt"] = ""
+
+        rss_record["content"] = article.text
+        # Get the top image
+        rss_record["urlToImage"] = article.top_image
+
+        if lang not in RSS_STACK:
+            RSS_STACK[lang] = []
+        RSS_STACK[lang].append(rss_record)
 
 
 def print_pretty():
@@ -256,7 +272,7 @@ def print_pretty():
             to_print += "\nsiteName:\t" + rss_record["siteName"]
             to_print += ""
             try:
-                if verbose:
+                if VERBOSE:
                     print(to_print.expandtabs())
             except:
                 pass
@@ -278,7 +294,7 @@ def save_to_db():
 
 
 def date_convert(date_string, from_format="%d %b %Y %H:%M:%S"):
-    if verbose:
+    if VERBOSE:
         print("input date: " + date_string)
 
     if len(re.findall(DATE_REGEX_RULE, date_string,)) > 0:
@@ -297,7 +313,7 @@ def date_convert(date_string, from_format="%d %b %Y %H:%M:%S"):
 
 
 def extract_article(link):
-    if verbose:
+    if VERBOSE:
         print("Extracting from: ", link)
     article = Article(link)
     # Do some NLP
@@ -313,7 +329,7 @@ def parser():
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
-    parser.add_argument("-a", "--all", action="store_true", help="Write all, don't r/w cache")
+    parser.add_argument("-a", "--all", action="store_true", help="Skip read and write on cache")
     return parser.parse_args()
 
 
@@ -332,10 +348,10 @@ def add_to_cache(url):
 
 # arguments
 args = parser()
-verbose = args.verbose
 
-global READ_ALL_SKIP_CACHE
+VERBOSE = args.verbose
 READ_ALL_SKIP_CACHE = args.all
+WRITE_TO_DB_MODE = not args.debug
 
 # create required folders
 if not os.path.isdir("data"):
@@ -369,6 +385,9 @@ for i in range(THREAD_LIMIT):
 for thread in THREADS:
     thread.join()
 
+if VERBOSE:
+    print("Done extracting all root urls")
+
 # process all latest feed
 for i in range(len(THREADS)):
     THREADS[i] = threading.Thread(target=extract_feed_data)
@@ -377,17 +396,16 @@ for i in range(len(THREADS)):
 for thread in THREADS:
     thread.join()
 
-# Store to DB
-if args.debug:
-    print_pretty()
+if WRITE_TO_DB_MODE:
+    # Store to DB
+    # save_to_db()
+    print("write to db")
 else:
-    save_to_db()
+    # print output and write to jsonl file
+    print_pretty()
+    write_output()
 
-# Write to json file
-write_output()
-
-# if verbose:
-if verbose:
+if VERBOSE:
     count = 0
     for lang, rss_records in RSS_STACK.items():
         count += len(rss_records)

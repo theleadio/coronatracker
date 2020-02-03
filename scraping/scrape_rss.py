@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Last update: 31/01/2020
+# Last update: 2/2/2020
 # Authors:
 #   - dipto.pratyaksa@carltondigital.com.au
 #   - samueljklee@gmail.com
@@ -28,9 +28,13 @@
 #   - write to db with log messages, doesn't update ./data/<lang>/output.jsonl
 #       - python scrape_rss.py -v       # writes to test table
 #       - python scrape_rss.py -v -p    # writes to production table
-#   - server runs api endpoint that reads from ./data/<lang>/output.jsonl
-#       to show all latest news without log messages, skip cache as well
+#   - debug only, show all possible news without log messages
+#       d flag so it doesn't write to db (prints output and write to output.jsonl)
+#       a flag will skip read and write to cache
 #       - python scrape_rss.py -d -a
+#
+# NOTE:
+#   - Using black to format the code. Feel free to use it (https://black.readthedocs.io/en/stable/)
 #
 
 from urllib.request import urlopen, Request
@@ -51,10 +55,9 @@ import os
 import db_connector
 
 """
+Crawling:
 https://www.theage.com.au/rss/feed.xml
 https://www.theage.com.au/rss/world.xml
-# http://www.heraldsun.com.au/news/breaking-news/rss
-# http://www.heraldsun.com.au/rss
 https://www.news.com.au/content-feeds/latest-news-world/
 https://www.news.com.au/content-feeds/latest-news-national/
 http://www.dailytelegraph.com.au/news/breaking-news/rss
@@ -63,6 +66,11 @@ http://www.dailytelegraph.com.au/newslocal/rss
 http://www.dailytelegraph.com.au/news/world/rss
 https://www.sbs.com.au/news/topic/latest/feed
 https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
+
+Don't crawl:
+http://www.heraldsun.com.au/news/breaking-news/rss
+http://www.heraldsun.com.au/rss
+
 """
 
 # some sitemap contains different attributes
@@ -80,16 +88,16 @@ NEWS_URLs = {
             "https://www.theage.com.au/rss/world.xml",
             {"title": "title", "description": "description", "url": "link",},
         ),
-# Remove heraldsun rss to prevent scraping the same content as other rss
-# > as it's a smaller newspaper that is likely syndicating news from bigger news        
-#         (
-#             "http://www.heraldsun.com.au/news/breaking-news/rss",
-#             {"title": "title", "description": "description", "url": "link",},
-#         ),
-#         (
-#             "http://www.heraldsun.com.au/rss",
-#             {"title": "title", "description": "description", "url": "link",},
-#         ),
+        # Remove heraldsun rss to prevent scraping the same content as other rss
+        # > as it's a smaller newspaper that is likely syndicating news from bigger news        
+        #         (
+        #             "http://www.heraldsun.com.au/news/breaking-news/rss",
+        #             {"title": "title", "description": "description", "url": "link",},
+        #         ),
+        #         (
+        #             "http://www.heraldsun.com.au/rss",
+        #             {"title": "title", "description": "description", "url": "link",},
+        #         ),
         (
             "https://www.news.com.au/content-feeds/latest-news-world/",
             {"title": "title", "description": "description", "url": "link",},
@@ -120,9 +128,18 @@ NEWS_URLs = {
         ),
         (
             "https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml",
-            {"title": "title", "description": "news:keywords", "url": "loc", "publish_date" : "news:publication_date"},
+            {
+                "title": "title",
+                "description": "news:keywords",
+                "url": "loc",
+                "publish_date": "news:publication_date",
+            },
         ),
-    ]
+    ],
+    "zh": [
+        ("https://news.cts.com.tw/sitemap.xml", {"url": "loc"},),
+        ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
+    ],
 }
 
 global READ_ALL_SKIP_CACHE
@@ -134,16 +151,16 @@ CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
 
 # "Sat, 25 Jan 2020 01:52:22 +0000"
-DATE_RFC_2822_REGEX_RULE = (
-    r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
-)
+DATE_RFC_2822_REGEX_RULE = r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
 DATE_RFC_2822_DATE_FORMAT = "%d %b %Y %H:%M:%S %z"
 # ISO 8601 | 2020-01-31T22:10:38+0800
-DATE_ISO_8601_REGEX_RULE = r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\+[0-9]{2}\:?[0-9]{2}"
+DATE_ISO_8601_REGEX_RULE = (
+    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\+[0-9]{2}\:?[0-9]{2}"
+)
 ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-CORONA_KEYWORDS = set(["corona", "coronavirus"])
+CORONA_KEYWORDS = set(["corona", "coronavirus", "武漢肺炎", "冠状病毒"])
 THREAD_LIMIT = 10
 
 CACHE = set()
@@ -164,12 +181,26 @@ def news():
         root_url, schema = root_url_schema
         hdr = {"User-Agent": "Mozilla/5.0"}
         req = Request(root_url, headers=hdr)
-        parse_xml_url = urlopen(req)
-        xml_page = parse_xml_url.read()
-        parse_xml_url.close()
 
-        soup_page = BeautifulSoup(xml_page, "xml")
-        news_list = soup_page.findAll("item")
+        news_list = []
+
+        # Attempt to crawl non xml sites
+        if "not_xml" in schema and schema["not_xml"]:
+            parse_html_url = urlopen(req)
+            html_page = parse_html_url.read()
+            parse_html_url.close()
+            soup_page = BeautifulSoup(html_page, "html.parser")
+            for url in soup_page.findAll("a"):
+                if corona_keyword_exists_in_string(url.text):
+                    news_list.append(url["href"])
+
+        else:
+            # xml sites
+            parse_xml_url = urlopen(req)
+            xml_page = parse_xml_url.read()
+            parse_xml_url.close()
+            soup_page = BeautifulSoup(xml_page, "xml")
+            news_list = soup_page.findAll("item")
 
         if not news_list:
             news_list = soup_page.findAll("url")
@@ -188,29 +219,38 @@ def extract_feed_data():
             return
 
         # Extract from xml
-        res_title = feed_source.find(schema["title"]).text
-        res_desc = feed_source.find(schema["description"]).text
+        if "title" not in schema and "description" not in schema:
+            # sitemap doesn't have title or description at all
+            # so we have to go through each URL to check if CORONA_KEYWORDS exists
+            res_title = ""
+            res_desc = ""
+        else:
+            # sitemap that contains either title or description
+            # early detection if URL contains CORONA_KEYWORDS or not
+            res_title = (
+                feed_source.find(schema["title"]).text if "title" in schema else ""
+            )
+            res_desc = (
+                feed_source.find(schema["description"]).text
+                if "description" in schema
+                else ""
+            )
 
-        # check if any of the CORONA_KEYWORDS occur in title or description
-        if (
-            len(
-                set(re.findall(r"\w+", res_title.lower())).intersection(
-                    CORONA_KEYWORDS
-                )
-            )
-            == 0
-            and len(
-                set(re.findall(r"\w+", res_desc.lower())).intersection(
-                    CORONA_KEYWORDS
-                )
-            )
-            == 0
-        ):
-            continue
+            # check if any of the CORONA_KEYWORDS occur in title or description
+            if not corona_keyword_exists_in_string(
+                res_title.lower()
+            ) and not corona_keyword_exists_in_string(res_desc.lower()):
+                continue
 
         rss_record = {}
-        rss_record["title"] = res_title
-        rss_record["url"] = feed_source.find(schema["url"]).text
+
+        # feed_source should be BeautifulSoup object
+        # if it's string, it's direct link to url (for attempt to crawl non-xml)
+        rss_record["url"] = (
+            feed_source
+            if isinstance(feed_source, str)
+            else feed_source.find(schema["url"]).text
+        )
 
         if rss_record["url"] in CACHE:
             continue
@@ -219,35 +259,42 @@ def extract_feed_data():
             add_to_cache(rss_record["url"])
 
         rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
-        # rss_record["source"] = soup_page.channel.title.text
 
+        # Process article
         article = extract_article(rss_record["url"])
 
         # Overwrite description if exists in meta tag
+        rss_record["description"] = attempt_extract_from_meta_data(
+            article.meta_data, "description", res_desc
+        )
+        rss_record["title"] = attempt_extract_from_meta_data(
+            article.meta_data, "title", res_title
+        )
+        keywords = attempt_extract_from_meta_data(article.meta_data, "keywords", "")
+
+        # If keyword doesn't exists in article, skip
         if (
-            "og" in article.meta_data
-            and "description" in article.meta_data["og"]
-            and len(article.meta_data["og"]["description"])
+            not corona_keyword_exists_in_string(rss_record["description"].lower())
+            and not corona_keyword_exists_in_string(rss_record["title"].lower())
+            and not corona_keyword_exists_in_string(keywords.lower())
         ):
-            rss_record["description"] = article.meta_data["og"]["description"]
-        else:
-            rss_record["description"] = res_desc
+            continue
 
         # Get language
         rss_record["language"] = article.meta_lang
 
         # Get siteName
-        rss_record["siteName"] = re.sub(
-            r"https?://(www\.)?", "", article.source_url
-        )
+        rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)
 
         # Get the authors
         rss_record["author"] = ", ".join(article.authors)
 
         # Get the publish date
         if "publish_date" in schema:
-            rss_record["publishedAt"] = date_convert(feed_source.find(schema["publish_date"]).text)
-        elif feed_source.pubDate:
+            rss_record["publishedAt"] = date_convert(
+                feed_source.find(schema["publish_date"]).text
+            )
+        elif "pubDate" in feed_source and feed_source.pubDate:
             rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
         elif article.publish_date:
             rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
@@ -261,7 +308,11 @@ def extract_feed_data():
         elif soup_page.lastBuildDate:
             rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
         else:
-            rss_record["publishedAt"] = ""
+            # Worst case: put current date and tmie
+            # Reason: since we're constantly crawling (on cron)
+            #           sites that publishes latest articles only
+            #           it's highly likely we're getting today's article
+            rss_record["publishedAt"] = datetime.utcnow().strftime(DATE_FORMAT)
 
         rss_record["content"] = article.text
         # Get the top image
@@ -270,6 +321,36 @@ def extract_feed_data():
         if lang not in RSS_STACK:
             RSS_STACK[lang] = []
         RSS_STACK[lang].append(rss_record)
+
+
+def corona_keyword_exists_in_string(string):
+    # this works well if for words that are split by space/comma
+    # fails for languages that doesn't need space/comma
+    # hence, do brute force to check keyword in string
+    # eg: 武漢肺炎中國確診逾, where 武漢肺炎 is coronavirus
+    if len(set(re.findall(r"\w+", string)).intersection(CORONA_KEYWORDS)) != 0:
+        return True
+    # Fallback: if can't find, search each keyword in string, brute force
+    for keyword in CORONA_KEYWORDS:
+        if keyword in string:
+            return True
+    return False
+
+
+def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
+    if attribute in meta_data and isinstance(meta_data[attribute], str):
+        return meta_data[attribute]
+
+    # try og tag
+    if (
+        "og" in meta_data
+        and attribute in meta_data["og"]
+        and len(meta_data["og"][attribute])
+    ):
+        return meta_data["og"][attribute]
+
+    # if all fails, return default value
+    return cur_val
 
 
 def print_pretty():
@@ -316,7 +397,9 @@ def date_convert(date_string):
     if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
         match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
         datetime_str = match_dateformat[0]
-        original_datetime_format = datetime.strptime(datetime_str, DATE_RFC_2822_DATE_FORMAT)
+        original_datetime_format = datetime.strptime(
+            datetime_str, DATE_RFC_2822_DATE_FORMAT
+        )
 
     elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
         # Fall back to try datetime ISO 8601 format
@@ -327,7 +410,9 @@ def date_convert(date_string):
     else:
         original_datetime_format = date_string
 
-    datetime_object = original_datetime_format.astimezone(timezone.utc).strftime(DATE_FORMAT)
+    datetime_object = original_datetime_format.astimezone(timezone.utc).strftime(
+        DATE_FORMAT
+    )
     return str(datetime_object)
 
 
@@ -348,8 +433,12 @@ def parser():
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
-    parser.add_argument("-p", "--production", action="store_true", help="Writes to production table")
-    parser.add_argument("-a", "--all", action="store_true", help="Skip read and write on cache")
+    parser.add_argument(
+        "-p", "--production", action="store_true", help="Writes to production table"
+    )
+    parser.add_argument(
+        "-a", "--all", action="store_true", help="Skip read and write on cache"
+    )
     return parser.parse_args()
 
 

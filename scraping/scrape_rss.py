@@ -69,6 +69,10 @@ https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
 NEWS_URLs = {
     "en": [
         (
+            "https://www.scmp.com/rss/318208/feed",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
             "https://www.theage.com.au/rss/feed.xml",
             {"title": "title", "description": "description", "url": "link",},
         ),

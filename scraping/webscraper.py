@@ -1,14 +1,19 @@
+#!/usr/bin/ python3
 # TO-DO:
 # [DONE] Set keyword to detect ’武漢肺炎‘(wuhan pneumonia),‘國家衛健委’(NHC),‘新型冠狀病毒’(coronavirus) at news article page
 # [DONE] Debug Non-Type Error (1. hyperlinks within paragraphs; 2. cnavideo link to article)
 # [DONE] Connect to db
+# [DONE] Finalise SQL table [no primary key, how to deal with duplicates?]
+
 # (Priority: Low) Probably should write a user defined function for data parsing
-# (Priority: High) Finalise SQL table [no primary key, how to deal with duplicates?]
 
 
 # REFERENCES:
 # Intro to web scraping: https://hackernoon.com/building-a-web-scraper-from-start-to-finish-bb6b95388184
 # Intro to ingest data -> db: https://www.dataquest.io/blog/sql-insert-tutorial/
+# Intro to setting up cron job: https://ole.michelsen.dk/blog/schedule-jobs-with-crontab-on-mac-osx.html
+# About SQL INSERT IGNORE: https://chartio.com/resources/tutorials/how-to-insert-if-row-does-not-exist-upsert-in-mysql/
+# About executing raw SQL with sqlalchemy: https://chartio.com/resources/tutorials/how-to-execute-raw-sql-in-sqlalchemy/
 
 ########################################################################################
 
@@ -16,9 +21,15 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 import pymysql
 import json
+import os.path
 
+
+#########################
+# Scrape job            #
+#########################
 
 # url from main page
 url = 'https://www.cna.com.tw/news/ahel/202001215004.aspx'
@@ -46,12 +57,16 @@ for cnavideolink in cnavideo_url:
     if news_pointer is not None:
         article_url.append(news_pointer.get('href'))
 
+unique_article_url = []
+for x in article_url:
+    if x not in unique_article_url:
+        unique_article_url.append(x)
 
 # empty list to collect newsObject for each url
 newsObject_stack = []
 
 # filtering related news and extract information
-for news in article_url:
+for news in unique_article_url:
     news_response = requests.get(news, timeout=5)
     news_content = BeautifulSoup(news_response.content, "html.parser")
 
@@ -77,9 +92,11 @@ for news in article_url:
             'author': news_content.find('meta', {"itemprop": 'author'}).get('content'),
             'url': news,
             'urlToImage': news_content.find('link', {"rel": 'image_src'}).get('href'),
+            'addedOn': None,
             'publishedAt': news_content.find('meta', {"itemprop": 'datePublished'}).get('content'),
             'siteName': "cna.com.tw",
-            'language': "zh_trad"
+            'language': "zh_trad",
+            'status': None
         }
 
         newsObject_stack.append(newsObject)
@@ -90,8 +107,14 @@ df = pd.DataFrame(newsObject_stack)
 # df.to_csv('tw_cna.csv')
 
 
+#########################
+# Send data to db       #
+#########################
+
 # create sqlalchemy engine
-path_to_json = "./db.json"
+fdir = os.path.abspath(os.path.dirname(__file__))
+path_to_json = os.path.join(fdir, 'db.json')
+
 
 with open(path_to_json, "r") as handler:
     info = json.load(handler)
@@ -104,6 +127,23 @@ engine = create_engine("mysql+pymysql://{user}:{pw}@{host}:3306/{db}"
                                db=info['database']))
 
 
-# Insert whole DataFrame into MySQL
-df.to_sql('tw_cna_news', con=engine, if_exists='append',
+# Insert whole DataFrame into MySQL, populate "tw_cna_news_temp" table
+df.to_sql('tw_cna_news_temp', con=engine, if_exists='append',
           chunksize=1000, index=False)
+# df.to_sql('tw_cna_news_temp', con=engine, if_exists='replace',
+#           chunksize=1000, index=False)
+
+
+# update "tw_cna_news" and "newsapi_n", clear "tw_cna_news_temp"
+def sql_query(query_string):
+    with engine.connect() as con:
+        con.execute(query_string)
+
+
+query_list = ['INSERT IGNORE INTO tw_cna_news SELECT * FROM tw_cna_news_temp',
+              'INSERT IGNORE INTO newsapi_n SELECT * FROM tw_cna_news_temp',
+              'SET SQL_SAFE_UPDATES=0',
+              'DELETE FROM tw_cna_news_temp']
+
+for query_line in query_list:
+    sql_query(query_line)

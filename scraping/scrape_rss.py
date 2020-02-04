@@ -37,7 +37,7 @@
 #   - Using black to format the code. Feel free to use it (https://black.readthedocs.io/en/stable/)
 #
 
-from urllib.request import urlopen, Request
+import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from dateutil.parser import parse
@@ -151,12 +151,17 @@ global WRITE_TO_DB_MODE
 global VERBOSE
 
 ### LOGGER CONFIG
+if not os.path.isdir("logs"):
+    os.mkdir("logs")
+
 # https://docs.python.org/3/howto/logging-cookbook.html
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d-%H-%M-%S",
-    filename="scraper-rss-{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
+    filename="./logs/scraper-rss-{}.log".format(
+        datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    ),
     filemode="w",
 )
 console = logging.StreamHandler()
@@ -201,27 +206,26 @@ def news():
 
         root_url, schema = root_url_schema
         logging.debug("Getting {}".format(root_url))
-        hdr = {"User-Agent": "Mozilla/5.0"}
-        req = Request(root_url, headers=hdr)
-
+        header = {"User-Agent": "Mozilla/5.0"}
         news_list = []
+
+        try:
+            res = requests.get(root_url, headers=header, timeout=5)
+        except:
+            logging.error("Fail to get url: {}".format(root_url))
+            return
+        page = res.content
 
         # Attempt to crawl non xml sites
         if "not_xml" in schema and schema["not_xml"]:
-            parse_html_url = urlopen(req, timeout=5)
-            html_page = parse_html_url.read()
-            parse_html_url.close()
-            soup_page = BeautifulSoup(html_page, "html.parser")
+            soup_page = BeautifulSoup(page, "html.parser")
             for url in soup_page.findAll("a"):
                 if corona_keyword_exists_in_string(url.text):
                     news_list.append(url["href"])
 
         else:
             # xml sites
-            parse_xml_url = urlopen(req, timeout=5)
-            xml_page = parse_xml_url.read()
-            parse_xml_url.close()
-            soup_page = BeautifulSoup(xml_page, "xml")
+            soup_page = BeautifulSoup(page, "xml")
             news_list = soup_page.findAll("item")
 
         if not news_list:

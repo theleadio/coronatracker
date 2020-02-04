@@ -96,7 +96,7 @@ for news in unique_article_url:
             'publishedAt': news_content.find('meta', {"itemprop": 'datePublished'}).get('content'),
             'siteName': "cna.com.tw",
             'language': "zh_trad",
-            'status': None
+            'status': '1'
         }
 
         newsObject_stack.append(newsObject)
@@ -112,6 +112,7 @@ df = pd.DataFrame(newsObject_stack)
 #########################
 
 # create sqlalchemy engine
+# obtain absolute path url to facilitate cron job
 fdir = os.path.abspath(os.path.dirname(__file__))
 path_to_json = os.path.join(fdir, 'db.json')
 

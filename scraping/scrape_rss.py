@@ -58,6 +58,7 @@ import logging
 
 """
 Crawling:
+https://www.scmp.com/rss/318208/feed
 https://www.theage.com.au/rss/feed.xml
 https://www.theage.com.au/rss/world.xml
 https://www.news.com.au/content-feeds/latest-news-world/
@@ -91,7 +92,7 @@ NEWS_URLs = {
             {"title": "title", "description": "description", "url": "link",},
         ),
         # Remove heraldsun rss to prevent scraping the same content as other rss
-        # > as it's a smaller newspaper that is likely syndicating news from bigger news        
+        # > as it's a smaller newspaper that is likely syndicating news from bigger news
         #         (
         #             "http://www.heraldsun.com.au/news/breaking-news/rss",
         #             {"title": "title", "description": "description", "url": "link",},
@@ -151,16 +152,18 @@ global VERBOSE
 
 ### LOGGER CONFIG
 # https://docs.python.org/3/howto/logging-cookbook.html
-logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        datefmt="%Y-%m-%d-%H-%M-%S",
-                        filename='scraper-rss-{}.log'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
-                        filemode='w')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d-%H-%M-%S",
+    filename="scraper-rss-{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
+    filemode="w",
+)
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 # CONSTANT VALUES
 CACHE_FILE = "cache.txt"
@@ -404,6 +407,7 @@ def write_output():
 
 
 def save_to_db():
+    logging.debug("Saving to db to {} table".format(WRITE_TO_PROD_TABLE))
     db_connector.connect()
     for lang, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
@@ -416,7 +420,7 @@ def date_convert(date_string):
     logging.debug("Input date: {}".format(date_string))
     if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
         match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0]
+        datetime_str = match_dateformat[0].strip()
         original_datetime_format = datetime.strptime(
             datetime_str, DATE_RFC_2822_DATE_FORMAT
         )
@@ -424,7 +428,7 @@ def date_convert(date_string):
     elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
         # Fall back to try datetime ISO 8601 format
         match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0]
+        datetime_str = match_dateformat[0].strip()
         original_datetime_format = datetime.strptime(datetime_str, ISO_8601_DATE_FORMAT)
 
     else:
@@ -524,6 +528,7 @@ for thread in THREADS:
 
 if VERBOSE:
     print("Done extracting all root urls")
+logging.debug("Done extracting all root urls")
 
 # process all latest feed
 for i in range(len(THREADS)):
@@ -535,6 +540,7 @@ for thread in THREADS:
 
 if VERBOSE:
     print("Done extracting all feed data")
+logging.debug("Done extracting all feed data")
 
 if WRITE_TO_DB_MODE:
     # Store to DB

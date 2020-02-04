@@ -5,7 +5,7 @@ import json
 # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'status']
 
 mydb = None
-TEST_TABLE_NAME = "TABLE_NAME"
+TEST_TABLE_NAME = "newsapi_en"
 PROD_TABLE_NAME = "newsapi_n"
 
 

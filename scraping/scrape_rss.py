@@ -53,8 +53,8 @@ import db_connector
 """
 https://www.theage.com.au/rss/feed.xml
 https://www.theage.com.au/rss/world.xml
-http://www.heraldsun.com.au/news/breaking-news/rss
-http://www.heraldsun.com.au/rss
+# http://www.heraldsun.com.au/news/breaking-news/rss
+# http://www.heraldsun.com.au/rss
 https://www.news.com.au/content-feeds/latest-news-world/
 https://www.news.com.au/content-feeds/latest-news-national/
 http://www.dailytelegraph.com.au/news/breaking-news/rss
@@ -69,6 +69,10 @@ https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
 NEWS_URLs = {
     "en": [
         (
+            "https://www.scmp.com/rss/318208/feed",
+            {"title": "title", "description": "description", "url": "link",},
+        ),
+        (
             "https://www.theage.com.au/rss/feed.xml",
             {"title": "title", "description": "description", "url": "link",},
         ),
@@ -76,14 +80,16 @@ NEWS_URLs = {
             "https://www.theage.com.au/rss/world.xml",
             {"title": "title", "description": "description", "url": "link",},
         ),
-        (
-            "http://www.heraldsun.com.au/news/breaking-news/rss",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
-        (
-            "http://www.heraldsun.com.au/rss",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
+# Remove heraldsun rss to prevent scraping the same content as other rss
+# > as it's a smaller newspaper that is likely syndicating news from bigger news        
+#         (
+#             "http://www.heraldsun.com.au/news/breaking-news/rss",
+#             {"title": "title", "description": "description", "url": "link",},
+#         ),
+#         (
+#             "http://www.heraldsun.com.au/rss",
+#             {"title": "title", "description": "description", "url": "link",},
+#         ),
         (
             "https://www.news.com.au/content-feeds/latest-news-world/",
             {"title": "title", "description": "description", "url": "link",},

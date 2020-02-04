@@ -53,6 +53,8 @@ import json
 import os
 
 import db_connector
+import logging
+
 
 """
 Crawling:
@@ -147,6 +149,20 @@ global WRITE_TO_PROD_TABLE
 global WRITE_TO_DB_MODE
 global VERBOSE
 
+### LOGGER CONFIG
+# https://docs.python.org/3/howto/logging-cookbook.html
+logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt="%Y-%m-%d-%H-%M-%S",
+                        filename='scraper-rss-{}.log'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
+                        filemode='w')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
+
+# CONSTANT VALUES
 CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
 
@@ -177,8 +193,11 @@ def news():
         except queue.Empty:
             if VERBOSE:
                 print("Root/xml queue is empty")
+            logging.error("Root/XML queue is empty.")
             return
+
         root_url, schema = root_url_schema
+        logging.debug("Getting {}".format(root_url))
         hdr = {"User-Agent": "Mozilla/5.0"}
         req = Request(root_url, headers=hdr)
 
@@ -186,7 +205,7 @@ def news():
 
         # Attempt to crawl non xml sites
         if "not_xml" in schema and schema["not_xml"]:
-            parse_html_url = urlopen(req)
+            parse_html_url = urlopen(req, timeout=5)
             html_page = parse_html_url.read()
             parse_html_url.close()
             soup_page = BeautifulSoup(html_page, "html.parser")
@@ -196,7 +215,7 @@ def news():
 
         else:
             # xml sites
-            parse_xml_url = urlopen(req)
+            parse_xml_url = urlopen(req, timeout=5)
             xml_page = parse_xml_url.read()
             parse_xml_url.close()
             soup_page = BeautifulSoup(xml_page, "xml")
@@ -216,6 +235,7 @@ def extract_feed_data():
         except queue.Empty:
             if VERBOSE:
                 print("Feed Queue is empty")
+            logging.error("Feed Qeueu is empty.")
             return
 
         # Extract from xml
@@ -392,8 +412,8 @@ def save_to_db():
 
 def date_convert(date_string):
     if VERBOSE:
-        print("input date: " + date_string)
-
+        print("Input date: {}".format(date_string))
+    logging.debug("Input date: {}".format(date_string))
     if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
         match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
         datetime_str = match_dateformat[0]
@@ -419,6 +439,7 @@ def date_convert(date_string):
 def extract_article(link):
     if VERBOSE:
         print("Extracting from: ", link)
+    logging.debug("Extracting from: {}".format(link))
     article = Article(link)
     # Do some NLP
     article.download()  # Downloads the link's HTML content
@@ -465,25 +486,31 @@ WRITE_TO_PROD_TABLE = args.production
 
 # create required folders
 if not os.path.isdir("data"):
+    logging.debug("Creating ./data directory")
     os.mkdir("./data")
 
 # reset cache
 if args.clear:
+    logging.debug("Clearing cache file {}".format(CACHE_FILE))
     os.system("rm {}".format(CACHE_FILE))
 
 # check cache file exists
 if not os.path.isfile(CACHE_FILE):
+    logging.debug("Creating cache file {}".format(CACHE_FILE))
     os.system("touch {}".format(CACHE_FILE))
 
 # if set READ_ALL_SKIP_CACHE, skip reading cache
 if not READ_ALL_SKIP_CACHE:
+    logging.debug("Reading cache file...")
     read_cache()
 
 # place initial xml urls to queue
 for lang, all_rss in NEWS_URLs.items():
+    logging.debug("Lang: {}, Number of rss: {}".format(lang, len(all_rss)))
     if not os.path.isdir("./data/{}".format(lang)):
         os.mkdir("./data/{}".format(lang))
     for rss in all_rss:
+        logging.debug("Adding rss to queue: {}".format(rss))
         XML_QUEUE.put((lang, rss))
 
 # extract all xml data

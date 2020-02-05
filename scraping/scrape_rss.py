@@ -139,7 +139,7 @@ NEWS_URLs = {
             },
         ),
     ],
-    "zh": [
+    "zh_TW": [
         ("https://news.cts.com.tw/sitemap.xml", {"url": "loc"},),
         ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
     ],
@@ -308,7 +308,7 @@ def extract_feed_data():
             continue
 
         # Get language
-        rss_record["language"] = article.meta_lang
+        rss_record["language"] = lang # article.meta_lang
 
         # Get siteName
         rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)

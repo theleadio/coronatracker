@@ -17,8 +17,7 @@
 # Algo to extract the casualty stats from linked news article
 #
 # USAGE:
-# python scrape_rss.py -c -d -v
-#   -v : verbose, show some log messages. default=False
+# python scrape_rss.py -c -d
 #   -d : debug mode, write to output.jsonl, else, write to db. default=True
 #   -c : clear cache, default=False
 #   -a : get all, skip cache. api uses this to crawl everything
@@ -26,9 +25,9 @@
 #
 # Example:
 #   - write to db with log messages, doesn't update ./data/<lang>/output.jsonl
-#       - python scrape_rss.py -v       # writes to test table
-#       - python scrape_rss.py -v -p    # writes to production table
-#   - debug only, show all possible news without log messages
+#       - python scrape_rss.py       # writes to test table
+#       - python scrape_rss.py -p    # writes to production table
+#   - debug only
 #       d flag so it doesn't write to db (prints output and write to output.jsonl)
 #       a flag will skip read and write to cache
 #       - python scrape_rss.py -d -a
@@ -58,6 +57,11 @@ import logging
 
 """
 Crawling:
+https://www.ettoday.net/news-sitemap.xml
+https://www.taiwannews.com.tw/ch/sitemap.xml
+http://www.taipeitimes.com/sitemap.xml
+https://www.taiwannews.com.tw/en/sitemap.xml
+https://www.shine.cn/sitemap-news.xml
 https://www.scmp.com/rss/318208/feed
 https://www.theage.com.au/rss/feed.xml
 https://www.theage.com.au/rss/world.xml
@@ -138,17 +142,52 @@ NEWS_URLs = {
                 "publish_date": "news:publication_date",
             },
         ),
+        (
+            "https://www.shine.cn/sitemap-news.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "publish_date": "news:publication_date",
+            },
+        ),
+        (
+            "http://www.taipeitimes.com/sitemap.xml",
+            {
+                "url": "loc",
+                "publish_date": "lastmod",
+            }
+        ),
+        (
+            "https://www.taiwannews.com.tw/en/sitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+            },
+        ),
     ],
     "zh_TW": [
         ("https://news.cts.com.tw/sitemap.xml", {"url": "loc"},),
         ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
+        (
+            "https://www.taiwannews.com.tw/ch/sitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+            },
+        ),
+        (
+            "https://www.ettoday.net/news-sitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+            },
+        ),
     ],
 }
 
 global READ_ALL_SKIP_CACHE
 global WRITE_TO_PROD_TABLE
 global WRITE_TO_DB_MODE
-global VERBOSE
 
 ### LOGGER CONFIG
 if not os.path.isdir("logs"):
@@ -157,7 +196,7 @@ if not os.path.isdir("logs"):
 # https://docs.python.org/3/howto/logging-cookbook.html
 logging.basicConfig(
     level=logging.DEBUG,
-    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    format="%(asctime)s %(name)-12s %(lineno)-8s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d-%H-%M-%S",
     filename="./logs/scraper-rss-{}.log".format(
         datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -177,9 +216,9 @@ OUTPUT_FILENAME = "output.jsonl"
 # "Sat, 25 Jan 2020 01:52:22 +0000"
 DATE_RFC_2822_REGEX_RULE = r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
 DATE_RFC_2822_DATE_FORMAT = "%d %b %Y %H:%M:%S %z"
-# ISO 8601 | 2020-01-31T22:10:38+0800
+# ISO 8601 | 2020-01-31T22:10:38+0800 | 2020-02-05T08:13:54.000Z | 2017-04-17T22:23:24+00:00
 DATE_ISO_8601_REGEX_RULE = (
-    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\+[0-9]{2}\:?[0-9]{2}"
+    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:?\d{0,2}[\+\.]\d{2,4}\:?[0-9]{0,2}Z?"
 )
 ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -199,8 +238,6 @@ def news():
         try:
             lang, root_url_schema = XML_QUEUE.get()
         except queue.Empty:
-            if VERBOSE:
-                print("Root/xml queue is empty")
             logging.error("Root/XML queue is empty.")
             return
 
@@ -240,8 +277,6 @@ def extract_feed_data():
         try:
             lang, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
         except queue.Empty:
-            if VERBOSE:
-                print("Feed Queue is empty")
             logging.error("Feed Qeueu is empty.")
             return
 
@@ -308,7 +343,7 @@ def extract_feed_data():
             continue
 
         # Get language
-        rss_record["language"] = lang # article.meta_lang
+        rss_record["language"] = lang  # article.meta_lang
 
         # Get siteName
         rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)
@@ -317,29 +352,9 @@ def extract_feed_data():
         rss_record["author"] = ", ".join(article.authors)
 
         # Get the publish date
-        if "publish_date" in schema:
-            rss_record["publishedAt"] = date_convert(
-                feed_source.find(schema["publish_date"]).text
-            )
-        elif "pubDate" in feed_source and feed_source.pubDate:
-            rss_record["publishedAt"] = date_convert(feed_source.pubDate.text)
-        elif article.publish_date:
-            rss_record["publishedAt"] = article.publish_date.strftime(DATE_FORMAT)
-        elif (
-            "article" in article.meta_data
-            and "modified_time" in article.meta_data["article"]
-        ):
-            rss_record["publishedAt"] = date_convert(
-                article.meta_data["article"]["modified_time"]
-            )
-        elif soup_page.lastBuildDate:
-            rss_record["publishedAt"] = date_convert(soup_page.lastBuildDate.text)
-        else:
-            # Worst case: put current date and tmie
-            # Reason: since we're constantly crawling (on cron)
-            #           sites that publishes latest articles only
-            #           it's highly likely we're getting today's article
-            rss_record["publishedAt"] = datetime.utcnow().strftime(DATE_FORMAT)
+        rss_record["publishedAt"] = get_published_at_value(
+            schema, feed_source, article, soup_page
+        )
 
         rss_record["content"] = article.text
         # Get the top image
@@ -348,6 +363,72 @@ def extract_feed_data():
         if lang not in RSS_STACK:
             RSS_STACK[lang] = []
         RSS_STACK[lang].append(rss_record)
+
+
+def get_published_at_value(schema, feed_source, article, soup_page):
+    published_at_value = ""
+    published_at_source = ""
+    dt_object = None
+    if "publish_date" in schema:
+        # from root url, usually exists in sitemap.xml
+        dt_object = convert_date_to_datetime_object(
+            feed_source.find(schema["publish_date"]).text
+        )
+        source = "schema"
+    elif attempt_extract_from_meta_data(article.meta_data, "modified_time", dt_object):
+        dt_object = convert_date_to_datetime_object(
+            attempt_extract_from_meta_data(
+                article.meta_data, "modified_time", dt_object
+            )
+        )
+        source = "meta_data -> modified_time"
+    elif attempt_extract_from_meta_data(article.meta_data, "published_time", dt_object):
+        dt_object = convert_date_to_datetime_object(
+            attempt_extract_from_meta_data(
+                article.meta_data, "published_time", dt_object
+            )
+        )
+        source = "meta_data -> published_time"
+    elif "pubDate" in feed_source and feed_source.pubDate:
+        dt_object = convert_date_to_datetime_object(feed_source.pubDate.text)
+        source = "feed_source -> pubDate"
+    elif soup_page.lastBuildDate:
+        dt_object = convert_date_to_datetime_object(soup_page.lastBuildDate.text)
+        source = "soup_page -> lastBuildDate"
+    else:
+        # Worst case: put current date and tmie
+        # Reason: since we're constantly crawling (on cron)
+        #           sites that publishes latest articles only
+        #           it's highly likely we're getting today's article
+        dt_object = datetime.utcnow()
+        source = "None, using current time."
+
+    published_at_log_msg = "Found publishedAt in: {} with unix timestamp value: {} | Current unix timestamp: {} | Is timestamp > current timestamp: {}"
+    unix_extracted = datetime.timestamp(dt_object)
+    unix_now = datetime.timestamp(datetime.utcnow())
+    if unix_extracted < unix_now:
+        logging.debug(
+            published_at_log_msg.format(
+                "meta_data -> modified_time",
+                unix_extracted,
+                unix_now,
+                unix_extracted > unix_now,
+            )
+        )
+    else:
+        logging.warning(
+            published_at_log_msg.format(
+                "meta_data -> modified_time",
+                unix_extracted,
+                unix_now,
+                unix_extracted > unix_now,
+            )
+        )
+    # reset if extracted time is greater than current time
+    if unix_extracted > unix_now:
+        logging.warning("Extracted timestamp is greater than current timestamp. Resetting to current timestamp")
+        dt_object = convert_date_to_datetime_object(datetime.utcnow())
+    return str(dt_object.strftime(DATE_FORMAT))
 
 
 def corona_keyword_exists_in_string(string):
@@ -365,6 +446,11 @@ def corona_keyword_exists_in_string(string):
 
 
 def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
+    logging.debug(
+        "Start attempt look for attribute: {}".format(
+            attribute, cur_val if cur_val else "None"
+        )
+    )
     if attribute in meta_data and isinstance(meta_data[attribute], str):
         return meta_data[attribute]
 
@@ -372,12 +458,78 @@ def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
     if (
         "og" in meta_data
         and attribute in meta_data["og"]
-        and len(meta_data["og"][attribute])
+        and len(meta_data["og"][attribute].strip())
     ):
+        logging.debug(
+            "Found attribute: {} in og. value: {}".format(
+                attribute, meta_data["og"][attribute]
+            )
+        )
         return meta_data["og"][attribute]
 
+    # article tag
+    if (
+        "article" in meta_data
+        and attribute in meta_data["article"]
+        and len(meta_data["article"][attribute].strip())
+    ):
+        logging.debug(
+            "Found attribute: {} in article. value: {}".format(
+                attribute, meta_data["article"][attribute]
+            )
+        )
+        return meta_data["article"][attribute]
+
     # if all fails, return default value
+    logging.warning(
+        "Fail to find attribute: {} using default value: {}".format(attribute, cur_val)
+    )
     return cur_val
+
+
+def convert_date_to_datetime_object(date_string):
+    logging.debug("Input date: {}".format(date_string))
+    if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
+        match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
+        datetime_str = match_dateformat[0].strip()
+        original_datetime_format = datetime.strptime(
+            datetime_str, DATE_RFC_2822_DATE_FORMAT
+        )
+
+    elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
+        # Fall back to try datetime ISO 8601 format
+        match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
+        datetime_str = match_dateformat[0].strip()
+        if datetime_str.endswith("Z"):
+            # seen 2020-02-05T08:13:54.000Z
+            right_index = len(datetime_str) - 1
+            while right_index > 0 and datetime_str[right_index] != ".":
+                right_index -= 1
+            datetime_str = datetime_str[:right_index] + "+0000"
+        original_datetime_format = datetime.strptime(datetime_str, ISO_8601_DATE_FORMAT)
+
+    else:
+        # if fail to extract, log here, figure out the pattern offline
+        # use current time for now
+        logging.error(
+            "Fail to extract date format. Fix required for date_string: {}".format(
+                date_string
+            )
+        )
+        original_datetime_format = datetime.utcnow()
+
+    return original_datetime_format.astimezone(timezone.utc)
+
+
+def extract_article(link):
+    logging.debug("Extracting from: {}".format(link))
+    article = Article(link)
+    # Do some NLP
+    article.download()  # Downloads the link's HTML content
+    article.parse()  # Parse the article
+    nltk.download("punkt")  # 1 time download of the sentence tokenizer
+    article.nlp()  #  Keyword extraction wrapper
+    return article
 
 
 def print_pretty():
@@ -396,8 +548,7 @@ def print_pretty():
             to_print += "\nsiteName:\t" + rss_record["siteName"]
             to_print += ""
             try:
-                if VERBOSE:
-                    print(to_print.expandtabs())
+                print(to_print.expandtabs())
             except:
                 pass
 
@@ -418,48 +569,8 @@ def save_to_db():
             db_connector.insert(rss_record, "prod" if WRITE_TO_PROD_TABLE else "test")
 
 
-def date_convert(date_string):
-    if VERBOSE:
-        print("Input date: {}".format(date_string))
-    logging.debug("Input date: {}".format(date_string))
-    if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
-        match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0].strip()
-        original_datetime_format = datetime.strptime(
-            datetime_str, DATE_RFC_2822_DATE_FORMAT
-        )
-
-    elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
-        # Fall back to try datetime ISO 8601 format
-        match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0].strip()
-        original_datetime_format = datetime.strptime(datetime_str, ISO_8601_DATE_FORMAT)
-
-    else:
-        original_datetime_format = date_string
-
-    datetime_object = original_datetime_format.astimezone(timezone.utc).strftime(
-        DATE_FORMAT
-    )
-    return str(datetime_object)
-
-
-def extract_article(link):
-    if VERBOSE:
-        print("Extracting from: ", link)
-    logging.debug("Extracting from: {}".format(link))
-    article = Article(link)
-    # Do some NLP
-    article.download()  # Downloads the link's HTML content
-    article.parse()  # Parse the article
-    nltk.download("punkt")  # 1 time download of the sentence tokenizer
-    article.nlp()  #  Keyword extraction wrapper
-    return article
-
-
 def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
     parser.add_argument(
@@ -487,7 +598,6 @@ def add_to_cache(url):
 # arguments
 args = parser()
 
-VERBOSE = args.verbose
 READ_ALL_SKIP_CACHE = args.all
 WRITE_TO_DB_MODE = not args.debug
 WRITE_TO_PROD_TABLE = args.production
@@ -530,8 +640,6 @@ for i in range(THREAD_LIMIT):
 for thread in THREADS:
     thread.join()
 
-if VERBOSE:
-    print("Done extracting all root urls")
 logging.debug("Done extracting all root urls")
 
 # process all latest feed
@@ -542,8 +650,6 @@ for i in range(len(THREADS)):
 for thread in THREADS:
     thread.join()
 
-if VERBOSE:
-    print("Done extracting all feed data")
 logging.debug("Done extracting all feed data")
 
 if WRITE_TO_DB_MODE:
@@ -554,8 +660,7 @@ else:
     print_pretty()
     write_output()
 
-if VERBOSE:
-    count = 0
-    for lang, rss_records in RSS_STACK.items():
-        count += len(rss_records)
-    print("Total feeds: {}".format(count))
+count = 0
+for lang, rss_records in RSS_STACK.items():
+    count += len(rss_records)
+logging.debug("Total feeds: {}".format(count))

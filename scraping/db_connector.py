@@ -26,7 +26,7 @@ def connect():
 def select():
     
     mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM newsapi_oceania")
+    mycursor.execute("SELECT * FROM newsapi_thestar")
     myresult = mycursor.fetchall()
     for x in myresult:
         print(x)
@@ -34,7 +34,7 @@ def select():
 def insert(data_dict):
 
     mycursor = mydb.cursor()
-    sql = "INSERT INTO newsapi_oceania (`title`, `description`, `author`, `url`, `summary`, `content`, `urlToImage`, `publishedAt`, `source`, `accessDateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO newsapi_thestar (`title`, `description`, `author`, `url`, `summary`, `content`, `urlToImage`, `publishedAt`, `source`, `accessDateTime`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (data_dict["title"], data_dict["description"], data_dict["author"], data_dict["url"], data_dict["summary"],
            data_dict["content"], data_dict["urlToImage"], data_dict["publishedAt"], data_dict["source"], data_dict["accessDateTime"])
     print(sql)
@@ -49,6 +49,6 @@ def insert(data_dict):
 
 def check_news(title, source):
     mycursor = mydb.cursor()
-    mycursor.execute(f"SELECT * FROM newsapi_oceania WHERE title = \"{title}\" and source = \"{source}\"")
+    mycursor.execute(f"SELECT * FROM newsapi_thestar WHERE title = \"{title}\" and source = \"{source}\"")
     myresult = mycursor.fetchall()
     return myresult

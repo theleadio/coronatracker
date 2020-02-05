@@ -1,0 +1,6 @@
+{
+  "host": "coronatracker.coehycitad7u.ap-southeast-1.rds.amazonaws.com",
+  "user": "corona",
+  "passwd": "corona0106",
+  "database": "coronatracker"
+}

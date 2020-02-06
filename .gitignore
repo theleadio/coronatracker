@@ -1,2 +1,4 @@
 .idea/
 .DS_Store
+scraping/__pycache__/
+scraping/.DS_Store

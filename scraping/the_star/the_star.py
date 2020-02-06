@@ -2,62 +2,21 @@
     Created by: Edmund Hee
     Email: edmund.hee05@gmail.com
 """
-# from .Firebase.firebase_model import FireStoreModel
-from bs4 import BeautifulSoup
 import db_connector
 import requests
 import re
 import json
 import datetime
 import pytz
-import logging
 
 from flask import Flask, jsonify
 from flask_cors import CORS
+from bs4 import BeautifulSoup
+from utils import parse_date, parse_date_to_string
 
 app = Flask(__name__)
 CORS(app)
 db_connector.connect()
-
-def parse_date(text, tz=None):
-    """
-    Parse JSON data to date
-    :param text: date in string
-    :return: datetime object
-    """
-    if text == '' or text is None:
-        return None
-
-    for fmt in ["%A, %d %b %Y %I:%M %p"]:
-        try:
-            dt = datetime.datetime.strptime(text, fmt)
-            if tz:
-                timezone = pytz.timezone(tz)
-                dt = timezone.localize(dt)
-            else:
-                dt = dt.replace(tzinfo=None)
-            return dt
-        except ValueError:
-            pass
-    return None
-
-
-def parse_date_to_string(dt, fmt="%Y-%m-%d %H:%M:%S.%f"):
-    """
-    Convert date time to string format of %Y-%m-%d %H:%M:%S.%f
-    :param datetime: datetime object
-    :param fmt: datetime format (default: %Y-%m-%d %H:%M:%S.%f)
-    :return: string datetime
-    """
-    try:
-        if dt:
-            return dt.strftime(fmt)
-        else:
-            return None
-    except Exception as e:
-        logging.error("Error: parse_date_to_string Exception - {}".format(str(e)))
-        return None
-
 
 
 @app.route('/scrap_the_star')
@@ -77,8 +36,10 @@ def scrap_the_star():
 
         img_pattern = re.compile(r'(\{.*?\}),')
         content = {}
+
         for news_link in news:
             print(news_link)
+
             res = requests.get(news_link)
             bs = BeautifulSoup(res.content, "html")
 

@@ -7,7 +7,7 @@ def connect():
     global mydb
 
     #populate this from env file
-    path_to_json = "./db.json"
+    path_to_json = "/home/coronatracker/app/db.json"
 
     with open(path_to_json, "r") as handler:
         info = json.load(handler)

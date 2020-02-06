@@ -2,7 +2,7 @@ version: '3'
 services:
     coronatracker:
 #        image: metabase/metabase:v0.32.8
-        build: ./scraping
+        build: .
         ports:
           - "3000:3000"
         restart: always

@@ -209,6 +209,9 @@ formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
+# nltk updates
+nltk.download("punkt")  # 1 time download of the sentence tokenizer
+
 # CONSTANT VALUES
 CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
@@ -225,6 +228,9 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 CORONA_KEYWORDS = set(["corona", "coronavirus", "武漢肺炎", "冠状病毒"])
 THREAD_LIMIT = 10
+THREAD_TIMEOUT = 180 # seconds
+
+REQUEST_TIMEOUT = 5
 
 CACHE = set()
 THREADS = []
@@ -247,7 +253,7 @@ def news():
         news_list = []
 
         try:
-            res = requests.get(root_url, headers=header, timeout=5)
+            res = requests.get(root_url, headers=header, timeout=REQUEST_TIMEOUT)
         except:
             logging.error("Fail to get url: {}".format(root_url))
             return
@@ -481,7 +487,7 @@ def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
         return meta_data["article"][attribute]
 
     # if all fails, return default value
-    logging.warning(
+    logging.debug(
         "Fail to find attribute: {} using default value: {}".format(attribute, cur_val)
     )
     return cur_val
@@ -527,7 +533,6 @@ def extract_article(link):
     # Do some NLP
     article.download()  # Downloads the link's HTML content
     article.parse()  # Parse the article
-    nltk.download("punkt")  # 1 time download of the sentence tokenizer
     article.nlp()  #  Keyword extraction wrapper
     return article
 
@@ -595,72 +600,77 @@ def add_to_cache(url):
     CACHE.add(url)
 
 
-# arguments
-args = parser()
+if __name__ == "__main__":
+    # arguments
+    args = parser()
 
-READ_ALL_SKIP_CACHE = args.all
-WRITE_TO_DB_MODE = not args.debug
-WRITE_TO_PROD_TABLE = args.production
+    READ_ALL_SKIP_CACHE = args.all
+    WRITE_TO_DB_MODE = not args.debug
+    WRITE_TO_PROD_TABLE = args.production
 
-# create required folders
-if not os.path.isdir("data"):
-    logging.debug("Creating ./data directory")
-    os.mkdir("./data")
+    # create required folders
+    if not os.path.isdir("data"):
+        logging.debug("Creating ./data directory")
+        os.mkdir("./data")
 
-# reset cache
-if args.clear:
-    logging.debug("Clearing cache file {}".format(CACHE_FILE))
-    os.system("rm {}".format(CACHE_FILE))
+    # reset cache
+    if args.clear:
+        logging.debug("Clearing cache file {}".format(CACHE_FILE))
+        os.system("rm {}".format(CACHE_FILE))
 
-# check cache file exists
-if not os.path.isfile(CACHE_FILE):
-    logging.debug("Creating cache file {}".format(CACHE_FILE))
-    os.system("touch {}".format(CACHE_FILE))
+    # check cache file exists
+    if not os.path.isfile(CACHE_FILE):
+        logging.debug("Creating cache file {}".format(CACHE_FILE))
+        os.system("touch {}".format(CACHE_FILE))
 
-# if set READ_ALL_SKIP_CACHE, skip reading cache
-if not READ_ALL_SKIP_CACHE:
-    logging.debug("Reading cache file...")
-    read_cache()
+    # if set READ_ALL_SKIP_CACHE, skip reading cache
+    if not READ_ALL_SKIP_CACHE:
+        logging.debug("Reading cache file...")
+        read_cache()
 
-# place initial xml urls to queue
-for lang, all_rss in NEWS_URLs.items():
-    logging.debug("Lang: {}, Number of rss: {}".format(lang, len(all_rss)))
-    if not os.path.isdir("./data/{}".format(lang)):
-        os.mkdir("./data/{}".format(lang))
-    for rss in all_rss:
-        logging.debug("Adding rss to queue: {}".format(rss))
-        XML_QUEUE.put((lang, rss))
+    # place initial xml urls to queue
+    for lang, all_rss in NEWS_URLs.items():
+        logging.debug("Lang: {}, Number of rss: {}".format(lang, len(all_rss)))
+        if not os.path.isdir("./data/{}".format(lang)):
+            os.mkdir("./data/{}".format(lang))
+        for rss in all_rss:
+            logging.debug("Adding rss to queue: {}".format(rss))
+            XML_QUEUE.put((lang, rss))
 
-# extract all xml data
-for i in range(THREAD_LIMIT):
-    t = threading.Thread(target=news)
-    t.start()
-    THREADS.append(t)
+    # extract all xml data
+    for i in range(THREAD_LIMIT):
+        t = threading.Thread(target=news)
+        t.start()
+        THREADS.append(t)
 
-for thread in THREADS:
-    thread.join()
+    for thread in THREADS:
+        thread.join()
 
-logging.debug("Done extracting all root urls")
+    logging.debug("Done extracting all root urls")
 
-# process all latest feed
-for i in range(len(THREADS)):
-    THREADS[i] = threading.Thread(target=extract_feed_data)
-    THREADS[i].start()
+    # process all latest feed
+    for i in range(len(THREADS)):
+        THREADS[i] = threading.Thread(target=extract_feed_data)
+        THREADS[i].start()
 
-for thread in THREADS:
-    thread.join()
+    for thread in THREADS:
+        thread.join(timeout=THREAD_TIMEOUT)
 
-logging.debug("Done extracting all feed data")
+    logging.debug("Done extracting all feed data")
 
-if WRITE_TO_DB_MODE:
-    # Store to DB
-    save_to_db()
-else:
-    # print output and write to jsonl file
-    print_pretty()
-    write_output()
+    if not RSS_STACK:
+        logging.debug("RSS Stack is empty. Exiting...")
+        exit()
 
-count = 0
-for lang, rss_records in RSS_STACK.items():
-    count += len(rss_records)
-logging.debug("Total feeds: {}".format(count))
+    if WRITE_TO_DB_MODE:
+        # Store to DB
+        save_to_db()
+    else:
+        # print output and write to jsonl file
+        print_pretty()
+        write_output()
+
+    count = 0
+    for lang, rss_records in RSS_STACK.items():
+        count += len(rss_records)
+    logging.debug("Total feeds: {}".format(count))

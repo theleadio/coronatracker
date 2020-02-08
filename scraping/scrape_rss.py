@@ -222,6 +222,7 @@ DATE_ISO_8601_REGEX_RULE = (
 ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+URL_BLACKLIST_KEYWORDS = set(["archives/"])
 CORONA_KEYWORDS = set(["corona", "coronavirus", "武漢肺炎", "冠状病毒"])
 SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 THREAD_LIMIT = 10
@@ -317,7 +318,8 @@ def extract_feed_data():
             else feed_source.find(schema["url"]).text
         )
 
-        if rss_record["url"] in CACHE:
+        # early catching
+        if rss_record["url"] in CACHE or is_url_in_blacklist(rss_record["url"]):
             continue
 
         if not READ_ALL_SKIP_CACHE:
@@ -372,6 +374,13 @@ def extract_feed_data():
         if lang not in RSS_STACK:
             RSS_STACK[lang] = []
         RSS_STACK[lang].append(rss_record)
+
+
+def is_url_in_blacklist(url):
+    for keyword in URL_BLACKLIST_KEYWORDS:
+        if keyword in url:
+            return True
+    return False
 
 
 def get_published_at_value(schema, feed_source, article, soup_page):

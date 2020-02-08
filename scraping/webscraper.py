@@ -113,6 +113,7 @@ for news in unique_article_url:
             'publishedAt': tw_utc_str,
             'siteName': "cna.com.tw",
             'language': language,
+            'countryCode': "TW"
             'status': '1'
         }
 

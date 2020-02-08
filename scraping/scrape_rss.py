@@ -82,11 +82,7 @@ http://www.heraldsun.com.au/rss
 
 # some sitemap contains different attributes
 NEWS_URLs = {
-    "en": [
-        (
-            "https://www.scmp.com/rss/318208/feed",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
+    "en_AU": [
         (
             "https://www.theage.com.au/rss/feed.xml",
             {"title": "title", "description": "description", "url": "link",},
@@ -133,6 +129,28 @@ NEWS_URLs = {
             "https://www.sbs.com.au/news/topic/latest/feed",
             {"title": "title", "description": "description", "url": "link",},
         ),
+    ],
+    "en_CN": [
+        (
+            "https://www.shine.cn/sitemap-news.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "publish_date": "news:publication_date",
+            },
+        ),
+    ],
+    "en_TW": [
+        (
+            "http://www.taipeitimes.com/sitemap.xml",
+            {"url": "loc", "publish_date": "lastmod",},
+        ),
+        (
+            "https://www.taiwannews.com.tw/en/sitemap.xml",
+            {"title": "news:title", "url": "loc",},
+        ),
+    ],
+    "en_SG": [
         (
             "https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml",
             {
@@ -142,27 +160,11 @@ NEWS_URLs = {
                 "publish_date": "news:publication_date",
             },
         ),
+    ],
+    "en_HK": [
         (
-            "https://www.shine.cn/sitemap-news.xml",
-            {
-                "title": "news:title",
-                "url": "loc",
-                "publish_date": "news:publication_date",
-            },
-        ),
-        (
-            "http://www.taipeitimes.com/sitemap.xml",
-            {
-                "url": "loc",
-                "publish_date": "lastmod",
-            }
-        ),
-        (
-            "https://www.taiwannews.com.tw/en/sitemap.xml",
-            {
-                "title": "news:title",
-                "url": "loc",
-            },
+            "https://www.scmp.com/rss/318208/feed",
+            {"title": "title", "description": "description", "url": "link",},
         ),
     ],
     "zh_TW": [
@@ -170,17 +172,11 @@ NEWS_URLs = {
         ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
         (
             "https://www.taiwannews.com.tw/ch/sitemap.xml",
-            {
-                "title": "news:title",
-                "url": "loc",
-            },
+            {"title": "news:title", "url": "loc",},
         ),
         (
             "https://www.ettoday.net/news-sitemap.xml",
-            {
-                "title": "news:title",
-                "url": "loc",
-            },
+            {"title": "news:title", "url": "loc",},
         ),
     ],
 }
@@ -227,8 +223,9 @@ ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 CORONA_KEYWORDS = set(["corona", "coronavirus", "武漢肺炎", "冠状病毒"])
+SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 THREAD_LIMIT = 10
-THREAD_TIMEOUT = 180 # seconds
+THREAD_TIMEOUT = 180  # seconds
 
 REQUEST_TIMEOUT = 5
 
@@ -242,7 +239,7 @@ RSS_STACK = {}
 def news():
     while not XML_QUEUE.empty():
         try:
-            lang, root_url_schema = XML_QUEUE.get()
+            locale, root_url_schema = XML_QUEUE.get()
         except queue.Empty:
             logging.error("Root/XML queue is empty.")
             return
@@ -275,13 +272,13 @@ def news():
             news_list = soup_page.findAll("url")
 
         for getfeed in news_list:
-            EXTRACT_FEED_QUEUE.put((lang, root_url, soup_page, getfeed, schema))
+            EXTRACT_FEED_QUEUE.put((locale, root_url, soup_page, getfeed, schema))
 
 
 def extract_feed_data():
     while not EXTRACT_FEED_QUEUE.empty():
         try:
-            lang, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
+            locale, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
         except queue.Empty:
             logging.error("Feed Qeueu is empty.")
             return
@@ -348,8 +345,12 @@ def extract_feed_data():
         ):
             continue
 
-        # Get language
-        rss_record["language"] = lang  # article.meta_lang
+        # Get language and country
+        lang_locale = locale.split("_")
+        lang = lang_locale[0]
+        country = lang_locale[1]
+        rss_record["language"] = lang if locale not in SPECIAL_LANG else locale
+        rss_record["countryCode"] = country
 
         # Get siteName
         rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)
@@ -432,7 +433,9 @@ def get_published_at_value(schema, feed_source, article, soup_page):
         )
     # reset if extracted time is greater than current time
     if unix_extracted > unix_now:
-        logging.warning("Extracted timestamp is greater than current timestamp. Resetting to current timestamp")
+        logging.warning(
+            "Extracted timestamp is greater than current timestamp. Resetting to current timestamp"
+        )
         dt_object = convert_date_to_datetime_object(datetime.utcnow())
     return str(dt_object.strftime(DATE_FORMAT))
 
@@ -550,6 +553,7 @@ def print_pretty():
             to_print += "\ncontent:\n" + rss_record["content"]
             to_print += "\nurlToImage:\t" + rss_record["urlToImage"]
             to_print += "\nlanguage:\t" + rss_record["language"]
+            to_print += "\ncountryCode:\t" + rss_record["countryCode"]
             to_print += "\nsiteName:\t" + rss_record["siteName"]
             to_print += ""
             try:
@@ -567,7 +571,7 @@ def write_output():
 
 
 def save_to_db():
-    logging.debug("Saving to db to {} table".format(WRITE_TO_PROD_TABLE))
+    logging.debug("Saving to db to {} table".format("Prod" if WRITE_TO_PROD_TABLE else "Test"))
     db_connector.connect()
     for lang, rss_records in RSS_STACK.items():
         for rss_record in rss_records:

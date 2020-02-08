@@ -326,7 +326,9 @@ def extract_feed_data():
         rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
 
         # Process article
-        article = extract_article(rss_record["url"])
+        article, status = extract_article(rss_record["url"])
+        if not status:
+            continue
 
         # Overwrite description if exists in meta tag
         rss_record["description"] = attempt_extract_from_meta_data(
@@ -382,13 +384,6 @@ def get_published_at_value(schema, feed_source, article, soup_page):
             feed_source.find(schema["publish_date"]).text
         )
         source = "schema"
-    elif attempt_extract_from_meta_data(article.meta_data, "modified_time", dt_object):
-        dt_object = convert_date_to_datetime_object(
-            attempt_extract_from_meta_data(
-                article.meta_data, "modified_time", dt_object
-            )
-        )
-        source = "meta_data -> modified_time"
     elif attempt_extract_from_meta_data(article.meta_data, "published_time", dt_object):
         dt_object = convert_date_to_datetime_object(
             attempt_extract_from_meta_data(
@@ -396,6 +391,13 @@ def get_published_at_value(schema, feed_source, article, soup_page):
             )
         )
         source = "meta_data -> published_time"
+    elif attempt_extract_from_meta_data(article.meta_data, "modified_time", dt_object):
+        dt_object = convert_date_to_datetime_object(
+            attempt_extract_from_meta_data(
+                article.meta_data, "modified_time", dt_object
+            )
+        )
+        source = "meta_data -> modified_time"
     elif "pubDate" in feed_source and feed_source.pubDate:
         dt_object = convert_date_to_datetime_object(feed_source.pubDate.text)
         source = "feed_source -> pubDate"
@@ -532,12 +534,16 @@ def convert_date_to_datetime_object(date_string):
 
 def extract_article(link):
     logging.debug("Extracting from: {}".format(link))
-    article = Article(link)
-    # Do some NLP
-    article.download()  # Downloads the link's HTML content
-    article.parse()  # Parse the article
-    article.nlp()  #  Keyword extraction wrapper
-    return article
+    try:
+        article = Article(link)
+        # Do some NLP
+        article.download()  # Downloads the link's HTML content
+        article.parse()  # Parse the article
+        article.nlp()  #  Keyword extraction wrapper
+    except Exception as e:
+        logging.error("Fail to extract Article. Error: {}".format(e))
+        return None, False
+    return article, True
 
 
 def print_pretty():

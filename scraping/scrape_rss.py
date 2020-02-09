@@ -231,20 +231,18 @@ THREAD_TIMEOUT = 180  # seconds
 REQUEST_TIMEOUT = 5
 
 CACHE = set()
-THREADS = []
-XML_QUEUE = queue.Queue()
-EXTRACT_FEED_QUEUE = queue.Queue()
+SEED_QUEUE = queue.Queue()
+EXTRACT_QUEUE = queue.Queue()
 RSS_STACK = {}
 
 
-def news():
-    while not XML_QUEUE.empty():
-        try:
-            locale, root_url_schema = XML_QUEUE.get()
-        except queue.Empty:
-            logging.error("Root/XML queue is empty.")
-            return
+def seed_worker():
+    while True:
+        locale_root_url_schema = SEED_QUEUE.get()
+        if locale_root_url_schema is None:
+            break
 
+        locale, root_url_schema = locale_root_url_schema
         root_url, schema = root_url_schema
         logging.debug("Getting {}".format(root_url))
         header = {"User-Agent": "Mozilla/5.0"}
@@ -254,7 +252,9 @@ def news():
             res = requests.get(root_url, headers=header, timeout=REQUEST_TIMEOUT)
         except:
             logging.error("Fail to get url: {}".format(root_url))
-            return
+            SEED_QUEUE.task_done()
+            continue
+
         page = res.content
 
         # Attempt to crawl non xml sites
@@ -272,17 +272,19 @@ def news():
         if not news_list:
             news_list = soup_page.findAll("url")
 
-        for getfeed in news_list:
-            EXTRACT_FEED_QUEUE.put((locale, root_url, soup_page, getfeed, schema))
+        for news_url in news_list:
+            EXTRACT_QUEUE.put((locale, root_url, soup_page, news_url, schema))
+
+        SEED_QUEUE.task_done()
 
 
-def extract_feed_data():
-    while not EXTRACT_FEED_QUEUE.empty():
-        try:
-            locale, root_url, soup_page, feed_source, schema = EXTRACT_FEED_QUEUE.get()
-        except queue.Empty:
-            logging.error("Feed Qeueu is empty.")
-            return
+def extract_worker():
+    while True:
+        extract_feed = EXTRACT_QUEUE.get()
+        if extract_feed is None:
+            break
+
+        locale, root_url, soup_page, feed_source, schema = extract_feed
 
         # Extract from xml
         if "title" not in schema and "description" not in schema:
@@ -306,6 +308,7 @@ def extract_feed_data():
             if not corona_keyword_exists_in_string(
                 res_title.lower()
             ) and not corona_keyword_exists_in_string(res_desc.lower()):
+                EXTRACT_QUEUE.task_done()
                 continue
 
         rss_record = {}
@@ -320,6 +323,7 @@ def extract_feed_data():
 
         # early catching
         if rss_record["url"] in CACHE or is_url_in_blacklist(rss_record["url"]):
+            EXTRACT_QUEUE.task_done()
             continue
 
         if not READ_ALL_SKIP_CACHE:
@@ -330,6 +334,7 @@ def extract_feed_data():
         # Process article
         article, status = extract_article(rss_record["url"])
         if not status:
+            EXTRACT_QUEUE.task_done()
             continue
 
         # Overwrite description if exists in meta tag
@@ -347,6 +352,7 @@ def extract_feed_data():
             and not corona_keyword_exists_in_string(rss_record["title"].lower())
             and not corona_keyword_exists_in_string(keywords.lower())
         ):
+            EXTRACT_QUEUE.task_done()
             continue
 
         # Get language and country
@@ -374,6 +380,8 @@ def extract_feed_data():
         if locale not in RSS_STACK:
             RSS_STACK[locale] = []
         RSS_STACK[locale].append(rss_record)
+
+        EXTRACT_QUEUE.task_done()
 
 
 def is_url_in_blacklist(url):
@@ -647,33 +655,40 @@ if __name__ == "__main__":
         logging.debug("Reading cache file...")
         read_cache()
 
-    # place initial xml urls to queue
+    # initialize threads
+    THREADS = []
+
+    # extract all xml data
+    for i in range(THREAD_LIMIT):
+        t = threading.Thread(target=seed_worker)
+        t.start()
+        THREADS.append(t)
+
+    # place initial seed urls to seed queue to process
     for locale, all_rss in NEWS_URLs.items():
         logging.debug("locale: {}, Number of rss: {}".format(locale, len(all_rss)))
         if not os.path.isdir("./data/{}".format(locale)):
             os.mkdir("./data/{}".format(locale))
         for rss in all_rss:
             logging.debug("Adding rss to queue: {}".format(rss))
-            XML_QUEUE.put((locale, rss))
+            SEED_QUEUE.put((locale, rss))
 
-    # extract all xml data
-    for i in range(THREAD_LIMIT):
-        t = threading.Thread(target=news)
-        t.start()
-        THREADS.append(t)
-
-    for thread in THREADS:
-        thread.join()
+    # end seed workers
+    SEED_QUEUE.join()
+    for i in range(len(THREADS)):
+        SEED_QUEUE.put(None)
 
     logging.debug("Done extracting all root urls")
 
-    # process all latest feed
+    # process extracted urls
     for i in range(len(THREADS)):
-        THREADS[i] = threading.Thread(target=extract_feed_data)
+        THREADS[i] = threading.Thread(target=extract_worker)
         THREADS[i].start()
 
-    for thread in THREADS:
-        thread.join(timeout=THREAD_TIMEOUT)
+    # end extract workers
+    EXTRACT_QUEUE.join()
+    for i in range(len(THREADS)):
+        EXTRACT_QUEUE.put(None)
 
     logging.debug("Done extracting all feed data")
 
@@ -693,3 +708,4 @@ if __name__ == "__main__":
     for lang, rss_records in RSS_STACK.items():
         count += len(rss_records)
     logging.debug("Total feeds: {}".format(count))
+    logging.debug("Done scraping.")

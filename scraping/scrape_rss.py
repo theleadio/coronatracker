@@ -371,9 +371,9 @@ def extract_feed_data():
         # Get the top image
         rss_record["urlToImage"] = article.top_image
 
-        if lang not in RSS_STACK:
-            RSS_STACK[lang] = []
-        RSS_STACK[lang].append(rss_record)
+        if locale not in RSS_STACK:
+            RSS_STACK[locale] = []
+        RSS_STACK[locale].append(rss_record)
 
 
 def is_url_in_blacklist(url):
@@ -556,7 +556,7 @@ def extract_article(link):
 
 
 def print_pretty():
-    for lang, rss_records in RSS_STACK.items():
+    for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
             to_print = ""
             to_print += "\ntitle:\t" + rss_record["title"]
@@ -578,8 +578,8 @@ def print_pretty():
 
 
 def write_output():
-    for lang, rss_records in RSS_STACK.items():
-        with open("data/{}/output.jsonl".format(lang), "w") as fh:
+    for locale, rss_records in RSS_STACK.items():
+        with open("data/{}/output.jsonl".format(locale), "w") as fh:
             for rss_record in rss_records:
                 json.dump(rss_record, fh)
                 fh.write("\n")
@@ -588,7 +588,7 @@ def write_output():
 def save_to_db():
     logging.debug("Saving to db to {} table".format("Prod" if WRITE_TO_PROD_TABLE else "Test"))
     db_connector.connect()
-    for lang, rss_records in RSS_STACK.items():
+    for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
             db_connector.insert(rss_record, "prod" if WRITE_TO_PROD_TABLE else "test")
 
@@ -648,13 +648,13 @@ if __name__ == "__main__":
         read_cache()
 
     # place initial xml urls to queue
-    for lang, all_rss in NEWS_URLs.items():
-        logging.debug("Lang: {}, Number of rss: {}".format(lang, len(all_rss)))
-        if not os.path.isdir("./data/{}".format(lang)):
-            os.mkdir("./data/{}".format(lang))
+    for locale, all_rss in NEWS_URLs.items():
+        logging.debug("locale: {}, Number of rss: {}".format(locale, len(all_rss)))
+        if not os.path.isdir("./data/{}".format(locale)):
+            os.mkdir("./data/{}".format(locale))
         for rss in all_rss:
             logging.debug("Adding rss to queue: {}".format(rss))
-            XML_QUEUE.put((lang, rss))
+            XML_QUEUE.put((locale, rss))
 
     # extract all xml data
     for i in range(THREAD_LIMIT):

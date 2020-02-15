@@ -1,10 +1,6 @@
 #!/usr/bin/ python3
 # TO-DO:
 
-# (Priority: High) Change INSERT IGNORE query to ON DUPLICATE KEY UPDATE
-# (Priority: Low) Probably should write a user defined function for data parsing
-
-
 # REFERENCES:
 # Intro to web scraping: https://hackernoon.com/building-a-web-scraper-from-start-to-finish-bb6b95388184
 # Intro to ingest data -> db: https://www.dataquest.io/blog/sql-insert-tutorial/
@@ -13,156 +9,274 @@
 # About executing raw SQL with sqlalchemy: https://chartio.com/resources/tutorials/how-to-execute-raw-sql-in-sqlalchemy/
 # Setting time to utc: https://stackabuse.com/converting-strings-to-datetime-in-python/
 #                    : https://stackoverflow.com/questions/79797/how-to-convert-local-time-string-to-utc
+# How to find sitemap to get .xml: https://stackoverflow.com/questions/10232774/how-to-find-sitemap-xml-path-on-websites
+# About exceptions: https://stackoverflow.com/questions/16511337/correct-way-to-try-except-using-python-requests-module/16511493
 
 ########################################################################################
 
 
 from bs4 import BeautifulSoup
+from newspaper import Article
 import requests
 import pandas as pd
 from datetime import datetime, timezone
 import pytz
 from dateutil.parser import parse
+import re
 
-from sqlalchemy import create_engine
-from sqlalchemy.sql import text
-import pymysql
+import mysql.connector
 
 import json
 import os.path
+import logging
+
+
+mydb = None
+TABLE_NAME = "newsapi_n"
+
+
+def get_content(url):
+    url = url
+    try:
+        response = requests.get(url, timeout=5)
+        content = BeautifulSoup(response.content, "xml")
+        # content = BeautifulSoup(response.content, "html.parser")
+    except Exception:
+        return None
+
+    return content
+
+
+def extract_article(link):
+    logging.debug("Extracting from: {}".format(link))
+    try:
+        article = Article(link)
+        # Do some NLP
+        article.download()  # Downloads the link's HTML content
+        article.parse()  # Parse the article
+        article.nlp()  # Keyword extraction wrapper
+    except Exception as e:
+        logging.error("Fail to extract Article. Error: {}".format(e))
+        return None, False
+
+    return article, True
+
+
+def localtime_to_ust(datetime):
+
+    date_time_naive = parse(datetime)
+    timezone = pytz.timezone(schema['timezone'])
+    local_dt = timezone.localize(date_time_naive, is_dst=None)
+
+    return local_dt
+
+
+def connect():
+    global mydb
+
+    # populate this from env file
+    path_to_json = "./db.json"
+
+    with open(path_to_json, "r") as handler:
+        info = json.load(handler)
+        print(info)
+
+        mydb = mysql.connector.connect(
+            host=info["host"],
+            user=info["user"],
+            passwd=info["passwd"],
+            database=info["database"],
+        )
+
+    print(mydb)
+
+
+def save_to_db():
+    connect()
+    for newsObject in newsObject_stack:
+        insert(newsObject)
+
+
+def insert(data_dict):
+    table_name = TABLE_NAME
+    mycursor = mydb.cursor()
+    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, countryCode, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title = %s, description = %s, author = %s, content = %s, urlToImage = %s, publishedAt = %s, addedOn = %s, siteName = %s, language = %s, countryCode = %s".format(
+        table_name
+    )
+    val = (
+        data_dict["title"],
+        data_dict["description"],
+        data_dict["author"],
+        data_dict["url"],
+        data_dict["content"],
+        data_dict["urlToImage"],
+        data_dict["publishedAt"],
+        data_dict["addedOn"],
+        data_dict["siteName"],
+        data_dict["language"],
+        data_dict["countryCode"],
+        1,  # Status
+        data_dict["title"],
+        data_dict["description"],
+        data_dict["author"],
+        data_dict["content"],
+        data_dict["urlToImage"],
+        data_dict["publishedAt"],
+        data_dict["addedOn"],
+        data_dict["siteName"],
+        data_dict["language"],
+        data_dict["countryCode"],
+    )
+    print("SQL query: ", sql)
+    try:
+        mycursor.execute(sql, val)
+        mydb.commit()
+        print(mycursor.rowcount, "record inserted.")
+    except Exception as ex:
+        print(ex)
+        print("Record not inserted")
 
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-#########################
-# Scrape job            #
-#########################
-
-# Url from main page
-url = 'https://www.cna.com.tw/topic/newstopic/2012.aspx'
-response = requests.get(url, timeout=5)
-content = BeautifulSoup(response.content, "html.parser")
+SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 
 
-# Gather url of articles, separate links that point to article and cnavideo pages.
-# If point to cnavideo page, need to redirect to sub-article page.
-article_url = []
-cnavideo_url = []
-for title in content.find_all('a', {"class": "menuUrl"}):
-    link = title.get('href')
-    if 'cnavideo.cna.com.tw' in link:
-        cnavideo_url.append(link)
-    else:
-        article_url.append(link)
-
-for cnavideolink in cnavideo_url:
-    vid_response = requests.get(cnavideolink, timeout=5)
-    vid_content = BeautifulSoup(vid_response.content, "html.parser")
-    # get link to sub-article page
-    news_pointer = vid_content.find('div', {'class': 'comment more'}).find('a')
-
-    if news_pointer is not None:
-        article_url.append(news_pointer.get('href'))
-
-unique_article_url = []
-for x in article_url:
-    if x not in unique_article_url:
-        unique_article_url.append(x)
-
-# empty list to collect newsObject for each url
+key = ["新型コロナウィルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
 newsObject_stack = []
 
-# Filtering related news and extract information
-for news in unique_article_url:
-    news_response = requests.get(news, timeout=5)
-    news_content = BeautifulSoup(news_response.content, "html.parser")
+NEWS_URLs = {
+    "ja_JP": [
+        (
+            "https://www3.nhk.or.jp/rss/news/cat0.xml",
+            {"siteName": "www3.nhk.or.jp",
+             "timezone": "Japan"}
+        ),
+        (
+            "http://rss.asahi.com/rss/asahi/newsheadlines.rdf",
+            {"siteName": "www.asahi.com"}
+        )
+    ],
+    "zh_TW": [
+        (
+            "https://www.cna.com.tw/topic/newstopic/2012.aspx",
+            {"siteName": "www.cna.com.tw",
+             "timezone": "Asia/Taipei"}
+        )
+    ]
 
-    keyword = ['武漢肺炎', '國家衛健委', '新型冠狀病毒', '口罩']
-    # keyword translation: wuhan pneumonia, NHC, coronavirus, face mask
-
-    article_keyword = news_content.find(
-        'meta', {'name': 'keywords'}).get('content')
-    # detect keyword, if present then extract information to dict
-    if any(words in article_keyword for words in keyword):
-       # language = news_content.find('html').get('lang')
-        language = "zh_TW"
-
-        # combining paragraphs of news article
-        article_lines = []
-        news_paragraphs = news_content.find(
-            'div', {'class': 'paragraph'}).find_all('p')
-        for line in news_paragraphs:
-            article_lines.append(line.text)
-
-        # reformat time to utc
-        date_test = news_content.find(
-            'meta', {"itemprop": 'datePublished'}).get('content')
-        date_time_naive = parse(date_test)
-        timezone = pytz.timezone('Asia/Taipei')
-        tw_local_dt = timezone.localize(date_time_naive, is_dst=None)
-        tw_utc_str = tw_local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
-
-        newsObject = {
-            'title': news_content.find('article', {"class": "article"}).get('data-title'),
-            'description': news_content.find('meta', {"name": "description"}).get('content'),
-            'content': "".join(article_lines),
-            'author': news_content.find('meta', {"itemprop": 'author'}).get('content'),
-            'url': news,
-            'urlToImage': news_content.find('link', {"rel": 'image_src'}).get('href'),
-            'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
-            'publishedAt': tw_utc_str,
-            'siteName': "cna.com.tw",
-            'language': language,
-            'countryCode': "TW",
-            'status': '1'
-        }
-
-        newsObject_stack.append(newsObject)
+}
 
 
-df = pd.DataFrame(newsObject_stack)
-# print(df.head())
-# df.to_csv('tw_cna.csv')
+# Check language
+for locale, all_rss in NEWS_URLs.items():
+    for rss in all_rss:
+        locale, root_url_schema = (locale, rss)
+        root_url, schema = root_url_schema
+        if schema['siteName'] == "www.cna.com.tw":
+            site_links = get_content(root_url).findAll(
+                'a', {"class": "menuUrl"})
+
+        else:
+            site_links = get_content(root_url).findAll('link')
+        links_container = []
+
+        for link in site_links:
+            if schema['siteName'] == "www.cna.com.tw":
+                links_container.append(link.get("href"))
+
+            else:
+                links_container.append(link.text)
+
+        for link in links_container:
+
+            # Check if keywords or title matches key
+            link_content = get_content(link)
+            if not link_content is None:
+                link_keywords_test = link_content.find(
+                    'meta', {"name": "keywords"})
+                link_title_test = link_content.find("title")
+
+                if not link_keywords_test is None:
+                    link_keywords = link_keywords_test.get("content")
+
+                    if any(words in link_keywords for words in key):
+                        link_title = link_title_test.text
+
+                    elif not link_title_test is None:
+                        link_title = link_title_test.text
+                        if any(words in link_title for words in key):
+                            pass
+
+                        else:
+                            continue
+
+                    else:
+                        continue
+
+                else:
+                    continue
+
+            else:
+                continue
+            # Get title
+            news_title = link_title
+
+            # Get content
+            article, status = extract_article(link)
+            if not status:
+                continue
+
+            # Get author and format publishedAt
+            if schema["siteName"] == "www3.nhk.or.jp":
+                news_author = link_content.find(
+                    'meta', {"name": 'author'}).get('content')
+
+                date_string = link_content.find('time').get("datetime")
+                local_dt = localtime_to_ust(date_string)
+
+            elif schema["siteName"] == "www.asahi.com":
+                news_author = link_content.find(
+                    'meta', {"property": "og:site_name"}).get("content")
+
+                date_string = link_content.find(
+                    'meta', {"name": "pubdate"}).get("content")
+                local_dt = parse(date_string)
+
+            elif schema["siteName"] == "www.cna.com.tw":
+                news_author_test = link_content.find(
+                    "meta", {"itemprop": "author"})
+                if news_author_test == None:
+                    continue
+                news_author = news_author_test.get("content")
+                date_string = link_content.find(
+                    "meta", {"itemprop": "datePublished"}).get("content")
+                local_dt = localtime_to_ust(date_string)
+
+            utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
+
+            # Get language and country
+            lang_locale = locale.split("_")
+            lang = lang_locale[0]
+            country = lang_locale[1]
+
+            newsObject = {
+
+                'title': news_title,
+                'description': link_content.find('meta', {"name": "description"}).get('content'),
+                'content': article.text,
+                'author': news_author,
+                'url': link,
+                'urlToImage': article.top_image,
+                'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
+                'publishedAt': utc_str,
+                'siteName': schema['siteName'],
+                'language': lang if locale not in SPECIAL_LANG else locale,
+                'countryCode': country,
+                'status': '1'
+            }
+            newsObject_stack.append(newsObject)
 
 
-#########################
-# Send data to db       #
-#########################
-
-# Create sqlalchemy engine
-# Obtain absolute path url to facilitate cron job
-# fdir = os.path.abspath(os.path.dirname(__file__))
-# path_to_json = os.path.join(fdir, 'db.json')
-path_to_json = 'db.json'
-
-with open(path_to_json, "r") as handler:
-    info = json.load(handler)
+save_to_db()
 
 
-engine = create_engine("mysql+pymysql://{user}:{pw}@{host}:3306/{db}"
-                       .format(user=info['user'],
-                               pw=info['passwd'],
-                               host=info['host'],
-                               db=info['database']))
-
-
-# Insert whole DataFrame into MySQL, populate "tw_cna_news_temp" table
-df.to_sql('tw_news_temp', con=engine, if_exists='append',
-          chunksize=1000, index=False)
-# df.to_sql('tw_cna_news_temp', con=engine, if_exists='replace',
-#           chunksize=1000, index=False)
-
-
-# Update "tw_cna_news" and "newsapi_n", clear "tw_cna_news_temp"
-def sql_query(query_string):
-    with engine.connect() as con:
-        con.execute(query_string)
-
-
-query_list = ['INSERT IGNORE INTO tw_news(title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status) SELECT title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status FROM tw_news_temp',
-              'INSERT IGNORE INTO newsapi_n(title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status) SELECT title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, status FROM tw_news',
-              'SET SQL_SAFE_UPDATES=0',
-              'DELETE FROM tw_news_temp']
-
-for query_line in query_list:
-    sql_query(query_line)

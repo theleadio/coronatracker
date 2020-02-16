@@ -64,7 +64,6 @@ https://www.taiwannews.com.tw/en/sitemap.xml
 https://www.shine.cn/sitemap-news.xml
 https://www.scmp.com/rss/318208/feed
 https://www.theage.com.au/rss/feed.xml
-https://www.theage.com.au/rss/world.xml
 https://www.news.com.au/content-feeds/latest-news-world/
 https://www.news.com.au/content-feeds/latest-news-national/
 http://www.dailytelegraph.com.au/news/breaking-news/rss
@@ -75,22 +74,62 @@ https://www.sbs.com.au/news/topic/latest/feed
 https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
 
 Don't crawl:
+https://www.theage.com.au/rss/world.xml
 http://www.heraldsun.com.au/news/breaking-news/rss
 http://www.heraldsun.com.au/rss
 
 """
+
+# nltk updates
+nltk.download("punkt")
+
+# CONSTANT VALUES
+# "Sat, 25 Jan 2020 01:52:22 +0000"
+DATE_RFC_2822_REGEX_RULE = r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
+DATE_RFC_2822_DATE_FORMAT = "%d %b %Y %H:%M:%S %z"
+# ISO 8601 | 2020-01-31T22:10:38+0800 | 2020-02-05T08:13:54.000Z | 2017-04-17T22:23:24+00:00
+DATE_ISO_8601_REGEX_RULE = (
+    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:?\d{0,2}[\+\.]\d{2,4}\:?[0-9]{0,2}Z?"
+)
+ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+ISO_8601_DATE_WITHOUT_SEC_FORMAT = "%Y-%m-%dT%H:%M%z"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+YEAR_MONTH_DAY_FORMAT = "%Y-%m-%d"
+
+URL_BLACKLIST_KEYWORDS = set(["/archives/", "/videos/", "/images/", "/author/"])
+CORONA_KEYWORDS = set(
+    [
+        "covid-19",
+        "corona virus",
+        "coronavirus",
+        "武漢肺炎",
+        "冠状病毒",
+        "virus corona",
+        "viêm phổi",  # pneumonia
+        "コロナウィルス",  # coronavirus
+        "新型肺炎",  # new pneumonia
+        "新型コロナ",  # new corona
+    ]
+)
+SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 
 # some sitemap contains different attributes
 NEWS_URLs = {
     "en_AU": [
         (
             "https://www.theage.com.au/rss/feed.xml",
-            {"title": "title", "description": "description", "url": "link",},
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
         ),
-        (
-            "https://www.theage.com.au/rss/world.xml",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
+        # Doesn't work anymore, couldn't access rss feed
+        # (
+        #     "https://www.theage.com.au/rss/world.xml",
+        #     {"title": "title", "description": "description", "url": "link",},
+        # ),
         # Remove heraldsun rss to prevent scraping the same content as other rss
         # > as it's a smaller newspaper that is likely syndicating news from bigger news
         #         (
@@ -103,11 +142,21 @@ NEWS_URLs = {
         #         ),
         (
             "https://www.news.com.au/content-feeds/latest-news-world/",
-            {"title": "title", "description": "description", "url": "link",},
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
         ),
         (
             "https://www.news.com.au/content-feeds/latest-news-national/",
-            {"title": "title", "description": "description", "url": "link",},
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
         ),
         (
             "http://www.dailytelegraph.com.au/news/breaking-news/rss",
@@ -127,7 +176,12 @@ NEWS_URLs = {
         ),
         (
             "https://www.sbs.com.au/news/topic/latest/feed",
-            {"title": "title", "description": "description", "url": "link",},
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
         ),
     ],
     "en_CN": [
@@ -136,18 +190,22 @@ NEWS_URLs = {
             {
                 "title": "news:title",
                 "url": "loc",
-                "publish_date": "news:publication_date",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
             },
         ),
     ],
     "en_TW": [
         (
             "http://www.taipeitimes.com/sitemap.xml",
-            {"url": "loc", "publish_date": "lastmod",},
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
         (
             "https://www.taiwannews.com.tw/en/sitemap.xml",
-            {"title": "news:title", "url": "loc",},
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+            },
         ),
     ],
     "en_SG": [
@@ -157,26 +215,110 @@ NEWS_URLs = {
                 "title": "title",
                 "description": "news:keywords",
                 "url": "loc",
-                "publish_date": "news:publication_date",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
             },
         ),
     ],
     "en_HK": [
         (
             "https://www.scmp.com/rss/318208/feed",
-            {"title": "title", "description": "description", "url": "link",},
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
+        ),
+    ],
+    "en_QA": [
+        (
+            "https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml",
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
+        ),
+    ],
+    "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc",},)],
+    "ja_JP": [
+        (
+            "https://toyokeizai.net/sitemap.xml",
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
+        ),
+        (
+            "http://www.news24.jp/sitemap_society.xml",
+            {
+                "url": "loc",
+                # don't include title even though xml has it
+                # title doesn't have enough info, crawl each instead
+                # "title": "news:title",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
+        ),
+        (
+            "http://www.news24.jp/sitemap_economy.xml",
+            {
+                "url": "loc",
+                # don't include title even though xml has it
+                # title doesn't have enough info, crawl each instead
+                # "title": "news:title",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
+        ),
+        (
+            "http://www.news24.jp/sitemap_international.xml",
+            {
+                "url": "loc",
+                # don't include title even though xml has it
+                # title doesn't have enough info, crawl each instead
+                # "title": "news:title",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
+        ),
+    ],
+    "vi_VN": [
+        ("https://www.tienphong.vn/event/virus-covid19-2302.tpo", {"not_xml": True}),
+        (
+            "https://baomoi.com/sitemaps/sitemap-news.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
+        ),
+        (
+            "https://vnexpress.net/google-news-sitemap.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://vietnamnews.vn/sitemap.xml",
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
     ],
     "zh_TW": [
-        ("https://news.cts.com.tw/sitemap.xml", {"url": "loc"},),
+        (
+            "https://news.cts.com.tw/sitemap.xml",
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
+        ),
         ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
         (
             "https://www.taiwannews.com.tw/ch/sitemap.xml",
-            {"title": "news:title", "url": "loc",},
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+            },
         ),
         (
             "https://www.ettoday.net/news-sitemap.xml",
-            {"title": "news:title", "url": "loc",},
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
         ),
     ],
 }
@@ -205,131 +347,302 @@ formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-# nltk updates
-nltk.download("punkt")  # 1 time download of the sentence tokenizer
 
-# CONSTANT VALUES
 CACHE_FILE = "cache.txt"
 OUTPUT_FILENAME = "output.jsonl"
-
-# "Sat, 25 Jan 2020 01:52:22 +0000"
-DATE_RFC_2822_REGEX_RULE = r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b"
-DATE_RFC_2822_DATE_FORMAT = "%d %b %Y %H:%M:%S %z"
-# ISO 8601 | 2020-01-31T22:10:38+0800 | 2020-02-05T08:13:54.000Z | 2017-04-17T22:23:24+00:00
-DATE_ISO_8601_REGEX_RULE = (
-    r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:?\d{0,2}[\+\.]\d{2,4}\:?[0-9]{0,2}Z?"
-)
-ISO_8601_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-URL_BLACKLIST_KEYWORDS = set(["archives/"])
-CORONA_KEYWORDS = set(["corona", "coronavirus", "武漢肺炎", "冠状病毒"])
-SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 THREAD_LIMIT = 10
 THREAD_TIMEOUT = 180  # seconds
 
 REQUEST_TIMEOUT = 5
 
+HEADER = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+}
 CACHE = set()
 SEED_QUEUE = queue.Queue()
 EXTRACT_QUEUE = queue.Queue()
 RSS_STACK = {}
 
 
+class SeedUrlContent:
+    def __init__(
+        self, locale="", root_url="", schema={}, soup_page="", is_xml=True, news_list=[]
+    ):
+        self.locale = locale
+        self.root_url = root_url
+        self.schema = schema
+        self.soup_page = soup_page
+        self.is_xml = is_xml
+        self.news_list = news_list
+
+        self.parse_schema()
+
+    def parse_schema(self):
+        if "not_xml" in self.schema and self.schema["not_xml"] is True:
+            self.is_xml = False
+
+    def validate_required_values(self):
+        error = False
+        if not self.root_url.strip():
+            logging.error("Empty root url")
+            error = True
+        if not self.locale.strip():
+            logging.error("Empty locale")
+            error = True
+
+        if error:
+            raise Exception(
+                "SeedUrlContent object missing required attributes: root_url, locale"
+            )
+
+    def parse_seed_page_content(self, page_content):
+        news_list = []
+        # Attempt to crawl non xml sites
+        if not self.is_xml:
+            self.soup_page = BeautifulSoup(page_content, "html.parser")
+            self.parse_soup_page_for_html()
+
+        else:
+            # xml sites, extract each nodes. Node format example:
+            # <url>
+            #     <loc>
+            #         https://www.aljazeera.com/news/2020/02/infected-coronavirus-200210205212755.html
+            #     </loc>
+            #     <lastmod>2020-02-15</lastmod>
+            # </url>
+            self.soup_page = BeautifulSoup(page_content, "xml")
+            self.parse_soup_page_for_xml()
+
+    def parse_soup_page_for_html(self):
+        for a_tag_node in self.soup_page.findAll("a"):
+            include_url = True
+
+            url = a_tag_node.text.strip()
+            title = self.get_title_from_for_html(a_tag_node)
+            description = self.get_description_from_for_html(a_tag_node)
+
+            if not corona_keyword_exists_in_string(url):
+                include_url = False
+
+                if (title and not corona_keyword_exists_in_string(title)) and (
+                    description and not corona_keyword_exists_in_string(description)
+                ):
+                    include_url = False
+                else:
+                    include_url = True
+
+            if not include_url:
+                continue
+
+            news_object = NewsContent(seed_source=self)
+            try:
+                news_object.news_url = a_tag_node["href"]
+            except Exception as e:
+                continue
+
+            if not self.is_valid_url(news_object.news_url):
+                continue
+
+            self.news_list.append(news_object)
+
+    def parse_soup_page_for_xml(self):
+        # common nodes for sitemaps
+        # hardcode? or set in schema?
+        url_nodes = self.soup_page.findAll("item")
+        if not url_nodes:
+            url_nodes = self.soup_page.findAll("url")
+        if not url_nodes:
+            url_nodes = self.soup_page.findAll("sitemap")
+
+        for node in url_nodes:
+            insert_article = True
+            news_object = NewsContent(seed_source=self)
+
+            published_at_dt_object = None
+            # use date_xml in schema to skip old articles and get published_at
+            if "date_xml" in self.schema:
+                date_tag_name = self.schema["date_xml"][0]
+                date_value_dt_format = self.schema["date_xml"][1]
+
+                if date_tag_name in set(["pubDate", "published_date"]):
+                    date_tag = node.find(date_tag_name)
+                    if date_tag:
+                        date_string_value = date_tag.text
+                        published_at_dt_object = convert_date_to_datetime_object(
+                            date_string_value
+                        )
+
+                else:
+                    try:
+                        date_string_value = node.find(date_tag_name).text
+                    except Exception as e:
+                        # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
+                        continue
+
+                    try:
+                        published_at_dt_object = datetime.strptime(
+                            date_string_value, date_value_dt_format
+                        )
+                    except Exception as e:
+                        # "Fail to convert publishedAt datetime format. Most likely irregular xml format. Value: {}, Format: {} Skipping..."
+                        continue
+
+                insert_article = is_article_uploaded_today(published_at_dt_object)
+
+            if not insert_article:
+                continue
+
+            # process time before URL for early catching
+            news_url = node.find(self.schema["url"]).text.strip()
+            if news_url.endswith(".xml"):
+                SEED_QUEUE.put(
+                    SeedUrlContent(
+                        locale=self.locale, root_url=news_url, schema=self.schema,
+                    )
+                )
+                continue
+
+            if not self.is_valid_url(news_url):
+                continue
+
+            node_title = ""
+            node_description = ""
+            if "title" not in self.schema and "description" not in self.schema:
+                # sitemap doesn't have title or description at all
+                # so we have to go through each URL to check if CORONA_KEYWORDS exists
+                pass
+            elif "keywords" in self.schema:
+                keywords = node.find(self.schema["keywords"]).text
+                if not corona_keyword_exists_in_string(keywords.lower()):
+                    continue
+            else:
+                # sitemap that contains either title or description
+                # early detection if URL contains CORONA_KEYWORDS or not
+                if "title" in self.schema:
+                    node_title = node.find(self.schema["title"]).text
+
+                if "description" in self.schema:
+                    node_description = node.find(self.schema["description"]).text
+
+                # check if any of the CORONA_KEYWORDS occur in title or description
+                corona_keywords_exist = corona_keyword_exists_in_string(
+                    node_title.lower()
+                ) or corona_keyword_exists_in_string(node_description.lower())
+                if not corona_keywords_exist:
+                    continue
+
+            news_object.news_url = news_url
+            news_object.title = node_title
+            news_object.description = node_description
+            news_object.published_at = published_at_dt_object
+            self.news_list.append(news_object)
+
+    def is_valid_url(self, url):
+        if len(url.strip()) == 0:
+            return False
+        if not re.findall(
+            r"^http[s]?://", url, re.IGNORECASE
+        ) or self.is_blacklist_keywords_in_url(url):
+            return False
+        return True
+
+    def is_blacklist_keywords_in_url(self, url):
+        for keyword in URL_BLACKLIST_KEYWORDS:
+            if keyword in url:
+                return True
+        return False
+
+    def get_title_from_for_html(self, node):
+        title = node.find("title")
+        if not title:
+            title = node.find("h1")
+        if not title:
+            title = node.find("h2")
+        return title.text if title else ""
+
+    def get_description_from_for_html(self, node):
+        description = node.find("p")
+        return description.text if description else ""
+
+    def add_news_to_extraction_queue(self):
+        for news_object in self.news_list:
+            EXTRACT_QUEUE.put(news_object)
+
+    @staticmethod
+    def get_seed_page(url):
+        try:
+            logging.debug("Get seed url: {}".format(url))
+            res = requests.get(url, headers=HEADER, timeout=REQUEST_TIMEOUT)
+            return res
+        except Exception as e:
+            logging.error("Fail to get url: {}".format(url))
+            raise e
+
+
+class NewsContent:
+    def __init__(
+        self,
+        news_url="",
+        title="",
+        description="",
+        published_at=None,
+        seed_source=None,
+    ):
+        self.news_url = news_url
+        self.title = title
+        self.description = description
+        self.published_at = published_at
+        self.seed_source = seed_source
+
+
 def seed_worker():
     while True:
-        locale_root_url_schema = SEED_QUEUE.get()
-        if locale_root_url_schema is None:
+        seed_object = SEED_QUEUE.get()
+        if seed_object is None:
             break
 
-        locale, root_url_schema = locale_root_url_schema
-        root_url, schema = root_url_schema
-        logging.debug("Getting {}".format(root_url))
-        header = {"User-Agent": "Mozilla/5.0"}
-        news_list = []
+        root_url = seed_object.root_url
 
         try:
-            res = requests.get(root_url, headers=header, timeout=REQUEST_TIMEOUT)
-        except:
-            logging.error("Fail to get url: {}".format(root_url))
+            seed_object.validate_required_values()
+            res = seed_object.get_seed_page(root_url)
+        except Exception as e:
+            logging.error(e)
             SEED_QUEUE.task_done()
             continue
 
-        page = res.content
-
-        # Attempt to crawl non xml sites
-        if "not_xml" in schema and schema["not_xml"]:
-            soup_page = BeautifulSoup(page, "html.parser")
-            for url in soup_page.findAll("a"):
-                if corona_keyword_exists_in_string(url.text):
-                    news_list.append(url["href"])
-
-        else:
-            # xml sites
-            soup_page = BeautifulSoup(page, "xml")
-            news_list = soup_page.findAll("item")
-
-        if not news_list:
-            news_list = soup_page.findAll("url")
-
-        for news_url in news_list:
-            EXTRACT_QUEUE.put((locale, root_url, soup_page, news_url, schema))
-
+        page_content = res.content
+        seed_object.parse_seed_page_content(page_content)
+        seed_object.add_news_to_extraction_queue()
         SEED_QUEUE.task_done()
 
 
 def extract_worker():
     while True:
-        extract_feed = EXTRACT_QUEUE.get()
-        if extract_feed is None:
+        approx_queue_size = EXTRACT_QUEUE.qsize()
+        if approx_queue_size % 10 == 0:
+            logging.debug(
+                "===> Approximately {} item(s) in the queue ...".format(
+                    approx_queue_size
+                )
+            )
+
+        news_object = EXTRACT_QUEUE.get()
+
+        if news_object is None:
             break
 
-        locale, root_url, soup_page, feed_source, schema = extract_feed
-
-        # Extract from xml
-        if "title" not in schema and "description" not in schema:
-            # sitemap doesn't have title or description at all
-            # so we have to go through each URL to check if CORONA_KEYWORDS exists
-            res_title = ""
-            res_desc = ""
-        else:
-            # sitemap that contains either title or description
-            # early detection if URL contains CORONA_KEYWORDS or not
-            res_title = (
-                feed_source.find(schema["title"]).text if "title" in schema else ""
-            )
-            res_desc = (
-                feed_source.find(schema["description"]).text
-                if "description" in schema
-                else ""
-            )
-
-            # check if any of the CORONA_KEYWORDS occur in title or description
-            if not corona_keyword_exists_in_string(
-                res_title.lower()
-            ) and not corona_keyword_exists_in_string(res_desc.lower()):
-                EXTRACT_QUEUE.task_done()
-                continue
-
         rss_record = {}
+        rss_record["url"] = news_object.news_url
 
-        # feed_source should be BeautifulSoup object
-        # if it's string, it's direct link to url (for attempt to crawl non-xml)
-        rss_record["url"] = (
-            feed_source
-            if isinstance(feed_source, str)
-            else feed_source.find(schema["url"]).text
-        )
-
-        # early catching
-        if rss_record["url"] in CACHE or is_url_in_blacklist(rss_record["url"]):
+        # early catching, capture cached url or blacklist keywords. eg: "/archives/"
+        if rss_record["url"] in CACHE:
             EXTRACT_QUEUE.task_done()
             continue
 
         if not READ_ALL_SKIP_CACHE:
-            add_to_cache(rss_record["url"])
-
-        rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
+            write_to_cache(rss_record["url"])
+        CACHE.add(rss_record["url"])
 
         # Process article
         article, status = extract_article(rss_record["url"])
@@ -339,12 +652,16 @@ def extract_worker():
 
         # Overwrite description if exists in meta tag
         rss_record["description"] = attempt_extract_from_meta_data(
-            article.meta_data, "description", res_desc
+            article.meta_data, "description", news_object.description
         )
         rss_record["title"] = attempt_extract_from_meta_data(
-            article.meta_data, "title", res_title
+            article.meta_data, "title", news_object.title
         )
+
         keywords = attempt_extract_from_meta_data(article.meta_data, "keywords", "")
+        if not isinstance(keywords, str):
+            print("keywords not string: {}".format(keywords))
+            keywords = " ".join(keywords)
 
         # If keyword doesn't exists in article, skip
         if (
@@ -356,9 +673,16 @@ def extract_worker():
             continue
 
         # Get language and country
+        locale = news_object.seed_source.locale
         lang_locale = locale.split("_")
-        lang = lang_locale[0]
-        country = lang_locale[1]
+        if len(lang_locale) < 2:
+            logging.error(
+                "Locale format in seed is incorrect, should be in xx_YY format. Eg: ms_MY (malay, Malaysia)."
+            )
+            EXTRACT_QUEUE.task_done()
+            continue
+
+        lang, country = lang_locale[0], lang_locale[1]
         rss_record["language"] = lang if locale not in SPECIAL_LANG else locale
         rss_record["countryCode"] = country
 
@@ -370,8 +694,11 @@ def extract_worker():
 
         # Get the publish date
         rss_record["publishedAt"] = get_published_at_value(
-            schema, feed_source, article, soup_page
+            news_object.published_at, article, news_object.seed_source.soup_page
         )
+
+        # Set addedOn after publish date
+        rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
 
         rss_record["content"] = article.text
         # Get the top image
@@ -384,23 +711,24 @@ def extract_worker():
         EXTRACT_QUEUE.task_done()
 
 
-def is_url_in_blacklist(url):
-    for keyword in URL_BLACKLIST_KEYWORDS:
-        if keyword in url:
-            return True
-    return False
+def is_article_uploaded_today(dt_object):
+    if dt_object is None:
+        return True
+    time_difference_days = (datetime.utcnow() - dt_object.replace(tzinfo=None)).days
+    if time_difference_days > 0:
+        # difference > 1 day, skip
+        return False
+    return True
 
 
-def get_published_at_value(schema, feed_source, article, soup_page):
+def get_published_at_value(published_at_dt_object, article, soup_page):
     published_at_value = ""
     published_at_source = ""
-    dt_object = None
-    if "publish_date" in schema:
-        # from root url, usually exists in sitemap.xml
-        dt_object = convert_date_to_datetime_object(
-            feed_source.find(schema["publish_date"]).text
-        )
-        source = "schema"
+    dt_object = published_at_dt_object
+    if dt_object and valid_dt_value(dt_object):
+        dt_object = convert_date_to_datetime_object(dt_object)
+        source = "from seed page"
+
     elif attempt_extract_from_meta_data(article.meta_data, "published_time", dt_object):
         dt_object = convert_date_to_datetime_object(
             attempt_extract_from_meta_data(
@@ -408,6 +736,7 @@ def get_published_at_value(schema, feed_source, article, soup_page):
             )
         )
         source = "meta_data -> published_time"
+
     elif attempt_extract_from_meta_data(article.meta_data, "modified_time", dt_object):
         dt_object = convert_date_to_datetime_object(
             attempt_extract_from_meta_data(
@@ -415,12 +744,11 @@ def get_published_at_value(schema, feed_source, article, soup_page):
             )
         )
         source = "meta_data -> modified_time"
-    elif "pubDate" in feed_source and feed_source.pubDate:
-        dt_object = convert_date_to_datetime_object(feed_source.pubDate.text)
-        source = "feed_source -> pubDate"
+
     elif soup_page.lastBuildDate:
         dt_object = convert_date_to_datetime_object(soup_page.lastBuildDate.text)
         source = "soup_page -> lastBuildDate"
+
     else:
         # Worst case: put current date and tmie
         # Reason: since we're constantly crawling (on cron)
@@ -435,10 +763,7 @@ def get_published_at_value(schema, feed_source, article, soup_page):
     if unix_extracted < unix_now:
         logging.debug(
             published_at_log_msg.format(
-                "meta_data -> modified_time",
-                unix_extracted,
-                unix_now,
-                unix_extracted > unix_now,
+                source, unix_extracted, unix_now, unix_extracted > unix_now,
             )
         )
     else:
@@ -450,13 +775,23 @@ def get_published_at_value(schema, feed_source, article, soup_page):
                 unix_extracted > unix_now,
             )
         )
+
     # reset if extracted time is greater than current time
     if unix_extracted > unix_now:
         logging.warning(
             "Extracted timestamp is greater than current timestamp. Resetting to current timestamp"
         )
-        dt_object = convert_date_to_datetime_object(datetime.utcnow())
+        dt_object = datetime.utcnow()
     return str(dt_object.strftime(DATE_FORMAT))
+
+
+def valid_dt_value(dt_object):
+    # this function is to capture if we got the dt object from
+    # %Y-%m-%d (without any timezone information)
+    # if no timezone, return invalid, try to find from soup page or meta
+    if dt_object.hour == 0 and dt_object.minute == 0 and dt_object.second == 0:
+        return False
+    return True
 
 
 def corona_keyword_exists_in_string(string):
@@ -473,13 +808,18 @@ def corona_keyword_exists_in_string(string):
     return False
 
 
-def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
+def attempt_extract_from_meta_data(meta_data, attribute, original_value):
     logging.debug(
-        "Start attempt look for attribute: {}".format(
-            attribute, cur_val if cur_val else "None"
+        "Start attempt look for attribute: {}. Original value: {}".format(
+            attribute, original_value if original_value else "None"
         )
     )
     if attribute in meta_data and isinstance(meta_data[attribute], str):
+        logging.debug(
+            "Found attribute: {} in meta_data. value: {}".format(
+                attribute, meta_data[attribute]
+            )
+        )
         return meta_data[attribute]
 
     # try og tag
@@ -510,12 +850,23 @@ def attempt_extract_from_meta_data(meta_data, attribute, cur_val):
 
     # if all fails, return default value
     logging.debug(
-        "Fail to find attribute: {} using default value: {}".format(attribute, cur_val)
+        "Fail to find attribute: {} using default value: {}".format(
+            attribute, original_value
+        )
     )
-    return cur_val
+    return original_value
 
 
 def convert_date_to_datetime_object(date_string):
+    if not isinstance(date_string, str):
+        # could already be a datetime object as initial value extracted in SeedUrlContent
+        logging.debug(
+            "Input date already in datetime value: {}. UTC: {}. Skipping convertion...".format(
+                date_string, date_string.astimezone(timezone.utc)
+            )
+        )
+        return date_string.astimezone(timezone.utc)
+
     logging.debug("Input date: {}".format(date_string))
     if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
         match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
@@ -552,7 +903,7 @@ def convert_date_to_datetime_object(date_string):
 def extract_article(link):
     logging.debug("Extracting from: {}".format(link))
     try:
-        article = Article(link)
+        article = Article(link, headers=HEADER)
         # Do some NLP
         article.download()  # Downloads the link's HTML content
         article.parse()  # Parse the article
@@ -594,7 +945,9 @@ def write_output():
 
 
 def save_to_db():
-    logging.debug("Saving to db to {} table".format("Prod" if WRITE_TO_PROD_TABLE else "Test"))
+    logging.debug(
+        "Saving to db to {} table".format("Prod" if WRITE_TO_PROD_TABLE else "Test")
+    )
     db_connector.connect()
     for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
@@ -621,10 +974,9 @@ def read_cache():
             CACHE.add(row)
 
 
-def add_to_cache(url):
+def write_to_cache(url):
     with open(CACHE_FILE, "a+") as fh:
         fh.write(url + "\n")
-    CACHE.add(url)
 
 
 if __name__ == "__main__":
@@ -665,20 +1017,29 @@ if __name__ == "__main__":
         THREADS.append(t)
 
     # place initial seed urls to seed queue to process
-    for locale, all_rss in NEWS_URLs.items():
-        logging.debug("locale: {}, Number of rss: {}".format(locale, len(all_rss)))
+    for locale, list_url_schema in NEWS_URLs.items():
+        logging.debug(
+            "locale: {}, Number of websites: {}".format(locale, len(list_url_schema))
+        )
         if not os.path.isdir("./data/{}".format(locale)):
             os.mkdir("./data/{}".format(locale))
-        for rss in all_rss:
-            logging.debug("Adding rss to queue: {}".format(rss))
-            SEED_QUEUE.put((locale, rss))
+        for url_schema in list_url_schema:
+            url, schema = url_schema
+            logging.debug(
+                "Adding seed url to queue: {}. Schema: {}".format(url, schema)
+            )
+            SEED_QUEUE.put(SeedUrlContent(locale=locale, root_url=url, schema=schema))
 
     # end seed workers
     SEED_QUEUE.join()
     for i in range(len(THREADS)):
         SEED_QUEUE.put(None)
 
-    logging.debug("Done extracting all root urls")
+    logging.debug(
+        "Done extracting all root urls. Approximately {} work to crunch.".format(
+            EXTRACT_QUEUE.qsize()
+        )
+    )
 
     # process extracted urls
     for i in range(len(THREADS)):

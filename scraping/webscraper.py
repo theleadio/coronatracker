@@ -11,6 +11,7 @@
 #                    : https://stackoverflow.com/questions/79797/how-to-convert-local-time-string-to-utc
 # How to find sitemap to get .xml: https://stackoverflow.com/questions/10232774/how-to-find-sitemap-xml-path-on-websites
 # About exceptions: https://stackoverflow.com/questions/16511337/correct-way-to-try-except-using-python-requests-module/16511493
+# Accessing into server: https://medium.com/@GalarnykMichael/aws-ec2-part-2-ssh-into-ec2-instance-c7879d47b6b2
 
 ########################################################################################
 
@@ -248,8 +249,11 @@ for locale, all_rss in NEWS_URLs.items():
                 if news_author_test == None:
                     continue
                 news_author = news_author_test.get("content")
-                date_string = link_content.find(
-                    "meta", {"itemprop": "datePublished"}).get("content")
+                date_string_test = link_content.find(
+                    "meta", {"itemprop": "datePublished"})
+                if date_string_test == None:
+                    continue
+                date_string = date_string_test.get("content")
                 local_dt = localtime_to_ust(date_string)
 
             utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
@@ -278,5 +282,3 @@ for locale, all_rss in NEWS_URLs.items():
 
 
 save_to_db()
-
-

@@ -57,26 +57,46 @@ import logging
 
 """
 Crawling:
-https://www.ettoday.net/news-sitemap.xml
-https://www.taiwannews.com.tw/ch/sitemap.xml
-http://www.taipeitimes.com/sitemap.xml
-https://www.taiwannews.com.tw/en/sitemap.xml
-https://www.shine.cn/sitemap-news.xml
-https://www.scmp.com/rss/318208/feed
-https://www.theage.com.au/rss/feed.xml
-https://www.news.com.au/content-feeds/latest-news-world/
-https://www.news.com.au/content-feeds/latest-news-national/
 http://www.dailytelegraph.com.au/news/breaking-news/rss
 http://www.dailytelegraph.com.au/news/national/rss
-http://www.dailytelegraph.com.au/newslocal/rss
 http://www.dailytelegraph.com.au/news/world/rss
-https://www.sbs.com.au/news/topic/latest/feed
+http://www.dailytelegraph.com.au/newslocal/rss
+http://www.news24.jp/sitemap_economy.xml
+http://www.news24.jp/sitemap_international.xml
+http://www.news24.jp/sitemap_society.xml
+http://www.taipeitimes.com/sitemap.xml
+https://baomoi.com/sitemaps/sitemap-news.xml
+https://news.kompas.com/web/sitemap.xml
+https://toyokeizai.net/sitemap.xml
+https://vietnamnews.vn/sitemap.xml
+https://vnexpress.net/google-news-sitemap.xml
 https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
+https://www.ettoday.net/news-sitemap.xml
+https://www.liputan6.com/sitemap_post.xml
+https://www.news.com.au/content-feeds/latest-news-national/
+https://www.news.com.au/content-feeds/latest-news-world/
+https://www.sbs.com.au/news/topic/latest/feed
+https://www.scmp.com/rss/318208/feed
+https://www.shine.cn/sitemap-news.xml
+https://www.taiwannews.com.tw/ch/sitemap.xml
+https://www.taiwannews.com.tw/en/sitemap.xml
+https://www.theage.com.au/rss/feed.xml
+https://www.tienphong.vn/event/virus-covid19-2302.tpo
+http://www.hani.co.kr/arti/RSS/sitemap_www.xml
+http://www.koreatimes.co.kr/www/rss/world.xml
+http://www.koreatimes.co.kr/www/rss/nation.xml
+http://koreajoongangdaily.joins.com/sitemap_google_news.xml
+https://news.joins.com/sitemap/latest-articles
+http://www.donga.com/sitemap/donga-newsmap.xml
+https://news.chosun.com/google/rss.html
+https://news.chosun.com/site/data/rss/rss.xml
+http://english.chosun.com/site/data/rss/rss.xml
+https://thestandard.co/coronavirus-coverage/
 
 Don't crawl:
-https://www.theage.com.au/rss/world.xml
 http://www.heraldsun.com.au/news/breaking-news/rss
 http://www.heraldsun.com.au/rss
+https://www.theage.com.au/rss/world.xml
 
 """
 
@@ -96,7 +116,17 @@ ISO_8601_DATE_WITHOUT_SEC_FORMAT = "%Y-%m-%dT%H:%M%z"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 YEAR_MONTH_DAY_FORMAT = "%Y-%m-%d"
 
-URL_BLACKLIST_KEYWORDS = set(["/archives/", "/videos/", "/images/", "/author/"])
+URL_BLACKLIST_KEYWORDS = set(
+    [
+        "/archives/",
+        "/videos/",
+        "/images/",
+        "/author/",
+        "facebook.com",
+        "twitter.com",
+        "youtube.com",
+    ]
+)
 CORONA_KEYWORDS = set(
     [
         "covid-19",
@@ -109,6 +139,18 @@ CORONA_KEYWORDS = set(
         "コロナウィルス",  # coronavirus
         "新型肺炎",  # new pneumonia
         "新型コロナ",  # new corona
+        "โคโรน่า",
+        "โคโรนา",
+        "ไวรัส",
+        "สายพันธุ์ใหม่",
+        "เชื้อโรค",
+        "ติดเชื้อ",
+        "โควิด-19",
+        "โควิด",
+        "코로나 바이러스",  # coronavirus
+        "코로나",  # corona
+        "우한 코로나",  # wuhan corona
+        "코로나19",  # corona19
     ]
 )
 SPECIAL_LANG = set(["zh_TW", "zh_CN"])
@@ -230,13 +272,96 @@ NEWS_URLs = {
             },
         ),
     ],
+    "en_KR": [
+        (
+            "http://english.chosun.com/site/data/rss/rss.xml",
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("dc:date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "http://www.koreatimes.co.kr/www/rss/world.xml",
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "author": "author",
+            },
+        ),
+        (
+            "http://www.koreatimes.co.kr/www/rss/nation.xml",
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "author": "author",
+            },
+        ),
+        (
+            "http://koreajoongangdaily.joins.com/sitemap_google_news.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+            },
+        ),
+    ],
+    "ko_KR": [
+        (
+            "https://news.chosun.com/google/rss.html",
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "date_xml": ("pubDate", None),
+            },
+        ),
+        (
+            "https://news.chosun.com/site/data/rss/rss.xml",
+            {
+                "title": "title",
+                "description": "description",
+                "url": "link",
+                "author": "author",
+                "date_xml": ("dc:date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://news.joins.com/sitemap/latest-articles",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "http://www.donga.com/sitemap/donga-newsmap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "http://www.hani.co.kr/arti/RSS/sitemap_www.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+            },
+        ),
+    ],
     "en_QA": [
         (
             "https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml",
             {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
     ],
-    "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc",},)],
+    "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc",},),],
     "ja_JP": [
         (
             "https://toyokeizai.net/sitemap.xml",
@@ -273,6 +398,7 @@ NEWS_URLs = {
             },
         ),
     ],
+    "th_TH": [("https://thestandard.co/coronavirus-coverage/", {"not_xml": True,},),],
     "vi_VN": [
         ("https://www.tienphong.vn/event/virus-covid19-2302.tpo", {"not_xml": True}),
         (
@@ -353,7 +479,7 @@ OUTPUT_FILENAME = "output.jsonl"
 THREAD_LIMIT = 10
 THREAD_TIMEOUT = 180  # seconds
 
-REQUEST_TIMEOUT = 5
+REQUEST_TIMEOUT = 10
 
 HEADER = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
@@ -531,6 +657,11 @@ class SeedUrlContent:
                 if not corona_keywords_exist:
                     continue
 
+            node_author = ""
+            if "author" in self.schema:
+                node_author = node.find(self.schema["author"]).text
+
+            news_object.author = node_author
             news_object.news_url = news_url
             news_object.title = node_title
             news_object.description = node_description
@@ -538,10 +669,19 @@ class SeedUrlContent:
             self.news_list.append(news_object)
 
     def is_valid_url(self, url):
+        # not empty
         if len(url.strip()) == 0:
             return False
+
+        # TODO
+        # incorrect domain (link to other sites)
+        # domain = re.findall(r"^(?:https?:\/\/)?(?:www\.)?([^:\/?\n]+)", url, re.IGNORECASE)
+        # root_domain = re.findall(r"^(?:https?:\/\/)?(?:www\.)?([^:\/?\n]+)", self.root_url, re.IGNORECASE)
+        # logging.debug("URL: {}. DOMAIN: {}, ROOT_DOMAIN: {}".format(url, domain, root_domain))
+
+        # missing http(s):// or contain blacklist
         if not re.findall(
-            r"^http[s]?://", url, re.IGNORECASE
+            r"^https?://", url, re.IGNORECASE
         ) or self.is_blacklist_keywords_in_url(url):
             return False
         return True
@@ -584,12 +724,14 @@ class NewsContent:
         self,
         news_url="",
         title="",
+        author="",
         description="",
         published_at=None,
         seed_source=None,
     ):
         self.news_url = news_url
         self.title = title
+        self.author = author
         self.description = description
         self.published_at = published_at
         self.seed_source = seed_source
@@ -690,7 +832,9 @@ def extract_worker():
         rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)
 
         # Get the authors
-        rss_record["author"] = ", ".join(article.authors)
+        rss_record["author"] = (
+            news_object.author if news_object.author else ", ".join(article.authors)
+        )
 
         # Get the publish date
         rss_record["publishedAt"] = get_published_at_value(

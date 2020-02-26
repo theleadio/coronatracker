@@ -142,7 +142,7 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 
 
-key = ["新型コロナウィルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
+key = ["新型コロナウイルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
 newsObject_stack = []
 
 NEWS_URLs = {
@@ -192,6 +192,7 @@ for locale, all_rss in NEWS_URLs.items():
 
             # Check if keywords or title matches key
             link_content = get_content(link)
+
             if not link_content is None:
                 link_keywords_test = link_content.find(
                     'meta', {"name": "keywords"})
@@ -202,7 +203,7 @@ for locale, all_rss in NEWS_URLs.items():
 
                     if any(words in link_keywords for words in key):
                         link_title = link_title_test.text
-
+                        print(link_title)
                     elif not link_title_test is None:
                         link_title = link_title_test.text
                         if any(words in link_title for words in key):
@@ -282,3 +283,4 @@ for locale, all_rss in NEWS_URLs.items():
 
 
 save_to_db()
+# print(newsObject_stack)

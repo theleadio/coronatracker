@@ -178,7 +178,13 @@ for locale, all_rss in NEWS_URLs.items():
                 'a', {"class": "menuUrl"})
 
         else:
-            site_links = get_content(root_url).findAll('link')
+            print(root_url)
+            site_links_test = get_content(root_url)
+            if site_links_test is None:
+                continue
+            else:
+                site_links = site_links_test.findAll('link')
+
         links_container = []
 
         for link in site_links:
@@ -203,9 +209,10 @@ for locale, all_rss in NEWS_URLs.items():
 
                     if any(words in link_keywords for words in key):
                         link_title = link_title_test.text
-                        print(link_title)
+
                     elif not link_title_test is None:
                         link_title = link_title_test.text
+
                         if any(words in link_title for words in key):
                             pass
 
@@ -240,9 +247,13 @@ for locale, all_rss in NEWS_URLs.items():
                 news_author = link_content.find(
                     'meta', {"property": "og:site_name"}).get("content")
 
-                date_string = link_content.find(
-                    'meta', {"name": "pubdate"}).get("content")
-                local_dt = parse(date_string)
+                date_string_test = link_content.find(
+                    'meta', {"name": "pubdate"})
+                if date_string_test == None:
+                    continue
+                else:
+                    date_string = date_string_test.get("content")
+                    local_dt = parse(date_string)
 
             elif schema["siteName"] == "www.cna.com.tw":
                 news_author_test = link_content.find(

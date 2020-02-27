@@ -94,6 +94,9 @@ http://english.chosun.com/site/data/rss/rss.xml
 https://thestandard.co/coronavirus-coverage/
 https://www.thairath.co.th/sitemap-daily.xml
 https://rss.komchadluek.net/latest_news_google_news.xml
+https://www.ilmessaggero.it/?sez=XML&p=MapNews
+https://www.leggo.it/?sez=XML&p=MapNews
+https://www.lastampa.it/sitemap.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -359,6 +362,30 @@ NEWS_URLs = {
         ),
     ],
     "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc",},),],
+    "it_IT": [
+        (
+            "https://www.ilmessaggero.it/?sez=XML&p=MapNews",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.leggo.it/?sez=XML&p=MapNews",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.lastampa.it/sitemap.xml",
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
+        ),
+    ],
     "ja_JP": [
         (
             "https://toyokeizai.net/sitemap.xml",

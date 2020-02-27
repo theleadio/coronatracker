@@ -92,6 +92,8 @@ https://news.chosun.com/google/rss.html
 https://news.chosun.com/site/data/rss/rss.xml
 http://english.chosun.com/site/data/rss/rss.xml
 https://thestandard.co/coronavirus-coverage/
+https://www.thairath.co.th/sitemap-daily.xml
+https://rss.komchadluek.net/latest_news_google_news.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -139,14 +141,9 @@ CORONA_KEYWORDS = set(
         "コロナウィルス",  # coronavirus
         "新型肺炎",  # new pneumonia
         "新型コロナ",  # new corona
-        "โคโรน่า",
-        "โคโรนา",
-        "ไวรัส",
-        "สายพันธุ์ใหม่",
-        "เชื้อโรค",
-        "ติดเชื้อ",
-        "โควิด-19",
-        "โควิด",
+        "โคโรน่า",  # corona
+        "ไวรัสโคโรนา",  # corona virus
+        "โควิด-19",  # covid-19
         "코로나 바이러스",  # coronavirus
         "코로나",  # corona
         "우한 코로나",  # wuhan corona
@@ -398,7 +395,31 @@ NEWS_URLs = {
             },
         ),
     ],
-    "th_TH": [("https://thestandard.co/coronavirus-coverage/", {"not_xml": True,},),],
+    "th_TH": [
+        ("https://thestandard.co/coronavirus-coverage/", {"not_xml": True,},),
+        (
+            "https://www.thairath.co.th/sitemap-daily.xml",
+            {"url": "loc", "title": "image:title",},
+        ),
+        (
+            "https://rss.komchadluek.net/latest_news_google_news.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://rss.komchadluek.net/latest_news_google_news.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
     "vi_VN": [
         ("https://www.tienphong.vn/event/virus-covid19-2302.tpo", {"not_xml": True}),
         (

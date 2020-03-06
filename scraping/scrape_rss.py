@@ -100,6 +100,10 @@ https://www.lastampa.it/sitemap.xml
 https://www.malaymail.com/sitemap.xml
 https://www.projekmm.com/sitemap.xml
 https://www.orientaldaily.com.my/sitemap.xml
+https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
+https://www.welt.de/sitemaps/sitemap/today.xml
+https://www.focus.de/
+https://www.faz.net/aktuell/
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -133,6 +137,10 @@ URL_BLACKLIST_KEYWORDS = set(
         "facebook.com",
         "twitter.com",
         "youtube.com",
+        "/politik/",
+        "/print/",
+        "/404/",
+        "/uploads/",
     ]
 )
 CORONA_KEYWORDS = set(
@@ -165,6 +173,27 @@ SPECIAL_LANG = {
 
 # some sitemap contains different attributes
 NEWS_URLs = {
+    "de_DE": [
+        (
+            "https://www.welt.de/sitemaps/newssitemap/newssitemap.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.welt.de/sitemaps/sitemap/today.xml",
+            {
+                "url": "loc",
+                "title": "image:title",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        ("https://www.focus.de/", {"not_xml": True,},),
+        ("https://www.faz.net/aktuell/", {"not_xml": True,},),
+    ],
     "en_AU": [
         (
             "https://www.theage.com.au/rss/feed.xml",
@@ -726,14 +755,17 @@ class SeedUrlContent:
                 # so we have to go through each URL to check if CORONA_KEYWORDS exists
                 pass
             elif "keywords" in self.schema:
-                keywords = node.find(self.schema["keywords"]).text
-                if not corona_keyword_exists_in_string(keywords.lower()):
-                    continue
+                keywords_node = node.find(self.schema["keywords"])
+                if keywords_node:
+                    keywords = keywords_node.text
+                    if not corona_keyword_exists_in_string(keywords.lower()):
+                        continue
             else:
                 # sitemap that contains either title or description
                 # early detection if URL contains CORONA_KEYWORDS or not
                 if "title" in self.schema:
-                    node_title = node.find(self.schema["title"]).text
+                    title_node = node.find(self.schema["title"])
+                    node_title = title_node.text if title_node else node_title
 
                 if "description" in self.schema:
                     node_description = node.find(self.schema["description"]).text

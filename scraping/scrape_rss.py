@@ -97,6 +97,9 @@ https://rss.komchadluek.net/latest_news_google_news.xml
 https://www.ilmessaggero.it/?sez=XML&p=MapNews
 https://www.leggo.it/?sez=XML&p=MapNews
 https://www.lastampa.it/sitemap.xml
+https://www.malaymail.com/sitemap.xml
+https://www.projekmm.com/sitemap.xml
+https://www.orientaldaily.com.my/sitemap.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -139,6 +142,7 @@ CORONA_KEYWORDS = set(
         "coronavirus",
         "武漢肺炎",
         "冠状病毒",
+        "新冠肺炎", # new crown pneumonia (used by orientaldaily)
         "virus corona",
         "viêm phổi",  # pneumonia
         "コロナウィルス",  # coronavirus
@@ -153,7 +157,11 @@ CORONA_KEYWORDS = set(
         "코로나19",  # corona19
     ]
 )
-SPECIAL_LANG = set(["zh_TW", "zh_CN"])
+SPECIAL_LANG = {
+    ("zh", "TW"): "zh_TW",
+    ("zh", "CN"): "zh_CN",
+    ("zh", "MY"): "zh_CN",
+}
 
 # some sitemap contains different attributes
 NEWS_URLs = {
@@ -443,6 +451,38 @@ NEWS_URLs = {
                 "url": "loc",
                 "title": "news:title",
                 "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
+    "en_MY": [
+        (
+            "https://www.malaymail.com/sitemap.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
+    "ms_MY": [
+        (
+            "https://www.projekmm.com/sitemap.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
+    "zh_MY": [
+        (
+            "https://www.orientaldaily.com.my/sitemap.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
                 "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
             },
         ),
@@ -873,7 +913,7 @@ def extract_worker():
             continue
 
         lang, country = lang_locale[0], lang_locale[1]
-        rss_record["language"] = lang if locale not in SPECIAL_LANG else locale
+        rss_record["language"] = lang if (lang, country) not in SPECIAL_LANG else SPECIAL_LANG[(lang, country)]
         rss_record["countryCode"] = country
 
         # Get siteName

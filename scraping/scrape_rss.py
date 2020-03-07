@@ -58,8 +58,6 @@ import logging
 """
 Crawling:
 http://www.dailytelegraph.com.au/news/breaking-news/rss
-http://www.dailytelegraph.com.au/news/national/rss
-http://www.dailytelegraph.com.au/news/world/rss
 http://www.dailytelegraph.com.au/newslocal/rss
 http://www.news24.jp/sitemap_economy.xml
 http://www.news24.jp/sitemap_international.xml
@@ -109,6 +107,8 @@ Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
 http://www.heraldsun.com.au/rss
 https://www.theage.com.au/rss/world.xml
+http://www.dailytelegraph.com.au/news/national/rss
+http://www.dailytelegraph.com.au/news/world/rss
 
 """
 
@@ -150,7 +150,7 @@ CORONA_KEYWORDS = set(
         "coronavirus",
         "武漢肺炎",
         "冠状病毒",
-        "新冠肺炎", # new crown pneumonia (used by orientaldaily)
+        "新冠肺炎",  # new crown pneumonia (used by orientaldaily)
         "virus corona",
         "viêm phổi",  # pneumonia
         "コロナウィルス",  # coronavirus
@@ -241,18 +241,18 @@ NEWS_URLs = {
             "http://www.dailytelegraph.com.au/news/breaking-news/rss",
             {"title": "title", "description": "description", "url": "link",},
         ),
-        (
-            "http://www.dailytelegraph.com.au/news/national/rss",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
+        # (
+        #     "http://www.dailytelegraph.com.au/news/national/rss",
+        #     {"title": "title", "description": "description", "url": "link",},
+        # ),
         (
             "http://www.dailytelegraph.com.au/newslocal/rss",
             {"title": "title", "description": "description", "url": "link",},
         ),
-        (
-            "http://www.dailytelegraph.com.au/news/world/rss",
-            {"title": "title", "description": "description", "url": "link",},
-        ),
+        # (
+        #     "http://www.dailytelegraph.com.au/news/world/rss",
+        #     {"title": "title", "description": "description", "url": "link",},
+        # ),
         (
             "https://www.sbs.com.au/news/topic/latest/feed",
             {
@@ -945,7 +945,11 @@ def extract_worker():
             continue
 
         lang, country = lang_locale[0], lang_locale[1]
-        rss_record["language"] = lang if (lang, country) not in SPECIAL_LANG else SPECIAL_LANG[(lang, country)]
+        rss_record["language"] = (
+            lang
+            if (lang, country) not in SPECIAL_LANG
+            else SPECIAL_LANG[(lang, country)]
+        )
         rss_record["countryCode"] = country
 
         # Get siteName

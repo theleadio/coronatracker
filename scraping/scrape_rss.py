@@ -923,9 +923,7 @@ def extract_worker():
         rss_record["description"] = attempt_extract_from_meta_data(
             article.meta_data, "description", news_object.description
         )
-        rss_record["title"] = attempt_extract_from_meta_data(
-            article.meta_data, "title", news_object.title
-        )
+        rss_record["title"] = get_title_from_article(article)
 
         keywords = attempt_extract_from_meta_data(article.meta_data, "keywords", "")
         if not isinstance(keywords, str):
@@ -996,6 +994,13 @@ def is_article_uploaded_today(dt_object):
         # difference > 1 day, skip
         return False
     return True
+
+
+def get_title_from_article(article):
+    if article.title:
+        return article.title
+
+    return attempt_extract_from_meta_data(article.meta_data, "title", news_object.title)
 
 
 def get_published_at_value(published_at_dt_object, article, soup_page):

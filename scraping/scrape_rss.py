@@ -923,7 +923,7 @@ def extract_worker():
         rss_record["description"] = attempt_extract_from_meta_data(
             article.meta_data, "description", news_object.description
         )
-        rss_record["title"] = get_title_from_article(article)
+        rss_record["title"] = get_title_from_article(article, news_object)
 
         keywords = attempt_extract_from_meta_data(article.meta_data, "keywords", "")
         if not isinstance(keywords, str):
@@ -996,7 +996,7 @@ def is_article_uploaded_today(dt_object):
     return True
 
 
-def get_title_from_article(article):
+def get_title_from_article(article, news_object):
     if article.title:
         return article.title
 

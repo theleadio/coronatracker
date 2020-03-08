@@ -102,6 +102,7 @@ https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
 https://www.welt.de/sitemaps/sitemap/today.xml
 https://www.focus.de/
 https://www.faz.net/aktuell/
+http://www.gov.cn/google.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -541,6 +542,12 @@ NEWS_URLs = {
             {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
     ],
+    "zh_CN": [
+        (
+            "http://www.gov.cn/google.xml",
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
+        ),
+    ],
     "zh_TW": [
         (
             "https://news.cts.com.tw/sitemap.xml",
@@ -968,7 +975,9 @@ def extract_worker():
         # Set addedOn after publish date
         rss_record["addedOn"] = datetime.utcnow().strftime(DATE_FORMAT)
 
-        rss_record["content"] = article.text
+        rss_record["content"] = (
+            article.text if article.text else rss_record["description"]
+        )
         # Get the top image
         rss_record["urlToImage"] = article.top_image
 

@@ -103,6 +103,9 @@ https://www.welt.de/sitemaps/sitemap/today.xml
 https://www.focus.de/
 https://www.faz.net/aktuell/
 http://www.gov.cn/google.xml
+https://www.nu.nl/sitemap_news.xml
+https://www.rivm.nl/sitemap.xml
+https://www.nrc.nl/sitemap/index.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -507,6 +510,29 @@ NEWS_URLs = {
             },
         ),
     ],
+    "nl_NL": [
+        (
+            "https://www.nu.nl/sitemap_news.xml",
+            {
+                "url": "loc",
+                "title": "news:title",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.rivm.nl/sitemap.xml",
+            {
+                "url": "loc",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                "custom_blacklist": ["/en/"],
+            },
+        ),
+        (
+            "https://www.nrc.nl/sitemap/index.xml",
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
+        ),
+    ],
     "zh_MY": [
         (
             "https://www.orientaldaily.com.my/sitemap.xml",
@@ -616,7 +642,14 @@ RSS_STACK = {}
 
 class SeedUrlContent:
     def __init__(
-        self, locale="", root_url="", schema={}, soup_page="", is_xml=True, news_list=[]
+        self,
+        locale="",
+        root_url="",
+        schema={},
+        soup_page="",
+        is_xml=True,
+        news_list=[],
+        custom_blacklist=[],
     ):
         self.locale = locale
         self.root_url = root_url
@@ -624,12 +657,17 @@ class SeedUrlContent:
         self.soup_page = soup_page
         self.is_xml = is_xml
         self.news_list = news_list
+        self.custom_blacklist = set(custom_blacklist)
 
         self.parse_schema()
 
     def parse_schema(self):
         if "not_xml" in self.schema and self.schema["not_xml"] is True:
             self.is_xml = False
+        if "custom_blacklist" in self.schema:
+            self.custom_blacklist = self.custom_blacklist.union(
+                set(self.schema["custom_blacklist"])
+            )
 
     def validate_required_values(self):
         error = False
@@ -725,26 +763,29 @@ class SeedUrlContent:
                 else:
                     try:
                         date_string_value = node.find(date_tag_name).text
-                    except Exception as e:
-                        # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
-                        continue
-
-                    try:
                         published_at_dt_object = datetime.strptime(
                             date_string_value, date_value_dt_format
                         )
+                        insert_article = is_article_uploaded_today(
+                            published_at_dt_object
+                        )
                     except Exception as e:
+                        # Potentially sub-sitemap doesn't have datetime even though root sitemap does
+                        # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
                         # "Fail to convert publishedAt datetime format. Most likely irregular xml format. Value: {}, Format: {} Skipping..."
-                        continue
+                        # logging.error("Fail to convert extract date_tag_name or publishedAt datetime format. Skip early catching. URL: {}".format(self.root_url))
+                        insert_article = True
 
-                insert_article = is_article_uploaded_today(published_at_dt_object)
-
+            # if datetime exists, use it for early catching
+            #   skip if article is not uploaded today
+            # else proceed to try other methods
             if not insert_article:
                 continue
 
-            # process time before URL for early catching
+            # check for xml to feed back into SEED_QUEUE
             news_url = node.find(self.schema["url"]).text.strip()
-            if news_url.endswith(".xml"):
+            check_url = news_url[: news_url.index("?")] if "?" in news_url else news_url
+            if check_url.endswith(".xml"):
                 SEED_QUEUE.put(
                     SeedUrlContent(
                         locale=self.locale, root_url=news_url, schema=self.schema,
@@ -752,7 +793,11 @@ class SeedUrlContent:
                 )
                 continue
 
+            # check for empty, non https ,blacklist
             if not self.is_valid_url(news_url):
+                logging.debug(
+                    "url: {}, check: is_valid_url, valid: False".format(news_url)
+                )
                 continue
 
             node_title = ""
@@ -814,7 +859,8 @@ class SeedUrlContent:
         return True
 
     def is_blacklist_keywords_in_url(self, url):
-        for keyword in URL_BLACKLIST_KEYWORDS:
+        # global blacklist and site specific blacklist
+        for keyword in self.custom_blacklist.union(URL_BLACKLIST_KEYWORDS):
             if keyword in url:
                 return True
         return False

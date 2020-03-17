@@ -314,7 +314,7 @@ NEWS_SOURCES = {
         ),
         (
             "https://www.lastampa.it/sitemap.xml",
-            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
     ],
     "ja_JP": [

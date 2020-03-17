@@ -119,36 +119,24 @@ class NewsParser:
         for node in url_nodes:
             insert_article = True
             news_object = NewsContent(seed_source=self)
-
             published_at_dt_object = None
             # use date_xml in schema to skip old articles and get published_at
             if "date_xml" in self.schema:
                 date_tag_name = self.schema["date_xml"][0]
                 date_value_dt_format = self.schema["date_xml"][1]
 
-                if date_tag_name in set(["pubDate", "published_date"]):
-                    date_tag = node.find(date_tag_name)
-                    if date_tag:
-                        date_string_value = date_tag.text
-                        published_at_dt_object = convert_date_to_datetime_object(
-                            date_string_value
-                        )
-
-                else:
-                    try:
-                        date_string_value = node.find(date_tag_name).text
-                        published_at_dt_object = datetime.strptime(
-                            date_string_value, date_value_dt_format
-                        )
-                        insert_article = is_article_uploaded_today(
-                            published_at_dt_object
-                        )
-                    except Exception as e:
-                        # Potentially sub-sitemap doesn't have datetime even though root sitemap does
-                        # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
-                        # "Fail to convert publishedAt datetime format. Most likely irregular xml format. Value: {}, Format: {} Skipping..."
-                        # logging.error("Fail to convert extract date_tag_name or publishedAt datetime format. Skip early catching. URL: {}".format(self.root_url))
-                        insert_article = True
+                try:
+                    date_string_value = node.find(date_tag_name).text
+                    published_at_dt_object = convert_date_to_datetime_object(
+                        date_string_value
+                    )
+                    insert_article = is_article_uploaded_today(published_at_dt_object)
+                except Exception as e:
+                    # Potentially sub-sitemap doesn't have datetime even though root sitemap does
+                    # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
+                    # "Fail to convert publishedAt datetime format. Most likely irregular xml format. Value: {}, Format: {} Skipping..."
+                    # logging.error("Fail to convert extract date_tag_name or publishedAt datetime format. Skip early catching. URL: {}".format(self.root_url))
+                    insert_article = True
 
             # if datetime exists, use it for early catching
             #   skip if article is not uploaded today

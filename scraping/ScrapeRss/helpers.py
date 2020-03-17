@@ -15,6 +15,8 @@ import logging
 import requests
 import re
 
+TODAY_TIME = datetime.now()
+
 
 def is_valid_url(url, blacklist):
     # not empty
@@ -148,47 +150,17 @@ def convert_date_to_datetime_object(date_string):
             )
         )
         return date_string.astimezone(timezone.utc)
-
-    logging.debug("Input date: {}".format(date_string))
-    if len(re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)) > 0:
-        match_dateformat = re.findall(DATE_RFC_2822_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0].strip()
-        original_datetime_format = datetime.strptime(
-            datetime_str, DATE_RFC_2822_DATE_FORMAT
-        )
-
-    elif len(re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)) > 0:
-        # Fall back to try datetime ISO 8601 format
-        match_dateformat = re.findall(DATE_ISO_8601_REGEX_RULE, date_string,)
-        datetime_str = match_dateformat[0].strip()
-        # if datetime_str.endswith("Z"):
-        #     # seen 2020-02-05T08:13:54.000Z
-        #     right_index = len(datetime_str) - 1
-        #     while right_index > 0 and datetime_str[right_index] != ".":
-        #         right_index -= 1
-        #     datetime_str = datetime_str[:right_index] + "+0000"
-        # original_datetime_format = datetime.strptime(datetime_str, ISO_8601_DATE_FORMAT)
-        original_datetime_format = parser.parse(datetime_str)
-
-    else:
-        # if fail to extract, log here, figure out the pattern offline
-        # use current time for now
-        logging.error(
-            "Fail to extract date format. Fix required for date_string: {}".format(
-                date_string
-            )
-        )
-        original_datetime_format = datetime.utcnow()
-
-    return original_datetime_format.astimezone(timezone.utc)
+    return parser.parse(date_string).astimezone(timezone.utc)
 
 
 def is_article_uploaded_today(dt_object):
     if dt_object is None:
         return True
-    time_difference_days = (datetime.utcnow() - dt_object.replace(tzinfo=None)).days
-    if time_difference_days > 0:
-        # difference > 1 day, skip
+    if (
+        dt_object.year != TODAY_TIME.year
+        or dt_object.month != TODAY_TIME.month
+        or abs(dt_object.day - TODAY_TIME.day) > 2
+    ):
         return False
     return True
 

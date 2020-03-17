@@ -24,8 +24,3 @@ class BingCovid:
         self.deaths = deaths
         self.recovered = recovered
         self.posted_date = posted_date
-
-    # def to_json():
-    #     data = {}
-    #     if self.state:
-    #         data["state"] = self.state

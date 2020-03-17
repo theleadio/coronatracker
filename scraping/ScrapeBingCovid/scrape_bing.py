@@ -55,6 +55,7 @@ if __name__ == "__main__":
         logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
         db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
 
+        # States
         for stateData in countryData["areas"]:
             currentState = BingCovid(
                 confirmed=stateData["totalConfirmed"],

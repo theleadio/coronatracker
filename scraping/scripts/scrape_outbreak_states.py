@@ -165,4 +165,4 @@ def get_case_details():
 
 if __name__ == "__main__":
     get_state_details()
-    # get_case_details()
+    get_case_details()

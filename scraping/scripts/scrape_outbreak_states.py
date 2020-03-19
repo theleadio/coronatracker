@@ -18,6 +18,7 @@ from dateutil import parser
 
 TABLE = "test"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
 db_malaysia_patient_cases.connect()
 db_malaysia_states.connect()
 
@@ -25,7 +26,7 @@ db_malaysia_states.connect()
 def get_state_details():
     url = "https://www.outbreak.my/"
     print("Scraping", url)
-    res = requests.get(url)
+    res = requests.get(url, headers=HEADER)
     page = BeautifulSoup(res.content, "html.parser")
     tables = page.find("table", {"class": "table table-dashboard"})
     tbody = tables.find("tbody")
@@ -78,7 +79,7 @@ def get_state_details():
 def get_case_details():
     url = "https://www.outbreak.my/stats"
     print("Scraping", url)
-    res = requests.get(url)
+    res = requests.get(url, headers=HEADER)
     page = BeautifulSoup(res.content, "html.parser")
     tables = page.find("div", {"class": "col-md-6 col-xl-6"})
 
@@ -164,4 +165,4 @@ def get_case_details():
 
 if __name__ == "__main__":
     get_state_details()
-    get_case_details()
+    # get_case_details()

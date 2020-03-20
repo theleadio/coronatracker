@@ -3,7 +3,7 @@ import json
 import datetime
 
 if __name__ == '__main__':
-    search_query = "WuhanVirus OR 2019nCoV OR Coronavirus OR WuhanCoronavirus OR coronaviruses OR coronavirusoutbreak OR coronavirus OR Covid-19 OR COVID-19 or ChineseCoronavirus OR Coronaoutbreak"
+    search_query = "WuhanVirus OR 2019nCoV OR Coronavirus OR WuhanCoronavirus OR coronaviruses OR coronavirusoutbreak OR coronavirus OR Covid-19 OR COVID-19 OR ChineseCoronavirus OR Coronaoutbreak"
     filename = "corona_twitter.json"
     #filename = "{}.json".format(username)
 

@@ -16,9 +16,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from dateutil import parser
 
-TABLE = "test"
+TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
+HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
 db_malaysia_patient_cases.connect()
 db_malaysia_states.connect()
 
@@ -28,7 +28,7 @@ def get_state_details():
     print("Scraping", url)
     res = requests.get(url, headers=HEADER)
     page = BeautifulSoup(res.content, "html.parser")
-    tables = page.find("table", {"class": "table table-dashboard"})
+    tables = page.find("table", {"class": "table"})
     tbody = tables.find("tbody")
     row = tbody.find("tr")
 

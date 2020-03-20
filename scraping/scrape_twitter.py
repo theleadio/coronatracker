@@ -17,4 +17,4 @@ if __name__ == '__main__':
         j.append(t.__dict__)
 
     with open(filename, "w") as f:
-        f.write(json.dumps(j))    
+        f.write(json.dumps(j))

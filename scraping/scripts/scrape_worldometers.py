@@ -74,7 +74,7 @@ def get_worldometers_countries():
     countries_total_sum["serious_critical_cases"] = countries_total_sum_raw[7]
     countries_total_sum["total_cases_per_million_pop"] = countries_total_sum_raw[8]
     countries_total_sum["last_updated"] = datetime.now().strftime(DATETIME_FORMAT)
-    db_worldometers_total_sum.insert(countries_total_sum)
+    db_worldometers_total_sum.insert(countries_total_sum, TABLE)
 
     for country_raw in countries:
         country = {}
@@ -88,7 +88,7 @@ def get_worldometers_countries():
         country["serious_critical_cases"] = country_raw[7]
         country["total_cases_per_million_pop"] = country_raw[8]
         country["last_updated"] = datetime.now().strftime(DATETIME_FORMAT)
-        db_worldometers_countries.insert(country)
+        db_worldometers_countries.insert(country, TABLE)
     print("Total countries: ", len(countries))
     print("Total Sum:", countries_total_sum)
 

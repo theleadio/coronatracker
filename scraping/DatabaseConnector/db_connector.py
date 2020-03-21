@@ -1,11 +1,11 @@
 import mysql.connector
 import json
 
-# TABLE_SCHEMA
+# NEWS TABLE_SCHEMA
 # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']
 
 mydb = None
-TEST_TABLE_NAME = "newsapi_en"
+TEST_TABLE_NAME = "newsapi_n_temp"
 PROD_TABLE_NAME = "newsapi_n"
 
 
@@ -55,7 +55,7 @@ def insert(data_dict, target_table="test"):
         data_dict["siteName"],
         data_dict["language"],
         data_dict["countryCode"],
-        1, # Status
+        1,  # Status
         data_dict["title"],
         data_dict["description"],
         data_dict["author"],
@@ -67,7 +67,7 @@ def insert(data_dict, target_table="test"):
         data_dict["language"],
         data_dict["countryCode"],
     )
-    print("SQL query: ", sql)
+    print("SQL query: ", sql, val)
     try:
         mycursor.execute(sql, val)
         mydb.commit()

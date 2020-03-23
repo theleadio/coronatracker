@@ -49,6 +49,13 @@ http://www.gov.cn/google.xml
 https://www.nu.nl/sitemap_news.xml
 https://www.rivm.nl/sitemap.xml
 https://www.nrc.nl/sitemap/index.xml
+https://www.thehindu.com/sitemap/googlenews.xml
+https://www.dailythanthi.com/Sitemap/googlesitemap.xml
+https://www.maalaimalar.com/Sitemap/googlesitemap.xml
+https://www.hindutamil.in/feed/news-corona-virus-518.xml
+https://www.livehindustan.com/news-sitemap.xml
+https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
+https://www.jagran.com/news-sitemap.xml
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -167,10 +174,21 @@ NEWS_SOURCES = {
             },
         ),
     ],
+    "en_IN": [
+        (
+            "https://www.thehindu.com/sitemap/googlenews.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
     "en_TW": [
         (
             "http://www.taipeitimes.com/sitemap.xml",
-            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
         (
             "https://www.taiwannews.com.tw/en/sitemap.xml",
@@ -240,6 +258,35 @@ NEWS_SOURCES = {
             },
         ),
     ],
+    "hi_IN": [
+        (
+            "https://www.livehindustan.com/news-sitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.bhaskar.com/sitemapgoogle/topnews_1.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.jagran.com/news-sitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
     "ko_KR": [
         (
             "https://news.chosun.com/google/rss.html",
@@ -289,10 +336,10 @@ NEWS_SOURCES = {
     "en_QA": [
         (
             "https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml",
-            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
     ],
-    "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc", },), ],
+    "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc",},),],
     "it_IT": [
         (
             "https://www.ilmessaggero.it/?sez=XML&p=MapNews",
@@ -320,7 +367,7 @@ NEWS_SOURCES = {
     "ja_JP": [
         (
             "https://toyokeizai.net/sitemap.xml",
-            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
         (
             "http://www.news24.jp/sitemap_society.xml",
@@ -353,11 +400,40 @@ NEWS_SOURCES = {
             },
         ),
     ],
+    "ta_IN": [
+        (
+            "https://www.dailythanthi.com/Sitemap/googlesitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.maalaimalar.com/Sitemap/googlesitemap.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+        (
+            "https://www.hindutamil.in/feed/news-corona-virus-518.xml",
+            {
+                "title": "news:title",
+                "url": "loc",
+                "keywords": "news:keywords",
+                "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+            },
+        ),
+    ],
     "th_TH": [
-        ("https://thestandard.co/coronavirus-coverage/", {"not_xml": True, },),
+        ("https://thestandard.co/coronavirus-coverage/", {"not_xml": True,},),
         (
             "https://www.thairath.co.th/sitemap-daily.xml",
-            {"url": "loc", "title": "image:title", },
+            {"url": "loc", "title": "image:title",},
         ),
         (
             "https://rss.komchadluek.net/latest_news_google_news.xml",
@@ -420,7 +496,7 @@ NEWS_SOURCES = {
         ),
         (
             "https://www.nrc.nl/sitemap/index.xml",
-            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
     ],
     "zh_MY": [
@@ -434,8 +510,7 @@ NEWS_SOURCES = {
         ),
     ],
     "vi_VN": [
-        ("https://www.tienphong.vn/event/virus-covid19-2302.tpo",
-         {"not_xml": True}),
+        ("https://www.tienphong.vn/event/virus-covid19-2302.tpo", {"not_xml": True}),
         (
             "https://baomoi.com/sitemaps/sitemap-news.xml",
             {
@@ -456,19 +531,19 @@ NEWS_SOURCES = {
         ),
         (
             "https://vietnamnews.vn/sitemap.xml",
-            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
     ],
     "zh_CN": [
         (
             "http://www.gov.cn/google.xml",
-            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),},
         ),
     ],
     "zh_TW": [
         (
             "https://news.cts.com.tw/sitemap.xml",
-            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT),},
         ),
         ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
         (

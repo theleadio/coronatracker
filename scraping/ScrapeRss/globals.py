@@ -55,6 +55,8 @@ CORONA_KEYWORDS = set(
         "코로나",  # corona
         "우한 코로나",  # wuhan corona
         "코로나19",  # corona19
+        "கொரோனா வைரஸ்",  # corona virus
+        "கொரோனா",  # corona
     ]
 )
 SPECIAL_LANG = {

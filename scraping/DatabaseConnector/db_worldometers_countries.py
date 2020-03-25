@@ -40,7 +40,7 @@ def select():
 def insert(data_dict, target_table="test"):
     table_name = PROD_TABLE_NAME if target_table == "prod" else TEST_TABLE_NAME
     mycursor = mydb.cursor()
-    sql = "INSERT INTO {} (country, total_cases, total_deaths, total_recovered, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, last_updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE country = %s, total_cases = %s, total_deaths = %s, total_recovered = %s, new_cases = %s, new_deaths = %s, active_cases = %s, serious_critical_cases = %s, total_cases_per_million_pop = %s".format(
+    sql = "INSERT INTO {} (country, total_cases, total_deaths, total_recovered, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, total_deaths_per_million_pop, last_updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE country = %s, total_cases = %s, total_deaths = %s, total_recovered = %s, new_cases = %s, new_deaths = %s, active_cases = %s, serious_critical_cases = %s, total_cases_per_million_pop = %s, total_deaths_per_million_pop = %s".format(
         table_name
     )
     val = (
@@ -53,6 +53,7 @@ def insert(data_dict, target_table="test"):
         data_dict["active_cases"],
         data_dict["serious_critical_cases"],
         data_dict["total_cases_per_million_pop"],
+        data_dict["total_deaths_per_million_pop"],
         data_dict["last_updated"],
         data_dict["country"],
         data_dict["total_cases"],
@@ -62,7 +63,8 @@ def insert(data_dict, target_table="test"):
         data_dict["new_deaths"],
         data_dict["active_cases"],
         data_dict["serious_critical_cases"],
-        data_dict["total_cases_per_million_pop"]
+        data_dict["total_cases_per_million_pop"],
+        data_dict["total_deaths_per_million_pop"],
     )
     print("SQL query: ", sql, val)
     try:

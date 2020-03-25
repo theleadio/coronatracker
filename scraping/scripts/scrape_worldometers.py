@@ -53,7 +53,7 @@ def get_worldometers_countries():
                 else:
                     country.append(int(text))
 
-        if len(country) == 9:
+        if len(country) == 10:
             if country[0] == 'Total:':
                 countries_total_sum_raw = country[:]
                 break
@@ -73,6 +73,7 @@ def get_worldometers_countries():
     countries_total_sum["active_cases"] = countries_total_sum_raw[6]
     countries_total_sum["serious_critical_cases"] = countries_total_sum_raw[7]
     countries_total_sum["total_cases_per_million_pop"] = countries_total_sum_raw[8]
+    countries_total_sum["total_deaths_per_million_pop"] = countries_total_sum_raw[9]
     countries_total_sum["last_updated"] = datetime.now().strftime(DATETIME_FORMAT)
     db_worldometers_total_sum.insert(countries_total_sum, TABLE)
 
@@ -87,6 +88,7 @@ def get_worldometers_countries():
         country["active_cases"] = country_raw[6]
         country["serious_critical_cases"] = country_raw[7]
         country["total_cases_per_million_pop"] = country_raw[8]
+        country["total_deaths_per_million_pop"] = country_raw[9]
         country["last_updated"] = datetime.now().strftime(DATETIME_FORMAT)
         db_worldometers_countries.insert(country, TABLE)
     print("Total countries: ", len(countries))

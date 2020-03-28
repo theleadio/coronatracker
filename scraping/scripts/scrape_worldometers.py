@@ -15,7 +15,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-TABLE = "test" # "prod"
+TABLE = "prod" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
@@ -39,8 +39,10 @@ def get_worldometers_countries():
     country = []
     countries_total_sum_raw = []
     while col:
+        print('---')
         text = col.get_text().strip()
-        
+        print("text")
+
         if not text:
             country.append(0)
         else:
@@ -50,10 +52,15 @@ def get_worldometers_countries():
                 text = text.replace('+', '').replace(',', '')
                 if '.' in text:
                     country.append(float(text))
+                elif len(country) == 10:
+                    country.append(text)        
                 else:
+                    print(text)
                     country.append(int(text))
 
-        if len(country) == 10:
+        
+        if len(country) == 11:
+            print(country)
             if country[0] == 'Total:':
                 countries_total_sum_raw = country[:]
                 break
@@ -61,7 +68,7 @@ def get_worldometers_countries():
                 countries.append(country)
                 country = []
         col = col.findNext(["td"])
-    
+
 
     # Inserting
     countries_total_sum = {}

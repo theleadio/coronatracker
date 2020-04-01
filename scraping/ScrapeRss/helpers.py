@@ -256,9 +256,11 @@ def get_author_value(author_default_value, article):
         )
         source = "meta_data -> author"
 
-    elif "authors" in article and article["authors"]:
-        author_value = " ".join(article["authors"])
+    elif article.authors:
+        author_value = " ".join(authors.authors)
         source = "article -> authors"
+    else:
+        source = "author not found."
 
     logging.debug("Found author in: {} ".format(source))
     return author_value

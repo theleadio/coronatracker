@@ -94,6 +94,7 @@ from ScrapeRss.helpers import (
     get_seed_page,
     get_title_from_article,
     get_published_at_value,
+    get_author_value,
 )
 from ScrapeRss.helpers import (
     attempt_extract_from_meta_data,
@@ -221,9 +222,7 @@ def extract_worker():
         rss_record["siteName"] = re.sub(r"https?://(www\.)?", "", article.source_url)
 
         # Get the authors
-        rss_record["author"] = (
-            news_object.author if news_object.author else ", ".join(article.authors)
-        )
+        rss_record["author"] = get_author_value(news_object.author, article)
 
         # Get the publish date
         rss_record["publishedAt"] = get_published_at_value(
@@ -277,9 +276,7 @@ def write_output():
 
 
 def save_to_db(table_name):
-    logging.debug(
-        "Saving to db to {} table".format(table_name)
-    )
+    logging.debug("Saving to db to {} table".format(table_name))
     for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
             db_connector.insert_news_article(rss_record, table_name)
@@ -290,7 +287,12 @@ def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
-    parser.add_argument("-t", "--table", help="Database table name to write to.", default="newsapi_n_temp")
+    parser.add_argument(
+        "-t",
+        "--table",
+        help="Database table name to write to.",
+        default="newsapi_n_temp",
+    )
     parser.add_argument(
         "-a", "--all", action="store_true", help="Skip read and write on cache"
     )

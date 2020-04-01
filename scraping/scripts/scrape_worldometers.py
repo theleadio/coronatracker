@@ -1,6 +1,12 @@
+"""
+To run:
+- python scripts/scrape_worldometers.py --stats_table [ STATS TABLE NAME ] --overview_table [ OVERVIEW TABLE NAME ]
+"""
+
 import os
 import sys
 import logging
+import argparse
 
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
@@ -9,23 +15,26 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_worldometers_countries, db_worldometers_total_sum
+from DatabaseConnector.db_connector import DatabaseConnector
+
+db_connector = DatabaseConnector(config_path="./db.json")
+db_connector.connect()
+
+# temporary solution as migrating to new db prod instance
+db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+db_connector_prodv2.connect()
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-TABLE = "prod" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
 }
 
-db_worldometers_countries.connect()
-db_worldometers_total_sum.connect()
-
 # countries details
-def get_worldometers_countries():
+def get_worldometers_countries(stats_table, overview_table):
     url = "https://www.worldometers.info/coronavirus/"
     print("Scraping", url)
     res = requests.get(url, headers=HEADER)
@@ -34,14 +43,12 @@ def get_worldometers_countries():
     tbody = tables.find("tbody")
     row = tbody.find("tr")
     col = row.find(["td"])
-    
+
     countries = []
     country = []
     countries_total_sum_raw = []
     while col:
-        print('---')
         text = col.get_text().strip()
-        print("text")
 
         if not text:
             country.append(0)
@@ -49,26 +56,22 @@ def get_worldometers_countries():
             if not country:
                 country.append(text)
             else:
-                text = text.replace('+', '').replace(',', '')
-                if '.' in text:
+                text = text.replace("+", "").replace(",", "")
+                if "." in text:
                     country.append(float(text))
                 elif len(country) == 10:
-                    country.append(text)        
+                    country.append(text)
                 else:
-                    print(text)
                     country.append(int(text))
 
-        
         if len(country) == 11:
-            print(country)
-            if country[0] == 'Total:':
+            if country[0] == "Total:":
                 countries_total_sum_raw = country[:]
                 break
             else:
                 countries.append(country)
                 country = []
         col = col.findNext(["td"])
-
 
     # Inserting
     countries_total_sum = {}
@@ -82,7 +85,10 @@ def get_worldometers_countries():
     countries_total_sum["total_cases_per_million_pop"] = countries_total_sum_raw[8]
     countries_total_sum["total_deaths_per_million_pop"] = countries_total_sum_raw[9]
     countries_total_sum["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
-    db_worldometers_total_sum.insert(countries_total_sum, TABLE)
+    db_connector.insert_worldometers_total_sum(countries_total_sum, overview_table)
+    db_connector_prodv2.insert_worldometers_total_sum(
+        countries_total_sum, overview_table
+    )
 
     for country_raw in countries:
         country = {}
@@ -97,9 +103,30 @@ def get_worldometers_countries():
         country["total_cases_per_million_pop"] = country_raw[8]
         country["total_deaths_per_million_pop"] = country_raw[9]
         country["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
-        db_worldometers_countries.insert(country, TABLE)
+        db_connector.insert_worldometer_stats(country, stats_table)
+        db_connector_prodv2.insert_worldometer_stats(country, stats_table)
     print("Total countries: ", len(countries))
     print("Total Sum:", countries_total_sum)
 
+
+def parser():
+    parser = argparse.ArgumentParser(description="Scrape XML sources")
+    parser.add_argument(
+        "-s",
+        "--stats_table",
+        help="Database table name to write to.",
+        default="worldometers_temp",
+    )
+    parser.add_argument(
+        "-o",
+        "--overview_table",
+        help="Database table name to write to.",
+        default="worldometers_total_sum_temp",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    get_worldometers_countries()
+    args = parser()
+
+    get_worldometers_countries(args.stats_table, args.overview_table)

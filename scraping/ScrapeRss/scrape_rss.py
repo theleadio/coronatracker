@@ -26,7 +26,7 @@
 # Example:
 #   - write to db with log messages, doesn't update ./data/<lang>/output.jsonl
 #       - python ScrapeRss/scrape_rss.py        # writes to test table
-#       - python ScrapeRss/scrape_rss.py  -p    # writes to production table
+#       - python ScrapeRss/scrape_rss.py  --table  [ TABLE NAME ]
 #   - debug only
 #       d flag so it doesn't write to db (prints output and write to output.jsonl)
 #       a flag will skip read and write to cache
@@ -64,7 +64,15 @@ RSS_STACK = {}
 CACHE = set()
 
 # Database configurations
-from DatabaseConnector import db_connector
+from DatabaseConnector.db_connector import DatabaseConnector
+
+db_connector = DatabaseConnector(config_path="./db.json")
+db_connector.connect()
+
+# temporary solution as migrating to new db prod instance
+db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+db_connector_prodv2.connect()
+
 
 # import all news sources
 from ScrapeRss.rss_sites import NEWS_SOURCES
@@ -94,8 +102,6 @@ from ScrapeRss.helpers import (
 )
 
 global READ_ALL_SKIP_CACHE
-global WRITE_TO_PROD_TABLE
-global WRITE_TO_DB_MODE
 
 # LOGGER CONFIG
 if not os.path.isdir("logs"):
@@ -270,23 +276,21 @@ def write_output():
                 fh.write("\n")
 
 
-def save_to_db():
+def save_to_db(table_name):
     logging.debug(
-        "Saving to db to {} table".format("Prod" if WRITE_TO_PROD_TABLE else "Test")
+        "Saving to db to {} table".format(table_name)
     )
-    db_connector.connect()
     for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
-            db_connector.insert(rss_record, "prod" if WRITE_TO_PROD_TABLE else "test")
+            db_connector.insert_news_article(rss_record, table_name)
+            db_connector_prodv2.insert_news_article(rss_record, table_name)
 
 
 def parser():
     parser = argparse.ArgumentParser(description="Scrape XML sources")
     parser.add_argument("-d", "--debug", action="store_true", help="Debugging")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear Cache")
-    parser.add_argument(
-        "-p", "--production", action="store_true", help="Writes to production table"
-    )
+    parser.add_argument("-t", "--table", help="Database table name to write to.", default="newsapi_n_temp")
     parser.add_argument(
         "-a", "--all", action="store_true", help="Skip read and write on cache"
     )
@@ -310,8 +314,8 @@ if __name__ == "__main__":
     args = parser()
 
     READ_ALL_SKIP_CACHE = args.all
-    WRITE_TO_DB_MODE = not args.debug
-    WRITE_TO_PROD_TABLE = args.production
+    debug_mode = args.debug
+    database_table_name = args.table
 
     # create required folders
     if not os.path.isdir("data"):
@@ -384,13 +388,13 @@ if __name__ == "__main__":
         logging.debug("RSS Stack is empty. Exiting...")
         exit()
 
-    if WRITE_TO_DB_MODE:
-        # Store to DB
-        save_to_db()
-    else:
+    if debug_mode:
         # print output and write to jsonl file
         print_pretty()
         write_output()
+    else:
+        # Store to DB
+        save_to_db(database_table_name)
 
     count = 0
     for lang, rss_records in RSS_STACK.items():

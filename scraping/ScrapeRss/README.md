@@ -10,16 +10,14 @@ pip3 install -r requirements.txt
 
 ## Update database credentials
 
-Enter database credentials to `db.json`. Format can be seen in `db.json.example`.
-
-Update your table name to write to in `db_connector.py`. Replace `TEST_TABLE_NAME` with your table name.
+Enter database credentials to `db.json` in `coronatracker/scraping/` directory. Format can be seen in `db.json.example`.
 
 ## Steps to run `scrape_rss.py`
 
 Run for testing to get all latest news output in `./data/\<lang\>/output.jsonl`
 
 ```python
-python scrape_rss.py -d -a
+python ScrapeRss/scrape_rss.py -d -a
 ```
 
 - d flag: debug mode, only writes to file
@@ -28,8 +26,7 @@ python scrape_rss.py -d -a
 Run to update database on test and production table (use `-v` flag for log messages)
 
 ```python
-python scrape_rss.py # writes to test table
-python scrape_rss.py -p # writes to production table
+python ScrapeRss/scrape_rss.py --table [ TABLE NAME ]
 ```
 
 ## Some tips

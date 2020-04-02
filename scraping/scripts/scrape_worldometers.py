@@ -64,7 +64,7 @@ def get_worldometers_countries(stats_table, overview_table):
                 else:
                     country.append(int(text))
 
-        if len(country) == 11:
+        if len(country) == 10:
             if country[0] == "Total:":
                 countries_total_sum_raw = country[:]
                 break

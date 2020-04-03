@@ -56,6 +56,7 @@ https://www.hindutamil.in/feed/news-corona-virus-518.xml
 https://www.livehindustan.com/news-sitemap.xml
 https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
 https://www.jagran.com/news-sitemap.xml
+https://www.timestamilnews.com/
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -428,6 +429,7 @@ NEWS_SOURCES = {
                 "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
             },
         ),
+        ("https://www.timestamilnews.com/", {"not_xml": True,},),
     ],
     "th_TH": [
         ("https://thestandard.co/coronavirus-coverage/", {"not_xml": True,},),

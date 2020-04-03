@@ -98,6 +98,9 @@ def attempt_extract_from_meta_data(meta_data, attribute, original_value):
             attribute, original_value if original_value else "None"
         )
     )
+    if attribute not in meta_data:
+        return ""
+
     if attribute in meta_data and isinstance(meta_data[attribute], str):
         logging.debug(
             "Found attribute: {} in meta_data. value: {}".format(
@@ -180,6 +183,12 @@ def get_published_at_value(published_at_dt_object, article, soup_page):
         dt_object = convert_date_to_datetime_object(dt_object)
         source = "from seed page"
 
+    elif attempt_extract_from_meta_data(article.meta_data, "publish-date", dt_object):
+        dt_object = convert_date_to_datetime_object(
+            attempt_extract_from_meta_data(article.meta_data, "publish-date", dt_object)
+        )
+        source = "meta_data -> published-date"
+
     elif attempt_extract_from_meta_data(article.meta_data, "published_time", dt_object):
         dt_object = convert_date_to_datetime_object(
             attempt_extract_from_meta_data(
@@ -234,6 +243,27 @@ def get_published_at_value(published_at_dt_object, article, soup_page):
         )
         dt_object = datetime.utcnow()
     return str(dt_object.strftime(DATE_FORMAT))
+
+
+def get_author_value(author_default_value, article):
+    author_value = author_default_value
+    if author_default_value:
+        source = "from seed page -> author"
+
+    elif attempt_extract_from_meta_data(article.meta_data, "author", author_value):
+        author_value = attempt_extract_from_meta_data(
+            article.meta_data, "author", get_author_value
+        )
+        source = "meta_data -> author"
+
+    elif article.authors:
+        author_value = " ".join(article.authors)
+        source = "article -> authors"
+    else:
+        source = "author not found."
+
+    logging.debug("Found author in: {} ".format(source))
+    return author_value
 
 
 def extract_article(link):

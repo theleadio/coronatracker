@@ -59,10 +59,10 @@ def cleanString(string):
 
 def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data = {}
+    if df["Country,Other"] == "World":
+        continue
     if df["Country,Other"] != "Total:":
         data["country"] = df["Country,Other"]
-    elif df["Country,Other"] == "World":
-        continue
 
     data["total_cases"] = int(cleanString(df["TotalCases"]))
     data["total_deaths"] = int(cleanString(df["TotalDeaths"]))

@@ -60,7 +60,7 @@ def cleanString(string):
 def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data = {}
     if df["Country,Other"] == "World":
-        continue
+        return
     if df["Country,Other"] != "Total:":
         data["country"] = df["Country,Other"]
 

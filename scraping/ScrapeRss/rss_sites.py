@@ -57,6 +57,7 @@ https://www.livehindustan.com/news-sitemap.xml
 https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
 https://www.jagran.com/news-sitemap.xml
 https://www.timestamilnews.com/
+https://brazilian.report/
 
 Don't crawl:
 http://www.heraldsun.com.au/news/breaking-news/rss
@@ -72,7 +73,6 @@ from ScrapeRss.globals import (
     ISO_8601_DATE_WITHOUT_SEC_FORMAT,
     YEAR_MONTH_DAY_FORMAT,
 )
-
 
 NEWS_SOURCES = {
     "de_DE": [
@@ -164,6 +164,12 @@ NEWS_SOURCES = {
                 "date_xml": ("pubDate", None),
             },
         ),
+    ],
+    "en_BR": [
+        (
+            "https://brazilian.report/",
+            {"not_xml": True, "custom_blacklist": ["/coronavirus-brazil-live-blog/",],},
+        )
     ],
     "en_CN": [
         (

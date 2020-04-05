@@ -113,7 +113,7 @@ class DatabaseConnector:
             print("Record not inserted")
 
     # worldometers_total_sum TABLE_SCHEMA
-    # total_cases, total_deaths, total_recovered, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, last_updated
+    # total_cases, total_deaths, total_recovered, total_tests, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, total_deaths_per_million_pop, total_tests_per_million_pop, last_updated
     def insert_worldometers_total_sum(self, data_dict, table_name):
         if not table_name:
             raise ValueError(
@@ -121,29 +121,33 @@ class DatabaseConnector:
             )
         table_name = table_name
         mycursor = self.mydb.cursor()
-        sql = "INSERT INTO {} (total_cases, total_deaths, total_recovered, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, total_deaths_per_million_pop, last_updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE total_cases = %s, total_deaths = %s, total_recovered = %s, new_cases = %s, new_deaths = %s, active_cases = %s, serious_critical_cases = %s, total_cases_per_million_pop = %s, total_deaths_per_million_pop = %s".format(
+        sql = "INSERT INTO {} (total_cases, total_deaths, total_recovered, total_tests, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, total_deaths_per_million_pop, total_tests_per_million_pop, last_updated) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE total_cases = %s, total_deaths = %s, total_recovered = %s, total_tests = %s, new_cases = %s, new_deaths = %s, active_cases = %s, serious_critical_cases = %s, total_cases_per_million_pop = %s, total_deaths_per_million_pop = %s, total_tests_per_million_pop = %s".format(
             table_name
         )
         val = (
             data_dict["total_cases"],
             data_dict["total_deaths"],
             data_dict["total_recovered"],
+            data_dict["total_tests"],
             data_dict["new_cases"],
             data_dict["new_deaths"],
             data_dict["active_cases"],
             data_dict["serious_critical_cases"],
             data_dict["total_cases_per_million_pop"],
             data_dict["total_deaths_per_million_pop"],
+            data_dict["total_tests_per_million_pop"],
             data_dict["last_updated"],
             data_dict["total_cases"],
             data_dict["total_deaths"],
             data_dict["total_recovered"],
+            data_dict["total_tests"],
             data_dict["new_cases"],
             data_dict["new_deaths"],
             data_dict["active_cases"],
             data_dict["serious_critical_cases"],
             data_dict["total_cases_per_million_pop"],
             data_dict["total_deaths_per_million_pop"],
+            data_dict["total_tests_per_million_pop"],
         )
         print("SQL query: ", sql, val)
         try:

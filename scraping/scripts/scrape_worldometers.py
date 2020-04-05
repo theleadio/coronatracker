@@ -65,12 +65,14 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data["total_cases"] = int(cleanString(df["TotalCases"]))
     data["total_deaths"] = int(cleanString(df["TotalDeaths"]))
     data["total_recovered"] = int(cleanString(df["TotalRecovered"]))
+    data["total_tests"] = int(cleanString(df["TotalTests"]))
     data["new_cases"] = int(cleanString(df["NewCases"]))
     data["new_deaths"] = int(cleanString(df["NewDeaths"]))
     data["active_cases"] = int(cleanString(df["ActiveCases"]))
     data["serious_critical_cases"] = int(cleanString(df["Serious,Critical"]))
     data["total_cases_per_million_pop"] = float(cleanString(df["Tot\xa0Cases/1M pop"]))
     data["total_deaths_per_million_pop"] = float(cleanString(df["Deaths/1M pop"]))
+    data["total_tests_per_million_pop"] = float(cleanString(df["Tests/ 1M pop"]))
     data["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
 
     if df["Country,Other"] != "Total:":

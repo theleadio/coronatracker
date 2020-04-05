@@ -98,9 +98,8 @@ def attempt_extract_from_meta_data(meta_data, attribute, original_value):
             attribute, original_value if original_value else "None"
         )
     )
-    if attribute not in meta_data:
-        return ""
 
+    # in meta_data
     if attribute in meta_data and isinstance(meta_data[attribute], str):
         logging.debug(
             "Found attribute: {} in meta_data. value: {}".format(

@@ -3,6 +3,7 @@ To run:
 - python scripts/scrape_worldometers.py --stats_table [ STATS TABLE NAME ] --overview_table [ OVERVIEW TABLE NAME ]
 """
 
+import re
 import os
 import sys
 import logging
@@ -26,15 +27,18 @@ db_connector_prodv2.connect()
 
 import requests
 import pandas
-from datetime import datetime
+from datetime import datetime, timezone
+from dateutil import parser
 
+ORIG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S+Z"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
 }
+lastUpdatedDate = datetime.utcnow().strftime(DATETIME_FORMAT)
 
 
-def parser():
+def arg_parser():
     parser = argparse.ArgumentParser(description="Scrape worldometers stats")
     parser.add_argument(
         "-s",
@@ -75,7 +79,7 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data["total_cases_per_million_pop"] = float(cleanString(df["Tot\xa0Cases/1M pop"]))
     data["total_deaths_per_million_pop"] = float(cleanString(df["Deaths/1M pop"]))
     data["total_tests_per_million_pop"] = float(cleanString(df["Tests/ 1M pop"]))
-    data["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
+    data["last_updated"] = lastUpdatedDate
 
     if df["Country,Other"] != "Total:":
         db_connector.insert_worldometer_stats(data, stats_table)
@@ -86,11 +90,15 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
 
 
 if __name__ == "__main__":
-    args = parser()
+    args = arg_parser()
 
     url = "https://www.worldometers.info/coronavirus/"
     res = requests.get(url, headers=HEADER)
     df = pandas.read_html(res.content)
+
+    lastUpdatedDateArray = re.findall(r'Last updated:\s+([A-Za-z0-9\s,:]+)', str(res.content))
+    lastUpdatedDate = parser.parse(lastUpdatedDateArray[0]).astimezone(timezone.utc).strftime(DATETIME_FORMAT) if lastUpdatedDateArray else lastUpdatedDate
+
     df[0].fillna(0, inplace=True)
     df[0].apply(
         lambda dataframe: convertKeyAndWriteToDB(

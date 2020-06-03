@@ -27,6 +27,7 @@ db_connector_prodv2.connect()
 
 import requests
 import pandas
+from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from dateutil import parser
 
@@ -58,35 +59,29 @@ def arg_parser():
 def cleanString(string):
     if not isinstance(string, str):
         return string
-    return string.replace(",", "").replace("+", "")
+    s = string.replace(",", "").replace("+", "").strip()
+    return 0 if s == "N/A" or not s else s
 
 
-def convertKeyAndWriteToDB(df, stats_table, overview_table):
+def convertSoupToData(row, map):
+    temp = {}
     data = {}
-    if df["Country,Other"] == "World":
-        return
-    if df["Country,Other"] != "Total:":
-        data["country"] = df["Country,Other"]
+    for idx, td in enumerate(row):
+        temp[map[idx]] = td.text
 
-    data["total_cases"] = int(cleanString(df["TotalCases"]))
-    data["total_deaths"] = int(cleanString(df["TotalDeaths"]))
-    data["total_recovered"] = int(cleanString(df["TotalRecovered"]))
-    data["total_tests"] = int(cleanString(df["TotalTests"]))
-    data["new_cases"] = int(cleanString(df["NewCases"]))
-    data["new_deaths"] = int(cleanString(df["NewDeaths"]))
-    data["active_cases"] = int(cleanString(df["ActiveCases"]))
-    data["serious_critical_cases"] = int(cleanString(df["Serious,Critical"]))
-    data["total_cases_per_million_pop"] = float(cleanString(df["Tot\xa0Cases/1M pop"]))
-    data["total_deaths_per_million_pop"] = float(cleanString(df["Deaths/1M pop"]))
-    data["total_tests_per_million_pop"] = float(cleanString(df["Tests/ 1M pop"]))
-    data["last_updated"] = lastUpdatedDate
-
-    if df["Country,Other"] != "Total:":
-        db_connector.insert_worldometer_stats(data, stats_table)
-        db_connector_prodv2.insert_worldometer_stats(data, stats_table)
-    else:
-        db_connector.insert_worldometers_total_sum(data, overview_table)
-        db_connector_prodv2.insert_worldometers_total_sum(data, overview_table)
+    data["country"] = temp["Country,Other"]
+    data["total_cases"] = int(cleanString(temp["TotalCases"]))
+    data["total_deaths"] = int(cleanString(temp["TotalDeaths"]))
+    data["total_recovered"] = int(cleanString(temp["TotalRecovered"]))
+    data["total_tests"] = int(cleanString(temp["TotalTests"]))
+    data["new_cases"] = int(cleanString(temp["NewCases"]))
+    data["new_deaths"] = int(cleanString(temp["NewDeaths"]))
+    data["active_cases"] = int(cleanString(temp["ActiveCases"]))
+    data["serious_critical_cases"] = int(cleanString(temp["Serious,Critical"]))
+    data["total_cases_per_million_pop"] = float(cleanString(temp["TotCases/1M pop"]))
+    data["total_deaths_per_million_pop"] = float(cleanString(temp["Deaths/1M pop"]))
+    data["total_tests_per_million_pop"] = float(cleanString(temp["Tests/1M pop"]))
+    return data
 
 
 if __name__ == "__main__":
@@ -94,15 +89,50 @@ if __name__ == "__main__":
 
     url = "https://www.worldometers.info/coronavirus/"
     res = requests.get(url, headers=HEADER)
-    df = pandas.read_html(res.content)
 
-    lastUpdatedDateArray = re.findall(r'Last updated:\s+([A-Za-z0-9\s,:]+)', str(res.content))
-    lastUpdatedDate = parser.parse(lastUpdatedDateArray[0]).astimezone(timezone.utc).strftime(DATETIME_FORMAT) if lastUpdatedDateArray else lastUpdatedDate
-
-    df[0].fillna(0, inplace=True)
-    df[0].apply(
-        lambda dataframe: convertKeyAndWriteToDB(
-            dataframe, args.stats_table, args.overview_table
-        ),
-        axis=1,
+    # Get last updated date
+    lastUpdatedDateArray = re.findall(r"Last updated:\s+([A-Za-z0-9\s,:]+)", res.text)
+    lastUpdatedDate = (
+        parser.parse(lastUpdatedDateArray[0])
+        .astimezone(timezone.utc)
+        .strftime(DATETIME_FORMAT)
+        if lastUpdatedDateArray
+        else lastUpdatedDate
     )
+
+    # Find tables
+    match_tables = re.findall(
+        r"(<table[^>]*>(?:.|\n)+?(?=<\/table>)<\/table>)", res.text
+    )
+    if not match_tables:
+        raise ValueError("No match tables")
+
+    # Convert to BS4
+    soup = BeautifulSoup(match_tables[0].strip(), "html.parser")
+
+    # Remove unnecessary rows
+    for tr in soup.findAll(
+        "tr", {"class": "total_row_world row_continent", "class": "total_row_world"}
+    ):
+        tr.decompose()
+
+    headerMapping = {}
+    for idx, tr in enumerate(soup("tr")):
+        if tr is None:
+            continue
+
+        if tr("th"):
+            for idx, td in enumerate(tr("th")):
+                headerMapping[idx] = td.text.replace("\xa0", "").replace("\n", "")
+            continue
+
+        data = convertSoupToData(tr("td"), headerMapping)
+        data["last_updated"] = lastUpdatedDate
+
+        if data["country"] == "Total:":
+            del data["country"]
+            db_connector.insert_worldometers_total_sum(data, args.overview_table)
+            db_connector_prodv2.insert_worldometers_total_sum(data, args.overview_table)
+        else:
+            db_connector.insert_worldometer_stats(data, args.stats_table)
+            db_connector_prodv2.insert_worldometer_stats(data, args.stats_table)

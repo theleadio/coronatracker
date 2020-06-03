@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     # Remove unnecessary rows
     for tr in soup.findAll(
-        "tr", {"class": "total_row_world row_continent", "class": "total_row_world"}
+        "tr", {"class": "total_row_world row_continent", "class": "total_row_world", "class": "row_continent total_row"}
     ):
         tr.decompose()
 

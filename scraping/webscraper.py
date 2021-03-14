@@ -35,7 +35,6 @@ import logging
 mydb = None
 TABLE_NAME = "newsapi_n"
 
-
 def get_content(url):
     url = url
     try:
@@ -63,6 +62,7 @@ def extract_article(link):
     return article, True
 
 
+@contract(datetime='String, with format HH:MM:SS', returns='String, with format format HH:MM:SS in UTC time')
 def localtime_to_ust(datetime):
 
     date_time_naive = parse(datetime)

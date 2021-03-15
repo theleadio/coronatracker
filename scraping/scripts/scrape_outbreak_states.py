@@ -161,7 +161,16 @@ def get_case_details():
         patients.append(patient)
         db_malaysia_patient_cases.insert(patient, TABLE)
     # print(patients)
-
+    
+def __init__(self,details:str,dataList[data]):
+    self.details = details
+    self.dataList = data
+def get_data(self,details):
+    try:
+        get_case_details()
+    except: StopIterator
+        raise noDetails()
+       
 
 if __name__ == "__main__":
     get_state_details()

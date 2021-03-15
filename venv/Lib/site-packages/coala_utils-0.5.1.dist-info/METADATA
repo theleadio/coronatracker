@@ -1,0 +1,31 @@
+Metadata-Version: 2.0
+Name: coala-utils
+Version: 0.5.1
+Summary: A collection of coala utilities.
+Home-page: https://gitlab.com/coala/coala-utils
+Author: Adrian Zatreanu
+Author-email: adrianzatreanu1@gmail.com
+License: UNKNOWN
+Keywords: coala,utils,bears,decorators
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Environment :: MacOS X
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3 :: Only
+
+coala-utils
+================
+
+coala-utils holds a collection of useful utilities that are used
+mainly by coala and can be used by outside sources as well.
+
+

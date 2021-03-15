@@ -1,0 +1,3 @@
+[console_scripts]
+twitterscraper = twitterscraper.main:main
+

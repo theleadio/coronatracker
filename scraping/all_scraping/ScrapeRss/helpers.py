@@ -1,11 +1,11 @@
-from ScrapeRss.globals import DATE_FORMAT, URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
-from ScrapeRss.globals import (
+from ..ScrapeRss.globals import DATE_FORMAT, URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
+from ..ScrapeRss.globals import (
     DATE_RFC_2822_DATE_FORMAT,
     DATE_RFC_2822_REGEX_RULE,
     DATE_ISO_8601_REGEX_RULE,
     ISO_8601_DATE_FORMAT,
 )
-from ScrapeRss.globals import REQUEST_TIMEOUT, HEADER
+from ..ScrapeRss.globals import REQUEST_TIMEOUT, HEADER
 
 from newspaper import Article
 

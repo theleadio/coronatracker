@@ -28,30 +28,32 @@ from ScrapeRss.helpers import get_seed_page
 # BingCovid
 from ScrapeBingCovid.BingCovid import BingCovid
 
-if __name__ == "__main__":
-    db_bingcovid.connect()
-    res = get_seed_page(API_URL).json()
 
-    # whole world
-    wholeWorld = BingCovid(
-        confirmed=res["totalConfirmed"],
-        deaths=res["totalDeaths"],
-        recovered=res["totalRecovered"],
-    )
-    logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
-    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+class BingData:
+    if __name__ == "__main__":
+        db_bingcovid.connect()
+        res = get_seed_page(API_URL).json()
 
-    # Countries
-    for countryData in res["areas"]:
-        currentCountry = BingCovid(
-            confirmed=countryData["totalConfirmed"],
-            deaths=countryData["totalDeaths"],
-            recovered=countryData["totalRecovered"],
-            last_update=countryData["lastUpdated"],
-            lat=countryData["lat"],
-            lng=countryData["long"],
-            country=countryData["country"],
+        # whole world
+        wholeWorld = BingCovid(
+            confirmed=res["totalConfirmed"],
+            deaths=res["totalDeaths"],
+            recovered=res["totalRecovered"],
         )
+        logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
+        db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+
+        # Countries
+        for countryData in res["areas"]:
+            currentCountry = BingCovid(
+                confirmed=countryData["totalConfirmed"],
+                deaths=countryData["totalDeaths"],
+                recovered=countryData["totalRecovered"],
+                last_update=countryData["lastUpdated"],
+                lat=countryData["lat"],
+                lng=countryData["long"],
+                country=countryData["country"],
+            )
         logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
         db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
 

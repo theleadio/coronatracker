@@ -8,7 +8,6 @@ from ScrapeRss.helpers import get_title_from_for_html, get_description_from_for_
 from ScrapeRss.helpers import corona_keyword_exists_in_string
 from ScrapeRss.helpers import convert_date_to_datetime_object
 
-
 from bs4 import BeautifulSoup
 import logging
 import re
@@ -16,14 +15,14 @@ import re
 
 class NewsParser:
     def __init__(
-        self,
-        locale="",
-        root_url="",
-        schema={},
-        soup_page="",
-        is_xml=True,
-        news_list=[],
-        custom_blacklist=[],
+            self,
+            locale="",
+            root_url="",
+            schema={},
+            soup_page="",
+            is_xml=True,
+            news_list=[],
+            custom_blacklist=[],
     ):
         self.locale = locale
         self.root_url = root_url
@@ -87,7 +86,7 @@ class NewsParser:
                 include_url = False
 
                 if (title and not corona_keyword_exists_in_string(title)) and (
-                    description and not corona_keyword_exists_in_string(description)
+                        description and not corona_keyword_exists_in_string(description)
                 ):
                     include_url = False
                 else:
@@ -192,15 +191,19 @@ class NewsParser:
 
             node_author = ""
             if "author" in self.schema:
-                node_author = node.find(self.schema["author"]).text
+                var = node.find(self.schema["author"]).text
 
+            news_info()
+
+    def add_news_to_extraction_queue(self):
+        for news_object in self.news_list:
+            EXTRACT_QUEUE.put(news_object)
+
+    class News:
+        def news_info(self):
             news_object.author = node_author
             news_object.news_url = news_url
             news_object.title = node_title
             news_object.description = node_description
             news_object.published_at = published_at_dt_object
             self.news_list.append(news_object)
-
-    def add_news_to_extraction_queue(self):
-        for news_object in self.news_list:
-            EXTRACT_QUEUE.put(news_object)

@@ -34,7 +34,7 @@ URL_BLACKLIST_KEYWORDS = set(
         "/404/",
         "/uploads/",
     ]
-)
+)z
 CORONA_KEYWORDS = set(
     [
         "covid-19",

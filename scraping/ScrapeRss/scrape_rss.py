@@ -147,6 +147,40 @@ def seed_worker():
         SEED_QUEUE.task_done()
 
 
+class Rss:
+    def __init__(self, records):
+        self.records = records
+
+
+    def save_to_db(self, table_name):
+        logging.debug("Saving to db to {} table".format(table_name))
+        for locale, rss_records in self.records.items():
+            for rss_record in rss_records:
+                db_connector.insert_news_article(rss_record, table_name)
+                db_connector_prodv2.insert_news_article(rss_record, table_name)
+
+
+class News:
+    def __init__(self, id, url, author, title, content, siteName):
+        self.id = id
+        self.url = url
+        self.author = author
+        self.title = title
+        self.content = content
+        self.siteName = siteName
+
+    def appendOn(self):
+        record = {}
+        record['url'] = self.url
+        record['title'] = self.title
+        record['siteName'] = self.siteName
+        record['author'] = self.author
+        record['content'] = self.content
+        RSS_STACK[locale].append(record)
+
+
+
+
 def extract_worker():
     while True:
         approx_queue_size = EXTRACT_QUEUE.qsize()

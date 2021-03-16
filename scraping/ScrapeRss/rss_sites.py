@@ -1,80 +1,86 @@
-"""
-Crawling:
-http://www.dailytelegraph.com.au/news/breaking-news/rss
-http://www.dailytelegraph.com.au/newslocal/rss
-http://www.news24.jp/sitemap_economy.xml
-http://www.news24.jp/sitemap_international.xml
-http://www.news24.jp/sitemap_society.xml
-http://www.taipeitimes.com/sitemap.xml
-https://baomoi.com/sitemaps/sitemap-news.xml
-https://news.kompas.com/web/sitemap.xml
-https://toyokeizai.net/sitemap.xml
-https://vietnamnews.vn/sitemap.xml
-https://vnexpress.net/google-news-sitemap.xml
-https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
-https://www.ettoday.net/news-sitemap.xml
-https://www.liputan6.com/sitemap_post.xml
-https://www.news.com.au/content-feeds/latest-news-national/
-https://www.news.com.au/content-feeds/latest-news-world/
-https://www.sbs.com.au/news/topic/latest/feed
-https://www.scmp.com/rss/318208/feed
-https://www.shine.cn/sitemap-news.xml
-https://www.taiwannews.com.tw/ch/sitemap.xml
-https://www.taiwannews.com.tw/en/sitemap.xml
-https://www.theage.com.au/rss/feed.xml
-https://www.tienphong.vn/event/virus-covid19-2302.tpo
-http://www.hani.co.kr/arti/RSS/sitemap_www.xml
-http://www.koreatimes.co.kr/www/rss/world.xml
-http://www.koreatimes.co.kr/www/rss/nation.xml
-http://koreajoongangdaily.joins.com/sitemap_google_news.xml
-https://news.joins.com/sitemap/latest-articles
-http://www.donga.com/sitemap/donga-newsmap.xml
-https://news.chosun.com/google/rss.html
-https://news.chosun.com/site/data/rss/rss.xml
-http://english.chosun.com/site/data/rss/rss.xml
-https://thestandard.co/coronavirus-coverage/
-https://www.thairath.co.th/sitemap-daily.xml
-https://rss.komchadluek.net/latest_news_google_news.xml
-https://www.ilmessaggero.it/?sez=XML&p=MapNews
-https://www.leggo.it/?sez=XML&p=MapNews
-https://www.lastampa.it/sitemap.xml
-https://www.malaymail.com/sitemap.xml
-https://www.projekmm.com/sitemap.xml
-https://www.orientaldaily.com.my/sitemap.xml
-https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
-https://www.welt.de/sitemaps/sitemap/today.xml
-https://www.focus.de/
-https://www.faz.net/aktuell/
-http://www.gov.cn/google.xml
-https://www.nu.nl/sitemap_news.xml
-https://www.rivm.nl/sitemap.xml
-https://www.nrc.nl/sitemap/index.xml
-https://www.thehindu.com/sitemap/googlenews.xml
-https://www.dailythanthi.com/Sitemap/googlesitemap.xml
-https://www.maalaimalar.com/Sitemap/googlesitemap.xml
-https://www.hindutamil.in/feed/news-corona-virus-518.xml
-https://www.livehindustan.com/news-sitemap.xml
-https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
-https://www.jagran.com/news-sitemap.xml
-https://www.timestamilnews.com/
-
-Don't crawl:
-http://www.heraldsun.com.au/news/breaking-news/rss
-http://www.heraldsun.com.au/rss
-https://www.theage.com.au/rss/world.xml
-http://www.dailytelegraph.com.au/news/national/rss
-http://www.dailytelegraph.com.au/news/world/rss
-
-"""
-
 from ScrapeRss.globals import (
     ISO_8601_DATE_FORMAT,
     ISO_8601_DATE_WITHOUT_SEC_FORMAT,
     YEAR_MONTH_DAY_FORMAT,
 )
 
+class CrawlCheck: # uses letters to represent a given source
+def _init_(self, Iscrawl, SourceName, SourceGroup):
+self.IsCrawl =IsCrawl # shows wether or not a news source should be crawled
+self.SourceName = SourceName #shows source's http source.
+self.SourceGroup = SourceGroup #show NEWS_SOURCES group the source belongs to.
+
+#create all instances that represent all sources that were in list
+
+#Crawl
+source-a1= CrawlCheck(True, "http://www.dailytelegraph.com.au/news/breaking-news/rss", "en_AU")
+source-b1= CrawlCheck(True,"http://www.dailytelegraph.com.au/newslocal/rss","en_AU")
+source-c1= CrawlCheck(True,"http://www.news24.jp/sitemap_economy.xml","ja_JP")
+source-d1= CrawlCheck(True,"http://www.news24.jp/sitemap_international.xml","ja_JP")
+source-e1= CrawlCheck(True,"http://www.news24.jp/sitemap_society.xml","ja_JP")
+source-f1= CrawlCheck(True,"http://www.taipeitimes.com/sitemap.xml","en_TW")
+source-g1= CrawlCheck(True,"https://baomoi.com/sitemaps/sitemap-news.xml","vi_VN")
+source-h1= CrawlCheck(True,"https://news.kompas.com/web/sitemap.xml","id_ID")
+source-i1= CrawlCheck(True,"https://toyokeizai.net/sitemap.xml","ja_JP")
+source-j1= CrawlCheck(True,"https://vietnamnews.vn/sitemap.xml","vi_VN")
+
+source-k1= CrawlCheck(True,"https://vnexpress.net/google-news-sitemap.xml","vi_VN")
+source-l1= CrawlCheck(True,"https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml","en_SG")
+source-m1= CrawlCheck(True,"https://www.ettoday.net/news-sitemap.xml","zh_TW")
+source-n1= CrawlCheck(True,"https://www.liputan6.com/sitemap_post.xml","none")
+source-o1= CrawlCheck(True,"https://www.news.com.au/content-feeds/latest-news-national/","en_AU")
+source-p1= CrawlCheck(True,"https://www.news.com.au/content-feeds/latest-news-world/","en_AU")
+source-q1= CrawlCheck(True,"https://www.sbs.com.au/news/topic/latest/feed","en_AU")
+source-r1= CrawlCheck(True,"https://www.scmp.com/rss/318208/feed","en_HK")
+source-s1= CrawlCheck(True,"https://www.shine.cn/sitemap-news.xml","en_CN")
+source-t1= CrawlCheck(True,"https://www.taiwannews.com.tw/ch/sitemap.xml","zh_TW")
+source-u1= CrawlCheck(True,"https://www.taiwannews.com.tw/en/sitemap.xml","en_TW")
+source-v1= CrawlCheck(True,"https://www.theage.com.au/rss/feed.xml","en_AU")
+source-w1= CrawlCheck(True,"https://www.tienphong.vn/event/virus-covid19-2302.tpo","vi_VN")
+source-x1= CrawlCheck(True,"http://www.hani.co.kr/arti/RSS/sitemap_www.xml","ko_KR")
+source-y1= CrawlCheck(True,"http://www.koreatimes.co.kr/www/rss/world.xml","en_KR")
+source-z1= CrawlCheck(True,"http://www.koreatimes.co.kr/www/rss/nation.xml","en_KR")
+source-a2= CrawlCheck(True,"http://koreajoongangdaily.joins.com/sitemap_google_news.xml","en_KR")
+source-b2= CrawlCheck(True,"https://news.joins.com/sitemap/latest-articles","ko_KR")
+source-c2= CrawlCheck(True,"http://www.donga.com/sitemap/donga-newsmap.xml","ko_KR")
+source-d2= CrawlCheck(True,"https://news.chosun.com/google/rss.html","ko_KR")
+source-e2= CrawlCheck(True,"https://news.chosun.com/site/data/rss/rss.xml","ko_KR")
+source-f2= CrawlCheck(True,"http://english.chosun.com/site/data/rss/rss.xml","en_KR")
+source-g2= CrawlCheck(True,"https://thestandard.co/coronavirus-coverage/","th_TH")
+source-h2= CrawlCheck(True,"https://www.thairath.co.th/sitemap-daily.xml","th_TH")
+source-i2= CrawlCheck(True,"https://rss.komchadluek.net/latest_news_google_news.xml","th_TH",)
+source-j2= CrawlCheck(True,"https://www.ilmessaggero.it/?sez=XML&p=MapNews","it_IT")
+source-k2= CrawlCheck(True,"https://www.leggo.it/?sez=XML&p=MapNews","it_IT")
+source-l2= CrawlCheck(True,"https://www.lastampa.it/sitemap.xml","it_IT")
+source-m2= CrawlCheck(True,"https://www.malaymail.com/sitemap.xml","en_MY")
+source-n2= CrawlCheck(True,"https://www.projekmm.com/sitemap.xml","ms_MW")
+source-o2= CrawlCheck(True,"https://www.orientaldaily.com.my/sitemap.xml","zh_MW")
+source-p2= CrawlCheck(True,"https://www.welt.de/sitemaps/newssitemap/newssitemap.xml","de_DE")
+source-q2= CrawlCheck(True,"https://www.welt.de/sitemaps/sitemap/today.xml","de_DE")
+source-r2= CrawlCheck(True,"https://www.focus.de/","de_DE")
+source-s2= CrawlCheck(True,"https://www.faz.net/aktuell/","de_DE")
+source-t2= CrawlCheck(True,"http://www.gov.cn/google.xml","zh_CN")
+source-u2= CrawlCheck(True,"https://www.nu.nl/sitemap_news.xml","nl_NL")
+source-v2= CrawlCheck(True,"https://www.rivm.nl/sitemap.xml","nl_NL")
+source-w2= CrawlCheck(True,"https://www.nrc.nl/sitemap/index.xml","nl_NL")
+source-x2= CrawlCheck(True,"https://www.thehindu.com/sitemap/googlenews.xml","en_IN")
+source-y2= CrawlCheck(True,"https://www.dailythanthi.com/Sitemap/googlesitemap.xml","ta_IN")
+source-z2= CrawlCheck(True,"https://www.maalaimalar.com/Sitemap/googlesitemap.xml","ta_IN")
+source-a3= CrawlCheck(True,"https://www.hindutamil.in/feed/news-corona-virus-518.xml","ta_IN")
+source-b3= CrawlCheck(True,"https://www.livehindustan.com/news-sitemap.xml","hi_IN")
+source-c3= CrawlCheck(True,"https://www.bhaskar.com/sitemapgoogle/topnews_1.xml","hi_IN")
+source-d3= CrawlCheck(True,"https://www.jagran.com/news-sitemap.xml","hi_IN")
+source-e3= CrawlCheck(True,"https://www.timestamilnews.com/","ta_IN")
+
+#Don't Crawl
+source-f3= CrawlCheck(False,"http://www.heraldsun.com.au/news/breaking-news/rss","en_AU")
+source-g3= CrawlCheck(False,"http://www.heraldsun.com.au/rss","en_AU")
+source-h3= CrawlCheck(False,"https://www.theage.com.au/rss/world.xml","en_AU")
+source-i3= CrawlCheck(False,"http://www.dailytelegraph.com.au/news/national/rss","en_AU")
+source-j3= CrawlCheck(False,"http://www.dailytelegraph.com.au/news/world/rss","en_AU")
 
 NEWS_SOURCES = {
+
     "de_DE": [
         (
             "https://www.welt.de/sitemaps/newssitemap/newssitemap.xml",

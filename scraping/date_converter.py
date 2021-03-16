@@ -1,7 +1,7 @@
 import re
 from datetime import datetime, timezone
 
-Class DateConv:
+Class DateConv: #aggregate
 def _init_(self,strng,regAll,dateTimeObj):
     self.string = strng
     self.regAll = regAll

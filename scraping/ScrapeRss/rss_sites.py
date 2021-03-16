@@ -1,8 +1,7 @@
 Class Source_Identify:
     def __init__(self, SourceURL):
         self.SourceURL = SourceURL
-        if self == 0:
-            self = false
+
 
 
 source_1 = Source_Identify("http://www.dailytelegraph.com.au/news/breaking-news/rss", "en_AU")

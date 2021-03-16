@@ -11,24 +11,25 @@ import os
 import logging
 
 # Connect to db_connector from parent directory
-PARENT_DIR = ".."
+PARENT_DIR = "../.."
 CURRENT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_bingcovid
+from scraping.DatabaseConnector import db_bingcovid
 
 DB_TABLE = "test"  # "prod"
 API_URL = "https://bing.com/covid/data"
 
 # ScrapeRss helper function
-from ScrapeRss.helpers import get_seed_page
+from ..ScrapeRss.helpers import get_seed_page
 
 # BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+from ..ScrapeBingCovid.BingCovid import BingCovid
 
-if __name__ == "__main__":
+
+def scrape_bing():
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()
 
@@ -69,3 +70,7 @@ if __name__ == "__main__":
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
             db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+
+
+if __name__ == "__main__":
+    scrape_bing()

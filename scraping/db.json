@@ -1,0 +1,6 @@
+{
+    "host": "localhost",
+    "user": "local",
+    "passwd": "mypass",
+    "database": "covidtracker"
+}

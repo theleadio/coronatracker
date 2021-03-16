@@ -1,6 +1,5 @@
-import sys
 import os
-import logging
+import sys
 
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
@@ -9,18 +8,19 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
+from scraping.DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from dateutil import parser
 
-TABLE = "test" # "prod"
+TABLE = "test"  # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
 db_malaysia_patient_cases.connect()
 db_malaysia_states.connect()
+
 
 # state details
 def get_state_details():
@@ -113,7 +113,7 @@ def get_case_details():
                 continue
 
             if idx == 0 and "case" in val.lower():
-                patient["case"] = int(val[val.index("#") + 1 :])
+                patient["case"] = int(val[val.index("#") + 1:])
             elif "recovered" in val.lower() or "death" in val.lower():
                 status, date = val.split()
                 patient["status"] = status if status else None
@@ -163,6 +163,10 @@ def get_case_details():
     # print(patients)
 
 
-if __name__ == "__main__":
+def scrape_outbreak_states():
     get_state_details()
     get_case_details()
+
+
+if __name__ == "__main__":
+    scrape_outbreak_states()

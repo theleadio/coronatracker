@@ -1,74 +1,69 @@
-Class Source_Identify:
-    def __init__(self, SourceURL):
-        self.SourceURL = SourceURL
-
-
-
-source_1 = Source_Identify("http://www.dailytelegraph.com.au/news/breaking-news/rss", "en_AU")
-source_2 = Source_Identify("http://www.dailytelegraph.com.au/newslocal/rss","en_AU")
-source_3  = Source_Identify("http://www.news24.jp/sitemap_economy.xml","ja_JP")
-source_4  = Source_Identify("http://www.news24.jp/sitemap_international.xml","ja_JP")
-source_5 = Source_Identify("http://www.news24.jp/sitemap_society.xml","ja_JP")
-source_6 = Source_Identify("http://www.taipeitimes.com/sitemap.xml","en_TW")
-source_7 = Source_Identify("https://baomoi.com/sitemaps/sitemap-news.xml","vi_VN")
-source_8 = Source_Identify("https://news.kompas.com/web/sitemap.xml","id_ID")
-source_9 = Source_Identify("https://toyokeizai.net/sitemap.xml","ja_JP")
-source_10 = Source_Identify("https://vietnamnews.vn/sitemap.xml","vi_VN")
-
-source_11 = Source_Identify("https://vnexpress.net/google-news-sitemap.xml","vi_VN")
-source_12 = Source_Identify("https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml","en_SG")
-source_13 = Source_Identify("https://www.ettoday.net/news-sitemap.xml","zh_TW")
-source_14 = Source_Identify("https://www.liputan6.com/sitemap_post.xml","none")
-source_15 = Source_Identify("https://www.news.com.au/content-feeds/latest-news-national/","en_AU")
-source_16 = Source_Identify("https://www.news.com.au/content-feeds/latest-news-world/","en_AU")
-source_17 = Source_Identify("https://www.sbs.com.au/news/topic/latest/feed","en_AU")
-source_18 = Source_Identify("https://www.scmp.com/rss/318208/feed","en_HK")
-source_19 = Source_Identify("https://www.shine.cn/sitemap-news.xml","en_CN")
-source_20 = Source_Identify("https://www.taiwannews.com.tw/ch/sitemap.xml","zh_TW")
-source_21 = Source_Identify("https://www.taiwannews.com.tw/en/sitemap.xml","en_TW")
-source_22 = Source_Identify("https://www.theage.com.au/rss/feed.xml","en_AU")
-source_23 = Source_Identify("https://www.tienphong.vn/event/virus-covid19-2302.tpo","vi_VN")
-source_24 = Source_Identify("http://www.hani.co.kr/arti/RSS/sitemap_www.xml","ko_KR")
-source_25 = Source_Identify("http://www.koreatimes.co.kr/www/rss/world.xml","en_KR")
-source_26 = Source_Identify("http://www.koreatimes.co.kr/www/rss/nation.xml","en_KR")
-source_27 = Source_Identify("http://koreajoongangdaily.joins.com/sitemap_google_news.xml","en_KR")
-source_28 = Source_Identify("https://news.joins.com/sitemap/latest-articles","ko_KR")
-source_29 = Source_Identify("http://www.donga.com/sitemap/donga-newsmap.xml","ko_KR")
-source_30 = Source_Identify("https://news.chosun.com/google/rss.html","ko_KR")
-source_31 = Source_Identify("https://news.chosun.com/site/data/rss/rss.xml","ko_KR")
-source_32 = Source_Identify("http://english.chosun.com/site/data/rss/rss.xml","en_KR")
-source_33 = Source_Identify("https://thestandard.co/coronavirus-coverage/","th_TH")
-source_34 = Source_Identify("https://www.thairath.co.th/sitemap-daily.xml","th_TH")
-source_35 = Source_Identify("https://rss.komchadluek.net/latest_news_google_news.xml","th_TH",)
-source_36 = Source_Identify("https://www.ilmessaggero.it/?sez=XML&p=MapNews","it_IT")
-source_37 = Source_Identify("https://www.leggo.it/?sez=XML&p=MapNews","it_IT")
-source_38 = Source_Identify("https://www.lastampa.it/sitemap.xml","it_IT")
-source_39 = Source_Identify("https://www.malaymail.com/sitemap.xml","en_MY")
-source_40 = Source_Identify("https://www.projekmm.com/sitemap.xml","ms_MW")
-source_41 = Source_Identify("https://www.orientaldaily.com.my/sitemap.xml","zh_MW")
-source_42 = Source_Identify("https://www.welt.de/sitemaps/newssitemap/newssitemap.xml","de_DE")
-source_43 = Source_Identify("https://www.welt.de/sitemaps/sitemap/today.xml","de_DE")
-source_44 = Source_Identify("https://www.focus.de/","de_DE")
-source_45 = Source_Identify("https://www.faz.net/aktuell/","de_DE")
-source_46 = Source_Identify("http://www.gov.cn/google.xml","zh_CN")
-source_47 = Source_Identify("https://www.nu.nl/sitemap_news.xml","nl_NL")
-source_48 = Source_Identify("https://www.rivm.nl/sitemap.xml","nl_NL")
-source_49 = Source_Identify("https://www.nrc.nl/sitemap/index.xml","nl_NL")
-source_50 = Source_Identify("https://www.thehindu.com/sitemap/googlenews.xml","en_IN")
-source_51 = Source_Identify("https://www.dailythanthi.com/Sitemap/googlesitemap.xml","ta_IN")
-source_52 = Source_Identify("https://www.maalaimalar.com/Sitemap/googlesitemap.xml","ta_IN")
-source_53 = Source_Identify("https://www.hindutamil.in/feed/news-corona-virus-518.xml","ta_IN")
-source_54 = Source_Identify("https://www.livehindustan.com/news-sitemap.xml","hi_IN")
-source_55 = Source_Identify("https://www.bhaskar.com/sitemapgoogle/topnews_1.xml","hi_IN")
-source_56 = Source_Identify("https://www.jagran.com/news-sitemap.xml","hi_IN")
-source_57 = Source_Identify("https://www.timestamilnews.com/","ta_IN")
-
-# Don't crawl:
-source_58 = Source_Identify("http://www.heraldsun.com.au/news/breaking-news/rss","en_AU")
-source_59 = Source_Identify("http://www.heraldsun.com.au/rss","en_AU")
-source_60 = Source_Identify("https://www.theage.com.au/rss/world.xml","en_AU")
-source_61 = Source_Identify("http://www.dailytelegraph.com.au/news/national/rss","en_AU")
-source_62 = Source_Identify("http://www.dailytelegraph.com.au/news/world/rss","en_AU")
+"""
+Crawling:
+http://www.dailytelegraph.com.au/news/breaking-news/rss
+http://www.dailytelegraph.com.au/newslocal/rss
+http://www.news24.jp/sitemap_economy.xml
+http://www.news24.jp/sitemap_international.xml
+http://www.news24.jp/sitemap_society.xml
+http://www.taipeitimes.com/sitemap.xml
+https://baomoi.com/sitemaps/sitemap-news.xml
+https://news.kompas.com/web/sitemap.xml
+https://toyokeizai.net/sitemap.xml
+https://vietnamnews.vn/sitemap.xml
+https://vnexpress.net/google-news-sitemap.xml
+https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
+https://www.ettoday.net/news-sitemap.xml
+https://www.liputan6.com/sitemap_post.xml
+https://www.news.com.au/content-feeds/latest-news-national/
+https://www.news.com.au/content-feeds/latest-news-world/
+https://www.sbs.com.au/news/topic/latest/feed
+https://www.scmp.com/rss/318208/feed
+https://www.shine.cn/sitemap-news.xml
+https://www.taiwannews.com.tw/ch/sitemap.xml
+https://www.taiwannews.com.tw/en/sitemap.xml
+https://www.theage.com.au/rss/feed.xml
+https://www.tienphong.vn/event/virus-covid19-2302.tpo
+http://www.hani.co.kr/arti/RSS/sitemap_www.xml
+http://www.koreatimes.co.kr/www/rss/world.xml
+http://www.koreatimes.co.kr/www/rss/nation.xml
+http://koreajoongangdaily.joins.com/sitemap_google_news.xml
+https://news.joins.com/sitemap/latest-articles
+http://www.donga.com/sitemap/donga-newsmap.xml
+https://news.chosun.com/google/rss.html
+https://news.chosun.com/site/data/rss/rss.xml
+http://english.chosun.com/site/data/rss/rss.xml
+https://thestandard.co/coronavirus-coverage/
+https://www.thairath.co.th/sitemap-daily.xml
+https://rss.komchadluek.net/latest_news_google_news.xml
+https://www.ilmessaggero.it/?sez=XML&p=MapNews
+https://www.leggo.it/?sez=XML&p=MapNews
+https://www.lastampa.it/sitemap.xml
+https://www.malaymail.com/sitemap.xml
+https://www.projekmm.com/sitemap.xml
+https://www.orientaldaily.com.my/sitemap.xml
+https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
+https://www.welt.de/sitemaps/sitemap/today.xml
+https://www.focus.de/
+https://www.faz.net/aktuell/
+http://www.gov.cn/google.xml
+https://www.nu.nl/sitemap_news.xml
+https://www.rivm.nl/sitemap.xml
+https://www.nrc.nl/sitemap/index.xml
+https://www.thehindu.com/sitemap/googlenews.xml
+https://www.dailythanthi.com/Sitemap/googlesitemap.xml
+https://www.maalaimalar.com/Sitemap/googlesitemap.xml
+https://www.hindutamil.in/feed/news-corona-virus-518.xml
+https://www.livehindustan.com/news-sitemap.xml
+https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
+https://www.jagran.com/news-sitemap.xml
+https://www.timestamilnews.com/
+Don't crawl:
+http://www.heraldsun.com.au/news/breaking-news/rss
+http://www.heraldsun.com.au/rss
+https://www.theage.com.au/rss/world.xml
+http://www.dailytelegraph.com.au/news/national/rss
+http://www.dailytelegraph.com.au/news/world/rss
+"""
 
 
 

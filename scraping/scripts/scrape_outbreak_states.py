@@ -73,11 +73,13 @@ def get_state_details():
             },
             TABLE,
         )
-
-
-# case details
-def get_case_details():
-    url = "https://www.outbreak.my/stats"
+Class info:
+    def __init__(self,case_deatils[detail],state_details[detail]):
+        self.state_detail = detail
+        self.case_details = detail
+      
+    def get_case_details():
+         url = "https://www.outbreak.my/stats"
     print("Scraping", url)
     res = requests.get(url, headers=HEADER)
     page = BeautifulSoup(res.content, "html.parser")
@@ -161,7 +163,31 @@ def get_case_details():
         patients.append(patient)
         db_malaysia_patient_cases.insert(patient, TABLE)
     # print(patients)
+  for data in state_details:
+        db_malaysia_states.insert(
+            {
+                "state": data[0],
+                "increment_count": data[1],
+                "total_count": data[2],
+                "hospital_count": data[3],
+                "recovered_count": data[4],
+                "death_count": data[5],
+                "last_updated": datetime.now().strftime(DATETIME_FORMAT),
+            },
+            TABLE,
+        )
 
+   
+    
+def __init__(self,details:str,dataList[data]):
+    self.details = details
+    self.dataList = data
+def get_data(self,details):
+    try:
+        get_case_details()
+    except: StopIterator
+        raise noDetails()
+       
 
 if __name__ == "__main__":
     get_state_details()

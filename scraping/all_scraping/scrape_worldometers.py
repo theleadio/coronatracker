@@ -3,10 +3,9 @@ To run:
 - python scripts/scrape_worldometers.py --stats_table [ STATS TABLE NAME ] --overview_table [ OVERVIEW TABLE NAME ]
 """
 
+import argparse
 import os
 import sys
-import logging
-import argparse
 
 # Connect to # db_connector from parent directory
 PARENT_DIR = ".."
@@ -15,7 +14,7 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector.db_connector import DatabaseConnector
+from scraping.DatabaseConnector.db_connector import DatabaseConnector
 
 db_connector = DatabaseConnector(config_path="./db.json")
 db_connector.connect()
@@ -85,8 +84,11 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
         db_connector_prodv2.insert_worldometers_total_sum(data, overview_table)
 
 
-if __name__ == "__main__":
-    args = parser()
+def scrape_world_meters(stats_table: str = "", overview_table: str = ""):
+    if stats_table == "" or overview_table == "":
+        args = parser()
+    else:
+        args = {"stats_table": stats_table, "overview_table": overview_table}
 
     url = "https://www.worldometers.info/coronavirus/"
     res = requests.get(url, headers=HEADER)
@@ -98,3 +100,11 @@ if __name__ == "__main__":
         ),
         axis=1,
     )
+
+
+if __name__ == "__main__":
+    temp = parser()
+    if temp:
+        scrape_world_meters(temp.stats_table, temp.overview_table)
+    else:
+        scrape_world_meters()

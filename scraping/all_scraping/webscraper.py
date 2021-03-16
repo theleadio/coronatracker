@@ -76,7 +76,7 @@ def connect():
     global mydb
 
     # populate this from env file
-    path_to_json = "./db.json"
+    path_to_json = "../db.json"
 
     with open(path_to_json, "r") as handler:
         info = json.load(handler)
@@ -167,54 +167,57 @@ NEWS_URLs = {
 
 }
 
-
+def webscraper():
 # Check language
-for locale, all_rss in NEWS_URLs.items():
-    for rss in all_rss:
-        locale, root_url_schema = (locale, rss)
-        root_url, schema = root_url_schema
-        if schema['siteName'] == "www.cna.com.tw":
-            site_links = get_content(root_url).findAll(
-                'a', {"class": "menuUrl"})
-
-        else:
-            print(root_url)
-            site_links_test = get_content(root_url)
-            if site_links_test is None:
-                continue
-            else:
-                site_links = site_links_test.findAll('link')
-
-        links_container = []
-
-        for link in site_links:
+    for locale, all_rss in NEWS_URLs.items():
+        for rss in all_rss:
+            locale, root_url_schema = (locale, rss)
+            root_url, schema = root_url_schema
             if schema['siteName'] == "www.cna.com.tw":
-                links_container.append(link.get("href"))
+                site_links = get_content(root_url).findAll(
+                    'a', {"class": "menuUrl"})
 
             else:
-                links_container.append(link.text)
+                print(root_url)
+                site_links_test = get_content(root_url)
+                if site_links_test is None:
+                    continue
+                else:
+                    site_links = site_links_test.findAll('link')
 
-        for link in links_container:
+            links_container = []
 
-            # Check if keywords or title matches key
-            link_content = get_content(link)
+            for link in site_links:
+                if schema['siteName'] == "www.cna.com.tw":
+                    links_container.append(link.get("href"))
 
-            if not link_content is None:
-                link_keywords_test = link_content.find(
-                    'meta', {"name": "keywords"})
-                link_title_test = link_content.find("title")
+                else:
+                    links_container.append(link.text)
 
-                if not link_keywords_test is None:
-                    link_keywords = link_keywords_test.get("content")
+            for link in links_container:
 
-                    if any(words in link_keywords for words in key):
-                        link_title = link_title_test.text
+                # Check if keywords or title matches key
+                link_content = get_content(link)
 
-                    elif not link_title_test is None:
-                        link_title = link_title_test.text
+                if not link_content is None:
+                    link_keywords_test = link_content.find(
+                        'meta', {"name": "keywords"})
+                    link_title_test = link_content.find("title")
 
-                        if any(words in link_title for words in key):
-                            pass
+                    if not link_keywords_test is None:
+                        link_keywords = link_keywords_test.get("content")
+
+                        if any(words in link_keywords for words in key):
+                            link_title = link_title_test.text
+
+                        elif not link_title_test is None:
+                            link_title = link_title_test.text
+
+                            if any(words in link_title for words in key):
+                                pass
+
+                            else:
+                                continue
 
                         else:
                             continue
@@ -224,74 +227,71 @@ for locale, all_rss in NEWS_URLs.items():
 
                 else:
                     continue
+                # Get title
+                news_title = link_title
 
-            else:
-                continue
-            # Get title
-            news_title = link_title
-
-            # Get content
-            article, status = extract_article(link)
-            if not status:
-                continue
-
-            # Get author and format publishedAt
-            if schema["siteName"] == "www3.nhk.or.jp":
-                news_author = link_content.find(
-                    'meta', {"name": 'author'}).get('content')
-
-                date_string = link_content.find('time').get("datetime")
-                local_dt = localtime_to_ust(date_string)
-
-            elif schema["siteName"] == "www.asahi.com":
-                news_author = link_content.find(
-                    'meta', {"property": "og:site_name"}).get("content")
-
-                date_string_test = link_content.find(
-                    'meta', {"name": "pubdate"})
-                if date_string_test == None:
+                # Get content
+                article, status = extract_article(link)
+                if not status:
                     continue
-                else:
+
+                # Get author and format publishedAt
+                if schema["siteName"] == "www3.nhk.or.jp":
+                    news_author = link_content.find(
+                        'meta', {"name": 'author'}).get('content')
+
+                    date_string = link_content.find('time').get("datetime")
+                    local_dt = localtime_to_ust(date_string)
+
+                elif schema["siteName"] == "www.asahi.com":
+                    news_author = link_content.find(
+                        'meta', {"property": "og:site_name"}).get("content")
+
+                    date_string_test = link_content.find(
+                        'meta', {"name": "pubdate"})
+                    if date_string_test == None:
+                        continue
+                    else:
+                        date_string = date_string_test.get("content")
+                        local_dt = parse(date_string)
+
+                elif schema["siteName"] == "www.cna.com.tw":
+                    news_author_test = link_content.find(
+                        "meta", {"itemprop": "author"})
+                    if news_author_test == None:
+                        continue
+                    news_author = news_author_test.get("content")
+                    date_string_test = link_content.find(
+                        "meta", {"itemprop": "datePublished"})
+                    if date_string_test == None:
+                        continue
                     date_string = date_string_test.get("content")
-                    local_dt = parse(date_string)
+                    local_dt = localtime_to_ust(date_string)
 
-            elif schema["siteName"] == "www.cna.com.tw":
-                news_author_test = link_content.find(
-                    "meta", {"itemprop": "author"})
-                if news_author_test == None:
-                    continue
-                news_author = news_author_test.get("content")
-                date_string_test = link_content.find(
-                    "meta", {"itemprop": "datePublished"})
-                if date_string_test == None:
-                    continue
-                date_string = date_string_test.get("content")
-                local_dt = localtime_to_ust(date_string)
+                utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
 
-            utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
+                # Get language and country
+                lang_locale = locale.split("_")
+                lang = lang_locale[0]
+                country = lang_locale[1]
 
-            # Get language and country
-            lang_locale = locale.split("_")
-            lang = lang_locale[0]
-            country = lang_locale[1]
+                newsObject = {
 
-            newsObject = {
-
-                'title': news_title,
-                'description': link_content.find('meta', {"name": "description"}).get('content'),
-                'content': article.text,
-                'author': news_author,
-                'url': link,
-                'urlToImage': article.top_image,
-                'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
-                'publishedAt': utc_str,
-                'siteName': schema['siteName'],
-                'language': lang if locale not in SPECIAL_LANG else locale,
-                'countryCode': country,
-                'status': '1'
-            }
-            newsObject_stack.append(newsObject)
+                    'title': news_title,
+                    'description': link_content.find('meta', {"name": "description"}).get('content'),
+                    'content': article.text,
+                    'author': news_author,
+                    'url': link,
+                    'urlToImage': article.top_image,
+                    'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
+                    'publishedAt': utc_str,
+                    'siteName': schema['siteName'],
+                    'language': lang if locale not in SPECIAL_LANG else locale,
+                    'countryCode': country,
+                    'status': '1'
+                }
+                newsObject_stack.append(newsObject)
 
 
-save_to_db()
+    save_to_db()
 # print(newsObject_stack)

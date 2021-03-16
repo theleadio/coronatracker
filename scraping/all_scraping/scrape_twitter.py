@@ -2,7 +2,8 @@ from twitterscraper import query_tweets
 import json
 import datetime
 
-if __name__ == '__main__':
+def scrape_twitter():
+
     search_query = "WuhanVirus OR 2019nCoV OR Coronavirus OR WuhanCoronavirus OR coronaviruses OR coronavirusoutbreak OR coronavirus OR Covid-19 OR COVID-19 OR ChineseCoronavirus OR Coronaoutbreak"
     filename = "corona_twitter.json"
     #filename = "{}.json".format(username)
@@ -18,3 +19,6 @@ if __name__ == '__main__':
 
     with open(filename, "w") as f:
         f.write(json.dumps(j))
+
+if __name__ == '__main__':
+    scrape_twitter()

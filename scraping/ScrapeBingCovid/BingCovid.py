@@ -24,3 +24,7 @@ class BingCovid:
         self.deaths = deaths
         self.recovered = recovered
         self.posted_date = posted_date
+
+     def add_to_queue(self):
+        for bings_object in self.bings_list:
+            EXTRACT_QUEUE.put(bings_object)

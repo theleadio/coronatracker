@@ -8,6 +8,7 @@ datetime_str = all[0] # '09/19/18 13:55:26'
 
 datetime_object = datetime.strptime(datetime_str, '%d %b %Y %H:%M:%S %z')
 
+#test
 print(type(datetime_object))
 print(datetime_object)  # printed in default format
 print(datetime_object.astimezone(timezone.utc))

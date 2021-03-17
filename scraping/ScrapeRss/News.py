@@ -12,3 +12,4 @@ class News:
 
     def get_NewsParser(self):
         pass
+

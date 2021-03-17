@@ -7,7 +7,7 @@ if __name__ == '__main__':
     filename = "corona_twitter.json"
     #filename = "{}.json".format(username)
     tD = twitterData(search_query, filename)
-    td.query()
+    tD.query()
 
 
 

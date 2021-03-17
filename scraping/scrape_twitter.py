@@ -1,42 +1,58 @@
+
 from twitterscraper import query_tweets
 import json
 import datetime
 
-
-# root - We are trying to aggregate seperate tweets and there data members
-class Tweet:
+# root - We are trying t aggregate all the tweets in a single root 
+class Tweets:
   """
-  This class is can store a single tweet in its data members.
+  Class for storing all the tweets and make several operations on them.
   """
 
-  # Initializes the data members of the Tweet when the instance is made
-  def __init__(self, username, tweet_id, hashtags, links, timestamp, text):
-    self.username = username
-    self.tweet_id = tweet_id
-    self.hashtags = hashtags
-    self.links = links
-    self.timestamp = timestamp
-    self.text = text
-    
-  # Getter functions to acces the data members of the tweets
-  def get_username(self):
-    return self.username
+  # Initializes the tweets list
+  def __init__(self):
+    self.tweets = []
+  
+  # Adds the tweet in the tweet list of the instance
+  def add_tweet(self,  tweet):
+    self.tweets.append(tweet)
 
-  def get_tweet_id(self):
-    return self.tweet_id
+  # Returns a list of tweets by a user with some username
+  def get_tweets_by_user(self, username):
+    user_tweets = []
 
-  def get_hashtags():
-    return self.hashtags
+    # Loop through all the tweets
+    for t in self.tweets:
+      if t["username"] == username:
+        user_tweets.append(t)
+    return user_tweets
 
-  def get_links():
-    return self.links
 
-  def get_timestamp():
-    return self.timestamp
+  # Returns a tweet in diictionary format with the given tweet_id = id, 
+  # If the tweet with given Id is not availale then it returns an empty dictionary
+  def get_tweet_by_id(self, id):
+    for t in self.tweets:
+      if t["tweeet_id"] == id:
+        return t
+    return {}
 
-  def get_text():
-    return self.text
 
+  # Returns a lsit of tweets which have the given query in its text.
+  def tweets_with_query_in_text(self, query):
+    user_tweets = []
+    for t in self.tweets:
+      if query in t["text"]:  
+        user_tweets.append(t)
+    return user_tweets
+
+
+  # Returns the count of tweets by some user with the given username
+  def count_tweet_by_user(self, username):
+    count = 0
+    for t in self.tweets:
+      if t["username"] = username:
+        count += 1
+    return count
 
 
 
@@ -48,27 +64,23 @@ if __init__: "__main__":
 
   tweets = query_tweets(query=search_query, begindate=datetime.date(2019, 12, 30), enddate=datetime.date(2020, 1, 27))
   print("Found: {} tweets".format(len(tweets)))
-  # Found: 7 tweets
 
-  # List of Tweet objects
-  list_tweets = []
+  # Instance of Tweet to make the aggregation of all the tweets in a single root
+  root = Tweets()  # root 
   j = []
   for t in tweets:
     t.timestamp = t.timestamp.isoformat()
 
-
-    # Make an instance of the Tweet class and pass the data of the current tweet
-    new_tweet = Tweet(t.username, t.tweet_id, t.hashtags, t.links, t.timestamp, t.text)
-
-    # Add the new Tweet instance into the list of tweets
-    list_tweets.append(new_tweet)
+    # Adding the tweets in the root instance
+    root.add_tweet(t)  
 
     print("{} {} {} {} {}: {}".format(t.username, t.tweet_id, t.hashtags, t.links, t.timestamp, t.text))
     j.append(t.__dict__)
 
     
   with open(filename, "w") as f:
-      f.write(json.dumps(j))
+    f.write(json.dumps(j))
+
 
 
 

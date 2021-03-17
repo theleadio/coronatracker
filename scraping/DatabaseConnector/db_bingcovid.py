@@ -9,25 +9,6 @@ TEST_TABLE_NAME = "bing_covid_temp"
 PROD_TABLE_NAME = "bing_covid"
 
 
-def connect():
-    global mydb
-
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
-
 class Sequel:
     def __init__(self, mycursor):
         self.mycursor = mydb.cursor()
@@ -67,3 +48,23 @@ class Sequel:
         except Exception as ex:
             print(ex)
             print("Record not inserted")
+
+def connect():
+    global mydb
+
+    # populate this from env file
+    path_to_json = "./db.json"
+
+    with open(path_to_json, "r") as handler:
+        info = json.load(handler)
+        print(info)
+
+        mydb = mysql.connector.connect(
+            host=info["host"],
+            user=info["user"],
+            passwd=info["passwd"],
+            database=info["database"],
+        )
+
+    print(mydb)
+

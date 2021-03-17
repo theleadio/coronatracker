@@ -5,7 +5,7 @@ from ScrapeRss.globals import (
 )
 
 class WebsiteInfo: # Uses name of website in the links, along with extra tidbits to deal with similar links.
-def _init_(self, Iscrawl, SourceName, SourceGroup):
+def _init_(self, IsCrawl, SourceName, SourceGroup):
 self.IsCrawl =IsCrawl # shows wether or not a news source should be crawled
 self.SourceName = SourceName #shows source's http source.
 self.SourceGroup = SourceGroup #show NEWS_SOURCES group the source belongs to.

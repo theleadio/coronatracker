@@ -19,21 +19,16 @@
 from bs4 import BeautifulSoup
 from newspaper import Article
 import requests
-import pandas as pd
-from datetime import datetime, timezone
+
+from datetime import datetime
 import pytz
 from dateutil.parser import parse
-import re
 
-import mysql.connector
-
-import json
-import os.path
 import logging
 
+from .db.db import DbName, DbConnection
 
-mydb = None
-TABLE_NAME = "newsapi_n"
+
 
 
 def get_content(url):
@@ -64,7 +59,6 @@ def extract_article(link):
 
 
 def localtime_to_ust(datetime):
-
     date_time_naive = parse(datetime)
     timezone = pytz.timezone(schema['timezone'])
     local_dt = timezone.localize(date_time_naive, is_dst=None)
@@ -72,75 +66,15 @@ def localtime_to_ust(datetime):
     return local_dt
 
 
-def connect():
-    global mydb
-
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
-
-
 def save_to_db():
-    connect()
+    db = DbConnection(DbName.NEWS, True)
     for newsObject in newsObject_stack:
-        insert(newsObject)
+        db.insert(newsObject)
 
-
-def insert(data_dict):
-    table_name = TABLE_NAME
-    mycursor = mydb.cursor()
-    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, countryCode, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title = %s, description = %s, author = %s, content = %s, urlToImage = %s, publishedAt = %s, addedOn = %s, siteName = %s, language = %s, countryCode = %s".format(
-        table_name
-    )
-    val = (
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["url"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-        1,  # Status
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-    )
-    print("SQL query: ", sql)
-    try:
-        mycursor.execute(sql, val)
-        mydb.commit()
-        print(mycursor.rowcount, "record inserted.")
-    except Exception as ex:
-        print(ex)
-        print("Record not inserted")
 
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 SPECIAL_LANG = set(["zh_TW", "zh_CN"])
-
 
 key = ["新型コロナウイルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
 newsObject_stack = []
@@ -166,7 +100,6 @@ NEWS_URLs = {
     ]
 
 }
-
 
 # Check language
 for locale, all_rss in NEWS_URLs.items():
@@ -291,7 +224,6 @@ for locale, all_rss in NEWS_URLs.items():
                 'status': '1'
             }
             newsObject_stack.append(newsObject)
-
 
 save_to_db()
 # print(newsObject_stack)

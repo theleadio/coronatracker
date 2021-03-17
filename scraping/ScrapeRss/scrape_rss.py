@@ -63,40 +63,34 @@ nltk.download("punkt")
 RSS_STACK = {}
 CACHE = set()
 
-# Database configurations
-from DatabaseConnector.db_connector import DatabaseConnector
+from ..db.db import DbName, DbConnection
 
-db_connector = DatabaseConnector(config_path="./db.json")
-db_connector.connect()
-
-# temporary solution as migrating to new db prod instance
-db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
-db_connector_prodv2.connect()
-
+db_prod = DbConnection(DbName.WORLD, True)
+db_test = DbConnection(DbName.WORLD, False)
 
 # import all news sources
-from ScrapeRss.rss_sites import NEWS_SOURCES
+from ..ScrapeRss.rss_sites import NEWS_SOURCES
 
 # NewsParser
-from ScrapeRss.NewsParser import NewsParser
+from ..ScrapeRss.NewsParser import NewsParser
 
 # NewsContent
-from ScrapeRss.NewsContent import NewsContent
+from ..ScrapeRss.NewsContent import NewsContent
 
 # Constant values
-from ScrapeRss.globals import CACHE_FILE, OUTPUT_FILENAME
-from ScrapeRss.globals import HEADER, THREAD_LIMIT
-from ScrapeRss.globals import DATE_FORMAT, CORONA_KEYWORDS, SPECIAL_LANG
-from ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
+from ..ScrapeRss.globals import CACHE_FILE, OUTPUT_FILENAME
+from ..ScrapeRss.globals import HEADER, THREAD_LIMIT
+from ..ScrapeRss.globals import DATE_FORMAT, CORONA_KEYWORDS, SPECIAL_LANG
+from ..ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
 
 # Helper functions
-from ScrapeRss.helpers import (
+from ..ScrapeRss.helpers import (
     get_seed_page,
     get_title_from_article,
     get_published_at_value,
     get_author_value,
 )
-from ScrapeRss.helpers import (
+from ..ScrapeRss.helpers import (
     attempt_extract_from_meta_data,
     corona_keyword_exists_in_string,
     extract_article,
@@ -193,9 +187,9 @@ def extract_worker():
 
         # If keyword doesn't exists in article, skip
         if (
-            not corona_keyword_exists_in_string(rss_record["description"].lower())
-            and not corona_keyword_exists_in_string(rss_record["title"].lower())
-            and not corona_keyword_exists_in_string(keywords.lower())
+                not corona_keyword_exists_in_string(rss_record["description"].lower())
+                and not corona_keyword_exists_in_string(rss_record["title"].lower())
+                and not corona_keyword_exists_in_string(keywords.lower())
         ):
             EXTRACT_QUEUE.task_done()
             continue
@@ -279,8 +273,8 @@ def save_to_db(table_name):
     logging.debug("Saving to db to {} table".format(table_name))
     for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
-            db_connector.insert_news_article(rss_record, table_name)
-            db_connector_prodv2.insert_news_article(rss_record, table_name)
+            db_prod.insert(rss_record)
+            db_test.insert(rss_record)
 
 
 def parser():

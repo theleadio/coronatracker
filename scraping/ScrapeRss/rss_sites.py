@@ -67,7 +67,7 @@ http://www.dailytelegraph.com.au/news/world/rss
 
 """
 
-from ScrapeRss.globals import (
+from ..ScrapeRss.globals import (
     ISO_8601_DATE_FORMAT,
     ISO_8601_DATE_WITHOUT_SEC_FORMAT,
     YEAR_MONTH_DAY_FORMAT,

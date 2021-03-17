@@ -2,14 +2,14 @@ import sys
 import os
 import logging
 
+from ..db.db import DbName, DbConnection
+
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
 CURRENT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
-
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
 
 import requests
 from bs4 import BeautifulSoup
@@ -19,8 +19,7 @@ from dateutil import parser
 TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
-db_malaysia_patient_cases.connect()
-db_malaysia_states.connect()
+
 
 # state details
 def get_state_details():
@@ -60,19 +59,17 @@ def get_state_details():
         col = col.findNext(["td"])
 
     # output: [State name, increment count, total, hospital, recovered, death, last_updated]
+    db = DbConnection(DbName.MALAYSIA_STATES, False)
     for data in state_details:
-        db_malaysia_states.insert(
-            {
-                "state": data[0],
-                "increment_count": data[1],
-                "total_count": data[2],
-                "hospital_count": data[3],
-                "recovered_count": data[4],
-                "death_count": data[5],
-                "last_updated": datetime.now().strftime(DATETIME_FORMAT),
-            },
-            TABLE,
-        )
+        db.insert({
+            "state": data[0],
+            "increment_count": data[1],
+            "total_count": data[2],
+            "hospital_count": data[3],
+            "recovered_count": data[4],
+            "death_count": data[5],
+            "last_updated": datetime.now().strftime(DATETIME_FORMAT),
+        })
 
 
 # case details
@@ -159,7 +156,7 @@ def get_case_details():
                 break
             idx += 1
         patients.append(patient)
-        db_malaysia_patient_cases.insert(patient, TABLE)
+        DbConnection(DbName.MALAYSIA, False).insert(patient)
     # print(patients)
 
 

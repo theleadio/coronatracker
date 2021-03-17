@@ -25,6 +25,16 @@ class BingCovid:
         self.recovered = recovered
         self.posted_date = posted_date
 
+<<<<<<< Updated upstream
      def add_to_queue(self):
         for bings_object in self.bings_list:
             EXTRACT_QUEUE.put(bings_object)
+=======
+from DatabaseConnector import db_bingcovid
+     DB_TABLE = "test"
+     API_URL = "https://bing.com/covid/data"
+
+     if __name__ == "__main__":
+         db_bingcovid.connect()
+         res = get_seed_page(API_URL).json()
+>>>>>>> Stashed changes

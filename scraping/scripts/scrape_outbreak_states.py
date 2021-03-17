@@ -9,7 +9,7 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
+import MalaysiaInformation
 
 import requests
 from bs4 import BeautifulSoup
@@ -19,8 +19,12 @@ from dateutil import parser
 TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
-db_malaysia_patient_cases.connect()
-db_malaysia_states.connect()
+
+malaysia_info = MalaysiaInformation(self, date)
+# connect to the Malaysia states database, removed a deep reference
+malaysia_info.dbStatesConnect()
+# connect to the Malaysia patients database, removed a deep reference
+malaysia_info.dbPatientConnect()
 
 # state details
 def get_state_details():
@@ -61,7 +65,8 @@ def get_state_details():
 
     # output: [State name, increment count, total, hospital, recovered, death, last_updated]
     for data in state_details:
-        db_malaysia_states.insert(
+        # insert state info into database, removed a deep reference
+        malaysia_info.dbStatesConnect(
             {
                 "state": data[0],
                 "increment_count": data[1],
@@ -159,7 +164,8 @@ def get_case_details():
                 break
             idx += 1
         patients.append(patient)
-        db_malaysia_patient_cases.insert(patient, TABLE)
+        # insert patient case info into databse, removed deep reference
+        malaysia_info.dbPatientConnect(patient, TABLE)
     # print(patients)
 
 

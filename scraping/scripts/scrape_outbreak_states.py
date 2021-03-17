@@ -73,7 +73,18 @@ def get_state_details():
             },
             TABLE,
         )
-
+#get patient details class
+class get_patient:
+    def __init__(self, case,status,status_date,confirmed_date,nationality,age,gender,hospital,description):
+        self.case=case
+        self.status=status
+        self.status_date=status_date
+        self.confirmed_date=confirmed_date
+        self.nationality=nationality
+        self.age=age
+        self.gender=gender
+        self.hospital=hospital
+        self.description=description
 
 # case details
 def get_case_details():
@@ -159,6 +170,11 @@ def get_case_details():
                 break
             idx += 1
         patients.append(patient)
+
+        #assign every patient details status
+        for index in range(len(patients)):
+            patient=get_patient(case,status,status_date,confirmed_date,nationality,age,gender,hospital,description)
+
         db_malaysia_patient_cases.insert(patient, TABLE)
     # print(patients)
 

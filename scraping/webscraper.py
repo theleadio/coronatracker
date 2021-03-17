@@ -30,6 +30,7 @@ import mysql.connector
 import json
 import os.path
 import logging
+from WebScraperRoot import get_and_parse
 
 
 mydb = None
@@ -39,7 +40,7 @@ TABLE_NAME = "newsapi_n"
 def get_content(url):
     url = url
     try:
-        response = requests.get(url, timeout=5)
+        response = get_and_parse(url, parser="html", timeout=5)
         content = BeautifulSoup(response.content, "xml")
         # content = BeautifulSoup(response.content, "html.parser")
     except Exception:

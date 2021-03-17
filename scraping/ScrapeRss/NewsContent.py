@@ -1,13 +1,5 @@
 class NewsContent:
-    def __init__(
-        self,
-        news_url="",
-        title="",
-        author="",
-        description="",
-        published_at=None,
-        seed_source=None,
-    ):
+    def __init__(self, news_url="", title="", author="", description="", published_at=None, seed_source=None):
         self.news_url = news_url
         self.title = title
         self.author = author

@@ -277,7 +277,7 @@ for locale, all_rss in NEWS_URLs.items():
 
           
             class NewsObect:
-            #this class replaces newsObject struture, however, each of the attributes are determined in the same way.
+            #this class replaces newsObject struture, however, each of the attributes are determined in the same way. as well the attributes are also the same as the newsObject structure
             def_init_(self, title, description,content,author,url,urlToImage,addedOn,publishedAt,siteName,language, countryCode,status):
             title= news_title
             description= link_content.find('meta', {"name": "description"}).get('content')

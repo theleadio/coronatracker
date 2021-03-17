@@ -1,4 +1,4 @@
-import mysql.connector
+ import mysql.connector
 import json
 
 # malaysia_patient_case TABLE_SCHEMA

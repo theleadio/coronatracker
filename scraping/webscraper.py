@@ -275,21 +275,22 @@ for locale, all_rss in NEWS_URLs.items():
             lang = lang_locale[0]
             country = lang_locale[1]
 
-            newsObject = {
-
-                'title': news_title,
-                'description': link_content.find('meta', {"name": "description"}).get('content'),
-                'content': article.text,
-                'author': news_author,
-                'url': link,
-                'urlToImage': article.top_image,
-                'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
-                'publishedAt': utc_str,
-                'siteName': schema['siteName'],
-                'language': lang if locale not in SPECIAL_LANG else locale,
-                'countryCode': country,
-                'status': '1'
-            }
+          
+            class NewsObect:
+            def_init_(self, title, description,content,author,url,urlToImage,addedOn,publishedAt,siteName,language, countryCode,status):
+            title= news_title
+            description= link_content.find('meta', {"name": "description"}).get('content')
+            content= atricle.text
+            author= news_author
+            url= link
+            urlToImage= article.top_image
+            addedOn= datetime.utcnow().strftime(DATE_FORMAT)
+            publishedAt= utc_str
+            siteName= schema['siteName']
+            language= lang if locale not in SPECIAL_LANG else locale
+            countryCode= country
+            status= '1'
+            
             newsObject_stack.append(newsObject)
 
 

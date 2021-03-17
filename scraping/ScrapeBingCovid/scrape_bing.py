@@ -28,6 +28,16 @@ from ScrapeRss.helpers import get_seed_page
 # BingCovid
 from ScrapeBingCovid.BingCovid import BingCovid
 
+class Nation:
+    def __init__(self, country,confirmed,deaths,recovered,last_update,lat,long):
+       self.country=country
+       self.confirmed=confirmed
+       self.deaths=deaths
+       self.recovered=recovered
+       self.last_update=last_update
+       self.lat=lat
+       self.long=long
+
 if __name__ == "__main__":
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()
@@ -42,21 +52,13 @@ if __name__ == "__main__":
     db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
 
     # Countries
-    for countryData in res["areas"]:
-        currentCountry = BingCovid(
-            confirmed=countryData["totalConfirmed"],
-            deaths=countryData["totalDeaths"],
-            recovered=countryData["totalRecovered"],
-            last_update=countryData["lastUpdated"],
-            lat=countryData["lat"],
-            lng=countryData["long"],
-            country=countryData["country"],
-        )
-        logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
-        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+     for area in res["areas"]:
+         area=Nation(country,totalConfirmed,totalDeaths,totalRecovered,lastUpdated,lat,long)
+         logging.debug("Inserting country data: {}".format(area.__dict__))
+         db_bingcovid.insert(area.__dict__, target_table=DB_TABLE)
 
         # States
-        for stateData in countryData["areas"]:
+        for stateData in res["areas"]:
             currentState = BingCovid(
                 confirmed=stateData["totalConfirmed"],
                 deaths=stateData["totalDeaths"],

@@ -24,3 +24,13 @@ class BingCovid:
         self.deaths = deaths
         self.recovered = recovered
         self.posted_date = posted_date
+
+<<<<<<< Updated upstream
+from DatabaseConnector import db_bingcovid
+     DB_TABLE = "test"
+     API_URL = "https://bing.com/covid/data"
+
+     if __name__ == "__main__":
+         db_bingcovid.connect()
+         res = get_seed_page(API_URL).json()
+>>>>>>> Stashed changes

@@ -1,4 +1,4 @@
-from ScrapeRss.NewsContent import NewsContent
+from ScrapeRss.News import News
 
 from ScrapeRss.globals import URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
 from ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
@@ -96,7 +96,7 @@ class NewsParser:
             if not include_url:
                 continue
 
-            news_object = NewsContent(seed_source=self)
+            news_object = get_NewsContent(seed_source=self)
             try:
                 news_object.news_url = a_tag_node["href"]
             except Exception as e:
@@ -118,7 +118,7 @@ class NewsParser:
 
         for node in url_nodes:
             insert_article = True
-            news_object = NewsContent(seed_source=self)
+            news_object = get_NewsContent(seed_source=self)
             published_at_dt_object = None
             # use date_xml in schema to skip old articles and get published_at
             if "date_xml" in self.schema:

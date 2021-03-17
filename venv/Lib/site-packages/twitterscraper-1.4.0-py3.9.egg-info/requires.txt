@@ -1,5 +1,0 @@
-coala-utils~=0.5.0
-bs4
-lxml
-requests
-billiard

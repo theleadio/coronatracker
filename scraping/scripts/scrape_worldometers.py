@@ -8,21 +8,14 @@ import sys
 import logging
 import argparse
 
+from ..db.db import DbConnection, DbName
+
 # Connect to # db_connector from parent directory
 PARENT_DIR = ".."
 CURRENT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
-
-from DatabaseConnector.db_connector import DatabaseConnector
-
-db_connector = DatabaseConnector(config_path="./db.json")
-db_connector.connect()
-
-# temporary solution as migrating to new db prod instance
-db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
-db_connector_prodv2.connect()
 
 import requests
 import pandas
@@ -78,11 +71,11 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
 
     if df["Country,Other"] != "Total:":
-        db_connector.insert_worldometer_stats(data, stats_table)
-        db_connector_prodv2.insert_worldometer_stats(data, stats_table)
+        DbConnection(DbName.WORLD, False).insert(data)
+        DbConnection(DbName.WORLD, True).insert(data)
     else:
-        db_connector.insert_worldometers_total_sum(data, overview_table)
-        db_connector_prodv2.insert_worldometers_total_sum(data, overview_table)
+        DbConnection(DbName.WORLD_SUM, False).insert(data)
+        DbConnection(DbName.WORLD_SUM, True).insert(data)
 
 
 if __name__ == "__main__":

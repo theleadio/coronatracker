@@ -1,12 +1,12 @@
-from ScrapeRss.NewsContent import NewsContent
+from ..ScrapeRss.NewsContent import NewsContent
 
-from ScrapeRss.globals import URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
-from ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
+from ..ScrapeRss.globals import URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
+from ..ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
 
-from ScrapeRss.helpers import is_valid_url, is_article_uploaded_today
-from ScrapeRss.helpers import get_title_from_for_html, get_description_from_for_html
-from ScrapeRss.helpers import corona_keyword_exists_in_string
-from ScrapeRss.helpers import convert_date_to_datetime_object
+from ..ScrapeRss.helpers import is_valid_url, is_article_uploaded_today
+from ..ScrapeRss.helpers import get_title_from_for_html, get_description_from_for_html
+from ..ScrapeRss.helpers import corona_keyword_exists_in_string
+from ..ScrapeRss.helpers import convert_date_to_datetime_object
 
 
 from bs4 import BeautifulSoup

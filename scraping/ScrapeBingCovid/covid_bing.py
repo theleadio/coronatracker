@@ -7,9 +7,9 @@ class covid_bing:
     def __init__(self):
         pass
 
-    def get_BingCovid:
+    def get_BingCovid(self):
         pass
 
-    def get_scrape_bing:
+    def get_scrape_bing(self):
         pass
 

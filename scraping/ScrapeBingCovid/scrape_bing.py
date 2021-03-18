@@ -17,7 +17,7 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_bingcovid
+from DatabaseConnector import covid_Data_Table
 
 DB_TABLE = "test"  # "prod"
 API_URL = "https://bing.com/covid/data"
@@ -29,7 +29,7 @@ from ScrapeRss.helpers import get_seed_page
 from ScrapeBingCovid.BingCovid import BingCovid
 
 if __name__ == "__main__":
-    db_bingcovid.connect()
+    covid_Data_Table.connect()
     res = get_seed_page(API_URL).json()
 
     # whole world
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         recovered=res["totalRecovered"],
     )
     logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
-    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+    covid_Data_Table.insert(wholeWorld.__dict__, target_table=DB_TABLE)
 
     # Countries
     for countryData in res["areas"]:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             country=countryData["country"],
         )
         logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
-        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+        covid_Data_Table.insert(currentCountry.__dict__, target_table=DB_TABLE)
 
         # States
         for stateData in countryData["areas"]:
@@ -68,4 +68,4 @@ if __name__ == "__main__":
                 country=countryData["country"],
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
-            db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+            covid_Data_Table.insert(currentState.__dict__, target_table=DB_TABLE)

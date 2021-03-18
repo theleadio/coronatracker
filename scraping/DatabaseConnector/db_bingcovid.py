@@ -5,29 +5,10 @@ import json
 # ['nid', 'state', 'country', 'last_update', 'lat', 'lng', 'confirmed', 'deaths', 'recovered', 'posted_date']
 
 mydb = None
-TEST_TABLE_NAME = "bing_covid_temp"
-PROD_TABLE_NAME = "bing_covid"
 
 
-def connect():
-    global mydb
 
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
-
+#Aneesh
 
 def select():
     mycursor = mydb.cursor()

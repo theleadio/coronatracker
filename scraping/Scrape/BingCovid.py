@@ -2,7 +2,7 @@ from datetime import datetime
 from dateutil import parser
 
 
-class BingCovid:
+class bing_Covid:
     def __init__(
         self,
         state=None,

@@ -2,8 +2,6 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Author(s):
-#   - samueljklee@gmail.com
 #
 
 import sys
@@ -26,14 +24,14 @@ API_URL = "https://bing.com/covid/data"
 from ScrapeRss.helpers import get_seed_page
 
 # BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+from ScrapeBingCovid.bing_Covid import bing_Covid
 
 if __name__ == "__main__":
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()
 
     # whole world
-    wholeWorld = BingCovid(
+    wholeWorld = bing_Covid(
         confirmed=res["totalConfirmed"],
         deaths=res["totalDeaths"],
         recovered=res["totalRecovered"],
@@ -43,7 +41,7 @@ if __name__ == "__main__":
 
     # Countries
     for countryData in res["areas"]:
-        currentCountry = BingCovid(
+        currentCountry = bing_Covid(
             confirmed=countryData["totalConfirmed"],
             deaths=countryData["totalDeaths"],
             recovered=countryData["totalRecovered"],
@@ -57,7 +55,7 @@ if __name__ == "__main__":
 
         # States
         for stateData in countryData["areas"]:
-            currentState = BingCovid(
+            currentState = bing_Covid(
                 confirmed=stateData["totalConfirmed"],
                 deaths=stateData["totalDeaths"],
                 recovered=stateData["totalRecovered"],

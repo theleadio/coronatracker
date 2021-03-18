@@ -295,3 +295,87 @@ for locale, all_rss in NEWS_URLs.items():
 
 save_to_db()
 # print(newsObject_stack)
+from twitterscraper import query_tweets
+import json
+import datetime
+
+if __name__ == '__main__':
+    search_query = "WuhanVirus OR 2019nCoV OR Coronavirus OR WuhanCoronavirus OR coronaviruses OR coronavirusoutbreak OR coronavirus OR Covid-19 OR COVID-19 OR ChineseCoronavirus OR Coronaoutbreak"
+    filename = "corona_twitter.json"
+    #filename = "{}.json".format(username)
+
+    tweets = query_tweets(query=search_query, begindate=datetime.date(2019, 12, 30), enddate=datetime.date(2020, 1, 27))
+    print("Found: {} tweets".format(len(tweets)))
+
+    j = []
+    for t in tweets:
+        t.timestamp = t.timestamp.isoformat()
+        print("{} {} {} {} {}: {}".format(t.username, t.tweet_id, t.hashtags, t.links, t.timestamp, t.text))
+        j.append(t.__dict__)
+
+    with open(filename, "w") as f:
+        f.write(json.dumps(j))
+
+import sys
+import os
+import logging
+
+# Connect to db_connector from parent directory
+PARENT_DIR = ".."
+CURRENT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
+sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
+
+from DatabaseConnector import db_bingcovid
+
+DB_TABLE = "test"  # "prod"
+API_URL = "https://bing.com/covid/data"
+
+# ScrapeRss helper function
+from ScrapeRss.helpers import get_seed_page
+
+# BingCovid
+from ScrapeBingCovid.BingCovid import BingCovid
+
+if __name__ == "__main__":
+    db_bingcovid.connect()
+    res = get_seed_page(API_URL).json()
+
+    # whole world
+    wholeWorld = BingCovid(
+        confirmed=res["totalConfirmed"],
+        deaths=res["totalDeaths"],
+        recovered=res["totalRecovered"],
+    )
+    logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
+    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+
+    # Countries
+    for countryData in res["areas"]:
+        currentCountry = BingCovid(
+            confirmed=countryData["totalConfirmed"],
+            deaths=countryData["totalDeaths"],
+            recovered=countryData["totalRecovered"],
+            last_update=countryData["lastUpdated"],
+            lat=countryData["lat"],
+            lng=countryData["long"],
+            country=countryData["country"],
+        )
+        logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
+        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+
+        # States
+        for stateData in countryData["areas"]:
+            currentState = BingCovid(
+                confirmed=stateData["totalConfirmed"],
+                deaths=stateData["totalDeaths"],
+                recovered=stateData["totalRecovered"],
+                last_update=stateData["lastUpdated"],
+                lat=stateData["lat"],
+                lng=stateData["long"],
+                state=stateData["displayName"],
+                country=countryData["country"],
+            )
+            logging.debug("Inserting state data: {}".format(currentState.__dict__))
+            db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)

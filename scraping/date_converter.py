@@ -16,26 +16,20 @@ print(datetime_object.astimezone(timezone.utc))
 import re
 from datetime import datetime, timezone
 
-Class Datetime:
-  #Aggregate root
+#Aggregate root
+Class Timestamp:
 
-def __init__(self, date, time, str):
+def __init__(self, date, time):
 
-#ConvertDate main identifier date and time.
-    self.date = date
-    self.time = time
-    self.str = str
+self.date = date
+self.time = time
 
 str = "Sat, 25 Jan 2020 01:52:22 +2000"
-
 all = re.findall(r"[\d]{1,2} [ADFJMNOS]\w* [\d]{4} \b(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] [\+]{1}[0-9]{4}\b", str)
 
 datetime_str = all[0] # '09/19/18 13:55:26'
 
-datetime_object = datetime.strptime(datetime_str, '%d %b %Y %H:%M:%S %z')
-
-#created new instance of the class
-Convdatetime = Datetime(date, time, str)
+datetime_object = Timestamp.strptime(datetime_str, '%d %b %Y %H:%M:%S %z')
 
 print(type(datetime_object))
 print(datetime_object)  # printed in default format

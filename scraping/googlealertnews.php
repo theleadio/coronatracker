@@ -26,13 +26,25 @@ catch(PDOException $e)
     }
 
 // loop news
-// Read the file from cron php file "crawler.php". the script will produce a xml file in json directory.
-$path = "json/news.xml";
+ // Read the file from cron php file "crawler.php". the script will produce a xml file in json directory.
+ $path = "json/news.xml";
 
-$xmlfile = file_get_contents($path);
-//$xmldata = simplexml_load_file("json/news.xml") or die("Failed to load");
+ $xmlfile = file_get_contents($path);
+ $url = 'https://www.google.com/alerts/feeds/04291961558717184598/11230507918514212460';
 
-$new = simplexml_load_string($xmlfile);
+ $response = file_get_contents($url);
+
+ $fp = fopen('json/news.xml', 'w');
+
+ fwrite($fp, $response);
+ //fclose($fp);
+
+ //$path = "json/news.xml";
+
+ $xmlfile = file_get_contents($fp);
+ //$xmldata = simplexml_load_file("json/news.xml") or die("Failed to load");
+
+ $new = simplexml_load_string($xmlfile);
 
 $timestamp = date('Y-m-d H:i:s');
 

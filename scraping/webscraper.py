@@ -30,17 +30,19 @@ import mysql.connector
 import json
 import os.path
 import logging
-from WebScraperRoot import get_and_parse
+from URLParser import *
 
 
 mydb = None
 TABLE_NAME = "newsapi_n"
 
 
+
+
 def get_content(url):
     url = url
     try:
-        response = get_and_parse(url, parser="html", timeout=5)
+        response = URLParser(url, parser="html", timeout=5).parse
         content = BeautifulSoup(response.content, "xml")
         # content = BeautifulSoup(response.content, "html.parser")
     except Exception:

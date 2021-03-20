@@ -1,4 +1,14 @@
 import time
+
+class URLParser:
+
+    def __init__(self,url, parser=None, **kwargs):
+        self.parser = parser
+        self.url = url
+        self.parse = get_and_parse(self.url, self.parser, **kwargs)
+
+
+
 def get_and_parse(url, parser=None, **kwargs):
     connected = False
     while not connected:

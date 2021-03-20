@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     # Countries
     for countryData in res["areas"]:
-        currentCountry = BingCovid(
+        currentCountry = BingCovid.country_data(
             confirmed=countryData["totalConfirmed"],
             deaths=countryData["totalDeaths"],
             recovered=countryData["totalRecovered"],
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
         # States
         for stateData in countryData["areas"]:
-            currentState = BingCovid(
+            currentState = BingCovid.state_data(
                 confirmed=stateData["totalConfirmed"],
                 deaths=stateData["totalDeaths"],
                 recovered=stateData["totalRecovered"],

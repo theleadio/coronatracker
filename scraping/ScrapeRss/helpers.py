@@ -1,11 +1,11 @@
-from ScrapeRss.globals import DATE_FORMAT, URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
-from ScrapeRss.globals import (
-    DATE_RFC_2822_DATE_FORMAT,
-    DATE_RFC_2822_REGEX_RULE,
-    DATE_ISO_8601_REGEX_RULE,
-    ISO_8601_DATE_FORMAT,
-)
-from ScrapeRss.globals import REQUEST_TIMEOUT, HEADER
+# from ScrapeRss.globals import DATE_FORMAT, URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
+# from ScrapeRss.globals import (
+#     DATE_RFC_2822_DATE_FORMAT,
+#     DATE_RFC_2822_REGEX_RULE,
+#     DATE_ISO_8601_REGEX_RULE,
+#     ISO_8601_DATE_FORMAT,
+# )
+# from ScrapeRss.globals import REQUEST_TIMEOUT, HEADER
 
 from newspaper import Article
 
@@ -15,14 +15,26 @@ import logging
 import requests
 import re
 
+from ScrapeRss.globals import Globals
+
+globals = Globals()
+globals.get_date_format
 TODAY_TIME = datetime.now()
+
+
+def is_blacklist_keywords_in_url(url, blacklist):
+    
+    # global blacklist and site specific blacklist
+    for keyword in blacklist.union(globals.get_url_blacklist_keywords):
+        if keyword in url:
+            return True
+    return False
 
 
 def is_valid_url(url, blacklist):
     # not empty
     if len(url.strip()) == 0:
         return False
-
     # TODO
     # incorrect domain (link to other sites)
     # domain = re.findall(r"^(?:https?:\/\/)?(?:www\.)?([^:\/?\n]+)", url, re.IGNORECASE)
@@ -37,12 +49,6 @@ def is_valid_url(url, blacklist):
     return True
 
 
-def is_blacklist_keywords_in_url(url, blacklist):
-    # global blacklist and site specific blacklist
-    for keyword in blacklist.union(URL_BLACKLIST_KEYWORDS):
-        if keyword in url:
-            return True
-    return False
 
 
 def get_title_from_for_html(node):
@@ -62,7 +68,7 @@ def get_description_from_for_html(node):
 def get_seed_page(url):
     try:
         logging.debug("Get seed url: {}".format(url))
-        res = requests.get(url, headers=HEADER, timeout=REQUEST_TIMEOUT)
+        res = requests.get(url, headers=globals.get_header, timeout=globals.get_request_timeout)
         return res
     except Exception as e:
         logging.error("Fail to get url: {}".format(url))
@@ -74,10 +80,10 @@ def corona_keyword_exists_in_string(string):
     # fails for languages that doesn't need space/comma
     # hence, do brute force to check keyword in string
     # eg: 武漢肺炎中國確診逾, where 武漢肺炎 is coronavirus
-    if len(set(re.findall(r"\w+", string)).intersection(CORONA_KEYWORDS)) != 0:
+    if len(set(re.findall(r"\w+", string)).intersection(globals.get_corona_keywords)) != 0:
         return True
     # Fallback: if can't find, search each keyword in string, brute force
-    for keyword in CORONA_KEYWORDS:
+    for keyword in globals.get_corona_keywords:
         if keyword in string:
             return True
     return False
@@ -242,7 +248,7 @@ def get_published_at_value(published_at_dt_object, article, soup_page):
             "Extracted timestamp is greater than current timestamp. Resetting to current timestamp"
         )
         dt_object = datetime.utcnow()
-    return str(dt_object.strftime(DATE_FORMAT))
+    return str(dt_object.strftime(globals.get_date_format))
 
 
 def get_author_value(author_default_value, article):

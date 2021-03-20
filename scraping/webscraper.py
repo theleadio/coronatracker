@@ -42,9 +42,7 @@ TABLE_NAME = "newsapi_n"
 def get_content(url):
     url = url
     try:
-        response = URLParser(url, parser="html", timeout=5).parse
-        content = BeautifulSoup(response.content, "xml")
-        # content = BeautifulSoup(response.content, "html.parser")
+       content = URLParser(url, parser="xml", timeout=5).parse
     except Exception:
         return None
 

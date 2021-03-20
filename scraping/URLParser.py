@@ -31,4 +31,3 @@ def get_and_parse(url, parser=None, **kwargs):
         return r
 
 
-#get_and_parse("https://google.com/", parser="html", headers=HEADER, timeout=REQUEST_TIMEOUT, allow_redirects=True)

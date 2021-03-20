@@ -9,7 +9,8 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
+from DatabaseConnector import db_malaysia_states
+from scraping import MalaysiaStateCases
 
 import requests
 from bs4 import BeautifulSoup
@@ -19,7 +20,8 @@ from dateutil import parser
 TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
-db_malaysia_patient_cases.connect()
+malaysiaCases = MalaysiaStateCases(state = "None", confirmed = "None", deaths = "None", recovered = "None")
+malaysiaCases.connect() # Removed a deep reference. The scraper now references the root class.
 db_malaysia_states.connect()
 
 # state details
@@ -159,7 +161,7 @@ def get_case_details():
                 break
             idx += 1
         patients.append(patient)
-        db_malaysia_patient_cases.insert(patient, TABLE)
+        malaysiaCases.insert(patient, TABLE) # removed a deep reference. This scraper now references the root class.
     # print(patients)
 
 

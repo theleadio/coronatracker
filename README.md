@@ -63,4 +63,3 @@ Link: https://www.who.int/westernpacific/emergencies/novel-coronavirus
 12. Mapping the Outbreak of CoronaVirus: https://www.bloomberg.com/graphics/2020-wuhan-novel-coronavirus-outbreak/
 
 13. 2019-nCoV Prevention & Treatment: https://www.cdc.gov/coronavirus/2019-ncov/about/prevention-treatment.html
-https://www.who.int/emergencies/diseases/novel-coronavirus-2019

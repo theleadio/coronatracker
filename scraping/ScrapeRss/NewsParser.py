@@ -194,11 +194,11 @@ class NewsParser:
             if "author" in self.schema:
                 node_author = node.find(self.schema["author"]).text
 
-            news_object.author = node_author
+            news_object.article_details.access_to_newsarticledetails.author = node_author
             news_object.news_url = news_url
-            news_object.title = node_title
-            news_object.description = node_description
-            news_object.published_at = published_at_dt_object
+            news_object.article_details.access_to_newsarticledetails.title = node_title
+            news_object.article_details.access_to_newsarticledetails.description = node_description
+            news_object.article_details.access_to_newsarticledetails.published_at = published_at_dt_object
             self.news_list.append(news_object)
 
     def add_news_to_extraction_queue(self):

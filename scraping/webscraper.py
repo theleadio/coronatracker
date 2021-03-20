@@ -12,7 +12,7 @@
 # How to find sitemap to get .xml: https://stackoverflow.com/questions/10232774/how-to-find-sitemap-xml-path-on-websites
 # About exceptions: https://stackoverflow.com/questions/16511337/correct-way-to-try-except-using-python-requests-module/16511493
 # Accessing into server: https://medium.com/@GalarnykMichael/aws-ec2-part-2-ssh-into-ec2-instance-c7879d47b6b2
-
+#webscraper
 ########################################################################################
 
 

@@ -64,5 +64,3 @@ Link: https://www.who.int/westernpacific/emergencies/novel-coronavirus
 
 13. 2019-nCoV Prevention & Treatment: https://www.cdc.gov/coronavirus/2019-ncov/about/prevention-treatment.html
 https://www.who.int/emergencies/diseases/novel-coronavirus-2019
-
-14. COVID-19 vaccine information by WHO: https://www.who.int/emergencies/diseases/novel-coronavirus-2019/covid-19-vaccines

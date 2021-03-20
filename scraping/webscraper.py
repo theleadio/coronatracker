@@ -30,18 +30,19 @@ import mysql.connector
 import json
 import os.path
 import logging
+from URLParser import *
 
 
 mydb = None
 TABLE_NAME = "newsapi_n"
 
 
+
+
 def get_content(url):
     url = url
     try:
-        response = requests.get(url, timeout=5)
-        content = BeautifulSoup(response.content, "xml")
-        # content = BeautifulSoup(response.content, "html.parser")
+       content = URLParser(url, parser="xml", timeout=5).parse
     except Exception:
         return None
 

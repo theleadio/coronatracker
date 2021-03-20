@@ -39,6 +39,15 @@
 import sys
 import os
 
+# The root class of the aggregate
+# Individual scrape_rss entities are identified by their scraperID
+
+class scrape_rss:
+    def __init__(self, scraperID):
+        self.scraperID = scraperID;
+
+# Below is the original code for scrape_rss.py
+
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
 CURRENT_DIR = os.path.dirname(
@@ -72,13 +81,6 @@ db_connector.connect()
 # temporary solution as migrating to new db prod instance
 db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
 db_connector_prodv2.connect()
-
-
-# import all news sources
-from ScrapeRss.rss_sites import NEWS_SOURCES
-
-# NewsParser
-from ScrapeRss.NewsParser import NewsParser
 
 # NewsContent
 from ScrapeRss.NewsContent import NewsContent
@@ -403,3 +405,714 @@ if __name__ == "__main__":
         count += len(rss_records)
     logging.debug("Total feeds: {}".format(count))
     logging.debug("Done scraping.")
+
+    # rss_sites entity
+    # Code added from rss_sites.py to avoid deep references
+
+    from ScrapeRss.globals import (
+        ISO_8601_DATE_FORMAT,
+        ISO_8601_DATE_WITHOUT_SEC_FORMAT,
+        YEAR_MONTH_DAY_FORMAT,
+    )
+
+    NEWS_SOURCES = {
+        "de_DE": [
+            (
+                "https://www.welt.de/sitemaps/newssitemap/newssitemap.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.welt.de/sitemaps/sitemap/today.xml",
+                {
+                    "url": "loc",
+                    "title": "image:title",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            ("https://www.focus.de/", {"not_xml": True, },),
+            ("https://www.faz.net/aktuell/", {"not_xml": True, },),
+        ],
+        "en_AU": [
+            (
+                "https://www.theage.com.au/rss/feed.xml",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+            # Doesn't work anymore, couldn't access rss feed
+            # (
+            #     "https://www.theage.com.au/rss/world.xml",
+            #     {"title": "title", "description": "description", "url": "link",},
+            # ),
+            # Remove heraldsun rss to prevent scraping the same content as other rss
+            # > as it's a smaller newspaper that is likely syndicating news from bigger news
+            #         (
+            #             "http://www.heraldsun.com.au/news/breaking-news/rss",
+            #             {"title": "title", "description": "description", "url": "link",},
+            #         ),
+            #         (
+            #             "http://www.heraldsun.com.au/rss",
+            #             {"title": "title", "description": "description", "url": "link",},
+            #         ),
+            (
+                "https://www.news.com.au/content-feeds/latest-news-world/",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+            (
+                "https://www.news.com.au/content-feeds/latest-news-national/",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+            (
+                "http://www.dailytelegraph.com.au/news/breaking-news/rss",
+                {"title": "title", "description": "description", "url": "link", },
+            ),
+            # (
+            #     "http://www.dailytelegraph.com.au/news/national/rss",
+            #     {"title": "title", "description": "description", "url": "link",},
+            # ),
+            (
+                "http://www.dailytelegraph.com.au/newslocal/rss",
+                {"title": "title", "description": "description", "url": "link", },
+            ),
+            # (
+            #     "http://www.dailytelegraph.com.au/news/world/rss",
+            #     {"title": "title", "description": "description", "url": "link",},
+            # ),
+            (
+                "https://www.sbs.com.au/news/topic/latest/feed",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+        ],
+        "en_CN": [
+            (
+                "https://www.shine.cn/sitemap-news.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "en_IN": [
+            (
+                "https://www.thehindu.com/sitemap/googlenews.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "en_TW": [
+            (
+                "http://www.taipeitimes.com/sitemap.xml",
+                {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            ),
+            (
+                "https://www.taiwannews.com.tw/en/sitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+                },
+            ),
+        ],
+        "en_SG": [
+            (
+                "https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml",
+                {
+                    "title": "title",
+                    "description": "news:keywords",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "en_HK": [
+            (
+                "https://www.scmp.com/rss/318208/feed",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+        ],
+        "en_KR": [
+            (
+                "http://english.chosun.com/site/data/rss/rss.xml",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("dc:date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "http://www.koreatimes.co.kr/www/rss/world.xml",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "author": "author",
+                },
+            ),
+            (
+                "http://www.koreatimes.co.kr/www/rss/nation.xml",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "author": "author",
+                },
+            ),
+            (
+                "http://koreajoongangdaily.joins.com/sitemap_google_news.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+                },
+            ),
+        ],
+        "hi_IN": [
+            (
+                "https://www.livehindustan.com/news-sitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.bhaskar.com/sitemapgoogle/topnews_1.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.jagran.com/news-sitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "ko_KR": [
+            (
+                "https://news.chosun.com/google/rss.html",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "date_xml": ("pubDate", None),
+                },
+            ),
+            (
+                "https://news.chosun.com/site/data/rss/rss.xml",
+                {
+                    "title": "title",
+                    "description": "description",
+                    "url": "link",
+                    "author": "author",
+                    "date_xml": ("dc:date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://news.joins.com/sitemap/latest-articles",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "http://www.donga.com/sitemap/donga-newsmap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "http://www.hani.co.kr/arti/RSS/sitemap_www.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+        ],
+        "en_QA": [
+            (
+                "https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml",
+                {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            ),
+        ],
+        "id_ID": [("https://news.kompas.com/web/sitemap.xml", {"url": "loc", },), ],
+        "it_IT": [
+            (
+                "https://www.ilmessaggero.it/?sez=XML&p=MapNews",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.leggo.it/?sez=XML&p=MapNews",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.lastampa.it/sitemap.xml",
+                {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            ),
+        ],
+        "ja_JP": [
+            (
+                "https://toyokeizai.net/sitemap.xml",
+                {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            ),
+            (
+                "http://www.news24.jp/sitemap_society.xml",
+                {
+                    "url": "loc",
+                    # don't include title even though xml has it
+                    # title doesn't have enough info, crawl each instead
+                    # "title": "news:title",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+            (
+                "http://www.news24.jp/sitemap_economy.xml",
+                {
+                    "url": "loc",
+                    # don't include title even though xml has it
+                    # title doesn't have enough info, crawl each instead
+                    # "title": "news:title",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+            (
+                "http://www.news24.jp/sitemap_international.xml",
+                {
+                    "url": "loc",
+                    # don't include title even though xml has it
+                    # title doesn't have enough info, crawl each instead
+                    # "title": "news:title",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+        ],
+        "ta_IN": [
+            (
+                "https://www.dailythanthi.com/Sitemap/googlesitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.maalaimalar.com/Sitemap/googlesitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.hindutamil.in/feed/news-corona-virus-518.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "keywords": "news:keywords",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            ("https://www.timestamilnews.com/", {"not_xml": True, },),
+        ],
+        "th_TH": [
+            ("https://thestandard.co/coronavirus-coverage/", {"not_xml": True, },),
+            (
+                "https://www.thairath.co.th/sitemap-daily.xml",
+                {"url": "loc", "title": "image:title", },
+            ),
+            (
+                "https://rss.komchadluek.net/latest_news_google_news.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://rss.komchadluek.net/latest_news_google_news.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "en_MY": [
+            (
+                "https://www.malaymail.com/sitemap.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "ms_MY": [
+            (
+                "https://www.projekmm.com/sitemap.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "nl_NL": [
+            (
+                "https://www.nu.nl/sitemap_news.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://www.rivm.nl/sitemap.xml",
+                {
+                    "url": "loc",
+                    "date_xml": ("lastmod", ISO_8601_DATE_FORMAT),
+                    "custom_blacklist": ["/en/"],
+                },
+            ),
+            (
+                "https://www.nrc.nl/sitemap/index.xml",
+                {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            ),
+        ],
+        "zh_MY": [
+            (
+                "https://www.orientaldaily.com.my/sitemap.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+        ],
+        "vi_VN": [
+            ("https://www.tienphong.vn/event/virus-covid19-2302.tpo", {"not_xml": True}),
+            (
+                "https://baomoi.com/sitemaps/sitemap-news.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+            (
+                "https://vnexpress.net/google-news-sitemap.xml",
+                {
+                    "url": "loc",
+                    "title": "news:title",
+                    "keywords": "news:keywords",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_FORMAT),
+                },
+            ),
+            (
+                "https://vietnamnews.vn/sitemap.xml",
+                {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            ),
+        ],
+        "zh_CN": [
+            (
+                "http://www.gov.cn/google.xml",
+                {"url": "loc", "date_xml": ("lastmod", ISO_8601_DATE_FORMAT), },
+            ),
+        ],
+        "zh_TW": [
+            (
+                "https://news.cts.com.tw/sitemap.xml",
+                {"url": "loc", "date_xml": ("lastmod", YEAR_MONTH_DAY_FORMAT), },
+            ),
+            ("https://news.pts.org.tw/dailynews.php", {"not_xml": True},),
+            (
+                "https://www.taiwannews.com.tw/ch/sitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", YEAR_MONTH_DAY_FORMAT),
+                },
+            ),
+            (
+                "https://www.ettoday.net/news-sitemap.xml",
+                {
+                    "title": "news:title",
+                    "url": "loc",
+                    "date_xml": ("news:publication_date", ISO_8601_DATE_WITHOUT_SEC_FORMAT),
+                },
+            ),
+        ],
+    }
+
+    # NewsParser entity
+    # Code from NewsParser.py added to the root class to avoid deep references
+
+    from ScrapeRss.NewsContent import NewsContent
+
+    from ScrapeRss.globals import URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
+    from ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
+
+    from ScrapeRss.helpers import is_valid_url, is_article_uploaded_today
+    from ScrapeRss.helpers import get_title_from_for_html, get_description_from_for_html
+    from ScrapeRss.helpers import corona_keyword_exists_in_string
+    from ScrapeRss.helpers import convert_date_to_datetime_object
+
+    from bs4 import BeautifulSoup
+    import logging
+    import re
+
+
+    class NewsParser:
+        def __init__(
+                self,
+                locale="",
+                root_url="",
+                schema={},
+                soup_page="",
+                is_xml=True,
+                news_list=[],
+                custom_blacklist=[],
+        ):
+            self.locale = locale
+            self.root_url = root_url
+            self.schema = schema
+            self.soup_page = soup_page
+            self.is_xml = is_xml
+            self.news_list = news_list
+            self.custom_blacklist = set(custom_blacklist)
+
+            self.parse_schema()
+
+        def parse_schema(self):
+            if "not_xml" in self.schema and self.schema["not_xml"] is True:
+                self.is_xml = False
+            if "custom_blacklist" in self.schema:
+                self.custom_blacklist = self.custom_blacklist.union(
+                    set(self.schema["custom_blacklist"])
+                )
+
+        def validate_required_values(self):
+            error = False
+            if not self.root_url.strip():
+                logging.error("Empty root url")
+                error = True
+            if not self.locale.strip():
+                logging.error("Empty locale")
+                error = True
+
+            if error:
+                raise Exception(
+                    "NewsParser object missing required attributes: root_url, locale"
+                )
+
+        def parse_seed_page_content(self, page_content):
+            news_list = []
+            # Attempt to crawl non xml sites
+            if not self.is_xml:
+                self.soup_page = BeautifulSoup(page_content, "html.parser")
+                self.parse_soup_page_for_html()
+
+            else:
+                # xml sites, extract each nodes. Node format example:
+                # <url>
+                #     <loc>
+                #         https://www.aljazeera.com/news/2020/02/infected-coronavirus-200210205212755.html
+                #     </loc>
+                #     <lastmod>2020-02-15</lastmod>
+                # </url>
+                self.soup_page = BeautifulSoup(page_content, "xml")
+                self.parse_soup_page_for_xml()
+
+        def parse_soup_page_for_html(self):
+            for a_tag_node in self.soup_page.findAll("a"):
+                include_url = True
+
+                url = a_tag_node.text.strip()
+                title = get_title_from_for_html(a_tag_node)
+                description = get_description_from_for_html(a_tag_node)
+
+                if not corona_keyword_exists_in_string(url):
+                    include_url = False
+
+                    if (title and not corona_keyword_exists_in_string(title)) and (
+                            description and not corona_keyword_exists_in_string(description)
+                    ):
+                        include_url = False
+                    else:
+                        include_url = True
+
+                if not include_url:
+                    continue
+
+                news_object = NewsContent(seed_source=self)
+                try:
+                    news_object.news_url = a_tag_node["href"]
+                except Exception as e:
+                    continue
+
+                if not is_valid_url(news_object.news_url, self.custom_blacklist):
+                    continue
+
+                self.news_list.append(news_object)
+
+        def parse_soup_page_for_xml(self):
+            # common nodes for sitemaps
+            # hardcode? or set in schema?
+            url_nodes = self.soup_page.findAll("item")
+            if not url_nodes:
+                url_nodes = self.soup_page.findAll("url")
+            if not url_nodes:
+                url_nodes = self.soup_page.findAll("sitemap")
+
+            for node in url_nodes:
+                insert_article = True
+                news_object = NewsContent(seed_source=self)
+                published_at_dt_object = None
+                # use date_xml in schema to skip old articles and get published_at
+                if "date_xml" in self.schema:
+                    date_tag_name = self.schema["date_xml"][0]
+                    date_value_dt_format = self.schema["date_xml"][1]
+
+                    try:
+                        date_string_value = node.find(date_tag_name).text
+                        published_at_dt_object = convert_date_to_datetime_object(
+                            date_string_value
+                        )
+                        insert_article = is_article_uploaded_today(published_at_dt_object)
+                    except Exception as e:
+                        # Potentially sub-sitemap doesn't have datetime even though root sitemap does
+                        # "Fail to convert extract date_tag_name. Most likely irregular xml format. date_tag_name: {}, Node: {} Skipping..."
+                        # "Fail to convert publishedAt datetime format. Most likely irregular xml format. Value: {}, Format: {} Skipping..."
+                        # logging.error("Fail to convert extract date_tag_name or publishedAt datetime format. Skip early catching. URL: {}".format(self.root_url))
+                        insert_article = True
+
+                # if datetime exists, use it for early catching
+                #   skip if article is not uploaded today
+                # else proceed to try other methods
+                if not insert_article:
+                    continue
+
+                # check for xml to feed back into SEED_QUEUE
+                news_url = node.find(self.schema["url"]).text.strip()
+                check_url = news_url[: news_url.index("?")] if "?" in news_url else news_url
+                if check_url.endswith(".xml"):
+                    seed_object = NewsParser(
+                        locale=self.locale, root_url=news_url, schema=self.schema,
+                    )
+                    SEED_QUEUE.put(seed_object)
+                    continue
+
+                # check for empty, non https ,blacklist
+                if not is_valid_url(news_url, self.custom_blacklist):
+                    logging.debug(
+                        "url: {}, check: is_valid_url, valid: False".format(news_url)
+                    )
+                    continue
+
+                node_title = ""
+                node_description = ""
+                if "title" not in self.schema and "description" not in self.schema:
+                    # sitemap doesn't have title or description at all
+                    # so we have to go through each URL to check if CORONA_KEYWORDS exists
+                    pass
+                elif "keywords" in self.schema:
+                    keywords_node = node.find(self.schema["keywords"])
+                    if keywords_node:
+                        keywords = keywords_node.text
+                        if not corona_keyword_exists_in_string(keywords.lower()):
+                            continue
+                else:
+                    # sitemap that contains either title or description
+                    # early detection if URL contains CORONA_KEYWORDS or not
+                    if "title" in self.schema:
+                        title_node = node.find(self.schema["title"])
+                        node_title = title_node.text if title_node else node_title
+
+                    if "description" in self.schema:
+                        node_description = node.find(self.schema["description"]).text
+
+                    # check if any of the CORONA_KEYWORDS occur in title or description
+                    corona_keywords_exist = corona_keyword_exists_in_string(
+                        node_title.lower()
+                    ) or corona_keyword_exists_in_string(node_description.lower())
+                    if not corona_keywords_exist:
+                        continue
+
+                node_author = ""
+                if "author" in self.schema:
+                    node_author = node.find(self.schema["author"]).text
+
+                news_object.author = node_author
+                news_object.news_url = news_url
+                news_object.title = node_title
+                news_object.description = node_description
+                news_object.published_at = published_at_dt_object
+                self.news_list.append(news_object)
+
+        def add_news_to_extraction_queue(self):
+            for news_object in self.news_list:
+                EXTRACT_QUEUE.put(news_object)

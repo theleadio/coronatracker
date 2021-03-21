@@ -1,14 +1,10 @@
-#!/usr/bin/env python3
-#
-# -*- coding: utf-8 -*-
-#
-# Author(s):
-#   - samueljklee@gmail.com
-#
 
 import sys
 import os
 import logging
+
+from datetime import datetime
+from dateutil import parser
 
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
@@ -25,15 +21,81 @@ API_URL = "https://bing.com/covid/data"
 # ScrapeRss helper function
 from ScrapeRss.helpers import get_seed_page
 
-# BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+#This class acts as the aggregate root
+#It allows entry to specific data points from sublasses within the same domain of BingCovidData
+class BingCovidData: 
+    def __init__(self,  posted_date=datetime.utcnow()):
+    self.posted_date = posted_date
+    self.worlddata = self.WorldData()    
+
+    #This subclass contains enities specifically regarding the whole world
+    class World:
+        def __init__(
+            self,
+            confirmed = None,
+            deaths = None,
+            recovered = None,
+            posted_date=datetime.utcnow()
+        ):
+            self.confirmed = confirmed
+            self.deaths = deaths
+            self.recovered = recovered
+            self.posted_date = posted_date
+
+    #This subclass contains enities specifically regarding specific countries
+    class Country:
+        def __init__(
+            self, 
+            confirmed = None,
+            deaths = None,
+            recovered = None,
+            last_update = None,
+            lat = None,
+            lng = None,
+            country = None,
+            posted_date=datetime.utcnow()
+        ):
+            self.confirmed = confirmed
+            self.deaths = deaths
+            self.recovered = recovered
+            self.last_update = last_update
+            self.lat = lat
+            self.lng = lng
+            self.country = country
+            self.posted_date = posted_date
+
+    #This subclass contains enities specifically regarding specific states
+    class State:
+          def __init__(
+            self, 
+            confirmed = None,
+            deaths = None,
+            recovered = None,
+            last_update = None,
+            lat = None,
+            lng = None,
+            country = None,
+            state = None,
+            posted_date=datetime.utcnow()
+          ):
+            self.confirmed = confirmed
+            self.deaths = deaths
+            self.recovered = recovered
+            self.last_update = last_update
+            self.lat = lat
+            self.lng = lng
+            self.country = country
+            self.state = state
+            self.posted_date = posted_date       
+
 
 if __name__ == "__main__":
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()
 
-    # whole world
-    wholeWorld = BingCovid(
+    # Whole world
+    #Instead of refrencing BingCovid, data pertaining to the whole world is refrenced through BingCovidData.World
+    wholeWorld = BingCovidData.World(
         confirmed=res["totalConfirmed"],
         deaths=res["totalDeaths"],
         recovered=res["totalRecovered"],
@@ -43,7 +105,8 @@ if __name__ == "__main__":
 
     # Countries
     for countryData in res["areas"]:
-        currentCountry = BingCovid(
+        #Instead of refrencing BingCovid, data pertaining to a specific country is refrenced through BingCovidData.Country
+        currentCountry = BingCovidData.Country(
             confirmed=countryData["totalConfirmed"],
             deaths=countryData["totalDeaths"],
             recovered=countryData["totalRecovered"],
@@ -57,7 +120,8 @@ if __name__ == "__main__":
 
         # States
         for stateData in countryData["areas"]:
-            currentState = BingCovid(
+            #Instead of refrencing BingCovid, data pertaining to a specific country is refrenced through BingCovidData.State
+            currentState = BingCovidData.State(
                 confirmed=stateData["totalConfirmed"],
                 deaths=stateData["totalDeaths"],
                 recovered=stateData["totalRecovered"],

@@ -18,7 +18,7 @@ import pandas as pd
 
 #Aggregate Root
 Class GlobalTimes:
-    def _init_(self, str, timesobj:
+    def _init_(self, str, timesobj):
         self.timesobj = timesobj
 
 now = datetime.datetime.now()

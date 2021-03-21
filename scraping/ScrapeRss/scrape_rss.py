@@ -147,7 +147,19 @@ def seed_worker():
         SEED_QUEUE.task_done()
 
 
+class RSS:
+    def __init__(self, records):
+        self.records = records
+
+    def save_to_db(self):
+        logging.debug("Saving to db to {} table".format(self.records))
+        for locale, rss_records in RSS_STACK.items():
+            for rss_record in rss_records:
+                db_connector.insert_news_article(rss_record, self.records)
+                db_connector_prodv2.insert_news_article(rss_record, self.records)
+
 def extract_worker():
+    global rss_record
     while True:
         approx_queue_size = EXTRACT_QUEUE.qsize()
         if approx_queue_size % 10 == 0:
@@ -244,6 +256,11 @@ def extract_worker():
 
         EXTRACT_QUEUE.task_done()
 
+    return rss_record
+
+
+
+
 
 def print_pretty():
     for locale, rss_records in RSS_STACK.items():
@@ -275,12 +292,6 @@ def write_output():
                 fh.write("\n")
 
 
-def save_to_db(table_name):
-    logging.debug("Saving to db to {} table".format(table_name))
-    for locale, rss_records in RSS_STACK.items():
-        for rss_record in rss_records:
-            db_connector.insert_news_article(rss_record, table_name)
-            db_connector_prodv2.insert_news_article(rss_record, table_name)
 
 
 def parser():
@@ -310,8 +321,9 @@ def write_to_cache(url):
     with open(CACHE_FILE, "a+") as fh:
         fh.write(url + "\n")
 
-
 if __name__ == "__main__":
+
+
     # arguments
     args = parser()
 
@@ -396,7 +408,8 @@ if __name__ == "__main__":
         write_output()
     else:
         # Store to DB
-        save_to_db(database_table_name)
+        rss = RSS(extract_worker())
+        RSS.save_to_db(database_table_name)
 
     count = 0
     for lang, rss_records in RSS_STACK.items():

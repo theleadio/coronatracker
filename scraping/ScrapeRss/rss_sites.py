@@ -11,17 +11,17 @@ class NewsSource:
         self.description = description
         self.date_xml = date_xml
 
-def get_url(self, url):
-    self.url = url
+def get_url():
+    return self.url
 
-def get_title(self, title):
-    self.title = title
+def get_title():
+    return self.title
 
-def get_description(self, description):
-    self.description = description
+def get_description():
+    return self.description
 
-def get_date(self, date_xml):
-    self.date_xml = date_xml
+def get_date():
+    return self.date_xml
 
 NEWS_SOURCES = {
     "de_DE": [

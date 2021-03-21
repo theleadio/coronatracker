@@ -9,7 +9,7 @@
 import sys
 import os
 import logging
-
+#Had to made the comment to apply for second pull request.
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
 CURRENT_DIR = os.path.dirname(

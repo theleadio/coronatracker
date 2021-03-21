@@ -147,10 +147,24 @@ def seed_worker():
         SEED_QUEUE.task_done()
 
 
-class Rss:
+from scraping import webscraper
+
+class Scraper:
+    def __init__(self, pool):
+        self.pool = pool
+
+    def scrape(self):
+        for locale, rss_records in self.rss.items():
+            for r in rss_records:
+                content = webscraper.get_content(r.content)
+                article, boo = webscraper.extract_article(r.url)
+                print(content)
+                print(article)
+
+
+class NewsPool:
     def __init__(self, records):
         self.records = records
-
 
     def save_to_db(self, table_name):
         logging.debug("Saving to db to {} table".format(table_name))

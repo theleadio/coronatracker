@@ -1,78 +1,27 @@
-"""
-Crawling:
-http://www.dailytelegraph.com.au/news/breaking-news/rss
-http://www.dailytelegraph.com.au/newslocal/rss
-http://www.news24.jp/sitemap_economy.xml
-http://www.news24.jp/sitemap_international.xml
-http://www.news24.jp/sitemap_society.xml
-http://www.taipeitimes.com/sitemap.xml
-https://baomoi.com/sitemaps/sitemap-news.xml
-https://news.kompas.com/web/sitemap.xml
-https://toyokeizai.net/sitemap.xml
-https://vietnamnews.vn/sitemap.xml
-https://vnexpress.net/google-news-sitemap.xml
-https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
-https://www.ettoday.net/news-sitemap.xml
-https://www.liputan6.com/sitemap_post.xml
-https://www.news.com.au/content-feeds/latest-news-national/
-https://www.news.com.au/content-feeds/latest-news-world/
-https://www.sbs.com.au/news/topic/latest/feed
-https://www.scmp.com/rss/318208/feed
-https://www.shine.cn/sitemap-news.xml
-https://www.taiwannews.com.tw/ch/sitemap.xml
-https://www.taiwannews.com.tw/en/sitemap.xml
-https://www.theage.com.au/rss/feed.xml
-https://www.tienphong.vn/event/virus-covid19-2302.tpo
-http://www.hani.co.kr/arti/RSS/sitemap_www.xml
-http://www.koreatimes.co.kr/www/rss/world.xml
-http://www.koreatimes.co.kr/www/rss/nation.xml
-http://koreajoongangdaily.joins.com/sitemap_google_news.xml
-https://news.joins.com/sitemap/latest-articles
-http://www.donga.com/sitemap/donga-newsmap.xml
-https://news.chosun.com/google/rss.html
-https://news.chosun.com/site/data/rss/rss.xml
-http://english.chosun.com/site/data/rss/rss.xml
-https://thestandard.co/coronavirus-coverage/
-https://www.thairath.co.th/sitemap-daily.xml
-https://rss.komchadluek.net/latest_news_google_news.xml
-https://www.ilmessaggero.it/?sez=XML&p=MapNews
-https://www.leggo.it/?sez=XML&p=MapNews
-https://www.lastampa.it/sitemap.xml
-https://www.malaymail.com/sitemap.xml
-https://www.projekmm.com/sitemap.xml
-https://www.orientaldaily.com.my/sitemap.xml
-https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
-https://www.welt.de/sitemaps/sitemap/today.xml
-https://www.focus.de/
-https://www.faz.net/aktuell/
-http://www.gov.cn/google.xml
-https://www.nu.nl/sitemap_news.xml
-https://www.rivm.nl/sitemap.xml
-https://www.nrc.nl/sitemap/index.xml
-https://www.thehindu.com/sitemap/googlenews.xml
-https://www.dailythanthi.com/Sitemap/googlesitemap.xml
-https://www.maalaimalar.com/Sitemap/googlesitemap.xml
-https://www.hindutamil.in/feed/news-corona-virus-518.xml
-https://www.livehindustan.com/news-sitemap.xml
-https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
-https://www.jagran.com/news-sitemap.xml
-https://www.timestamilnews.com/
-
-Don't crawl:
-http://www.heraldsun.com.au/news/breaking-news/rss
-http://www.heraldsun.com.au/rss
-https://www.theage.com.au/rss/world.xml
-http://www.dailytelegraph.com.au/news/national/rss
-http://www.dailytelegraph.com.au/news/world/rss
-
-"""
-
 from ScrapeRss.globals import (
     ISO_8601_DATE_FORMAT,
     ISO_8601_DATE_WITHOUT_SEC_FORMAT,
     YEAR_MONTH_DAY_FORMAT,
 )
 
+class NewsSource: 
+    def __init__(self, url, title, description, date_xml):
+        self.url = url
+        self.title = title
+        self.description = description
+        self.date_xml = date_xml
+
+def get_url(self, url):
+    self.url = url
+
+def get_title(self, title):
+    self.title = title
+
+def get_description(self, description):
+    self.description = description
+
+def get_date(self, date_xml):
+    self.date_xml = date_xml
 
 NEWS_SOURCES = {
     "de_DE": [

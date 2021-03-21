@@ -14,3 +14,4 @@ class NewsContent:
         self.description = description
         self.published_at = published_at
         self.seed_source = seed_source
+

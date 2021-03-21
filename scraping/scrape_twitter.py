@@ -2,6 +2,11 @@ from twitterscraper import query_tweets
 import json
 import datetime
 
+#Aggregate Root
+Class TwitterScrape:
+    def _init_(self, tweets):
+        self.tweets = tweets
+
 if __name__ == '__main__':
     search_query = "WuhanVirus OR 2019nCoV OR Coronavirus OR WuhanCoronavirus OR coronaviruses OR coronavirusoutbreak OR coronavirus OR Covid-19 OR COVID-19 OR ChineseCoronavirus OR Coronaoutbreak"
     filename = "corona_twitter.json"
@@ -18,3 +23,5 @@ if __name__ == '__main__':
 
     with open(filename, "w") as f:
         f.write(json.dumps(j))
+
+    twitter_scrapes = TwitterScrape(j)

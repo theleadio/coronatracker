@@ -69,4 +69,3 @@ if __name__ == "__main__":
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
             db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
-            

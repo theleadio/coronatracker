@@ -15,6 +15,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
+
+#Aggregate Root
+Class GlobalTimes:
+    def _init_(self, str, timesobj):
+        self.timesobj = timesobj
+
 now = datetime.datetime.now()
 chrome_options = webdriver.ChromeOptions()
 driver = webdriver.Chrome('chromedriver', options=chrome_options)
@@ -35,5 +41,8 @@ del data[-1]
 del data[-1]
 del data[-1]
 df=pd.DataFrame(data)
-df.to_csv('GlobalTimes.csv',index=False,header=False)
+df_csv = df.to_csv('GlobalTimes.csv',index=False,header=False)
+
+global_times = GlobalTimes(df_csv)
+
 print("done")

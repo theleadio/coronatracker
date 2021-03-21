@@ -6,7 +6,7 @@ import datetime
 # This class acts as an aggregate root
 # It allows entry to the specific data points from objects within the domain of the aggregate (The list of tweets)
 
-Class Tweet:
+class Tweet:
     def __init__(self, username, tweet_id, hashtags, links, timestamp, text):
         self.username = username
         self.tweet_id = tweet_id

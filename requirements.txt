@@ -9,7 +9,7 @@ feedfinder2==0.0.4
 feedparser==5.2.1
 idna==2.8
 jieba3k==0.35.1
-lxml==4.4.2
+lxml==4.6.3
 mysql-connector==2.2.9
 newspaper3k==0.2.8
 nltk==3.4.5

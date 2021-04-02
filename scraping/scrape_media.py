@@ -2,12 +2,12 @@
 from .webscraper import webscraper
 from .scrape_twitter import scrape_twitter
 
-class ScraperMedia:
+class ScraperMedia():
 
-    def scrape_twitter():
+    def scrape_twitter(self):
         scrape_twitter()
 
-    def webscraper():
-        webscraper()    
+    def webscraper(self):
+        webscraper()   
 
 

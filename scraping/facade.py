@@ -2,10 +2,9 @@ import scraping.ScrapeBingCovid as Bing
 import scraping.scripts as Scripts
 from scraping.temporary_cron import TemporaryCorn
 from scraping.JHU_Gsheet_DataExtraction import JHUGsheetDataExtraction
-from scraping.webscraper import WebScraper
 from scraping.ScrapeRss.NewsParser import NewsParser
-from scraping.scrape_twitter import TwitterScraper
 from scraping.ScrapeRss.scrape_rss import ScrapeRss
+from scraping.scrape_media import ScraperMedia
 import requests
 import pandas
 import os
@@ -20,9 +19,8 @@ class Facade():
         self.worldmeter = Scripts.WorldMeter()
         self.temporarycron = TemporaryCorn()
         self.jhugsheetdataextraction = JHUGsheetDataExtraction()
-        self.webscraper = WebScraper()
+        self.scrapemedia = ScraperMedia()
         self.newsparser = NewsParser()
-        self.tweeterscraper = TwitterScraper()
         self.scraperss = ScrapeRss()
 
 
@@ -54,14 +52,11 @@ class Facade():
     def jhuGsheetDataExtraction(self):
         jhugsheetdataextraction.download()
 
-    def webScraper(self):
-        webscraper.check_language()
+    def scrapeMedia(self):
+        scrapemedia
 
     def newsParser(self):
         newsparser
-
-    def twitterScraper(self):
-        tweeterscraper.scrape()
     
     def scrapeRss(self):
         args = scraperss.parser()

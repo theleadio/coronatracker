@@ -1,0 +1,1 @@
+for /f %%i in (requirements.txt) do conda install --yes %%i

@@ -6,6 +6,7 @@
 #   - samueljklee@gmail.com
 #
 
+
 import sys
 import os
 import logging
@@ -17,45 +18,58 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_bingcovid
+#from DatabaseConnector import db_bingcovid
 
 DB_TABLE = "test"  # "prod"
 API_URL = "https://bing.com/covid/data"
 
 # ScrapeRss helper function
-from ScrapeRss.helpers import get_seed_page
+from scraping.ScrapeRss.helpers import get_seed_page
 
 # BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+from scraping.ScrapeBingCovid.BingCovid import BingCovid
+from scraping.DatabaseConnector.mysql_connector import MySQL_Connector
+from scraping.DatabaseConnector.table_queries import db_queries
 
-if __name__ == "__main__":
-    db_bingcovid.connect()
-    res = get_seed_page(API_URL).json()
+#if __name__ == "__main__":
+class ScrapeBing():
+
+    ''' BING_COVID TABLE_SCHEMA
+        ['nid', 'state', 'country', 'last_update', 'lat', 'lng', 'confirmed', 'deaths', 'recovered', 'posted_date']
+    '''
+    def __init__(self):        
+        self.db_bingcovid = MySQL_Connector()
+        self.res = get_seed_page(API_URL).json()
 
     # whole world
-    wholeWorld = BingCovid(
-        confirmed=res["totalConfirmed"],
-        deaths=res["totalDeaths"],
-        recovered=res["totalRecovered"],
-    )
-    logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
-    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+    def wholeWorld(self):
+        wholeWorld = BingCovid(
+            confirmed=res["totalConfirmed"],
+            deaths=res["totalDeaths"],
+            recovered=res["totalRecovered"],
+        )
+        logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
+
+        db_bingcovid.insert(target_table=db_queries['bing']['environment'][DB_TABLE], query=db_queries['bing']['query'], data_dict=wholeWorld)
 
     # Countries
-    for countryData in res["areas"]:
-        currentCountry = BingCovid(
-            confirmed=countryData["totalConfirmed"],
-            deaths=countryData["totalDeaths"],
-            recovered=countryData["totalRecovered"],
-            last_update=countryData["lastUpdated"],
-            lat=countryData["lat"],
-            lng=countryData["long"],
-            country=countryData["country"],
-        )
-        logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
-        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+    def countryData(self):
+        for countryData in res["areas"]:
+            currentCountry = BingCovid(
+                confirmed=countryData["totalConfirmed"],
+                deaths=countryData["totalDeaths"],
+                recovered=countryData["totalRecovered"],
+                last_update=countryData["lastUpdated"],
+                lat=countryData["lat"],
+                lng=countryData["long"],
+                country=countryData["country"],
+            )
+            logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
+            db_bingcovid.insert(target_table=db_queries['bing']['environment'][DB_TABLE], query=db_queries['bing']['query'], data_dict=currentCountry)
 
-        # States
+
+    # States
+    def stateData(self):
         for stateData in countryData["areas"]:
             currentState = BingCovid(
                 confirmed=stateData["totalConfirmed"],
@@ -68,4 +82,5 @@ if __name__ == "__main__":
                 country=countryData["country"],
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
-            db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+            db_bingcovid.insert(target_table=db_queries['bing']['environment'][DB_TABLE], query=db_queries['bing']['query'], data_dict=currentState)
+

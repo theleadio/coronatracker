@@ -25,326 +25,157 @@ import pytz
 from dateutil.parser import parse
 import re
 
-import mysql.connector
+#import mysql.connector
+from scraping.DatabaseConnector.mysql_connector import MySQL_Connector
+from scraping.DatabaseConnector.table_queries import db_queries
 
 import json
 import os.path
 import logging
 
 
-mydb = None
-TABLE_NAME = "newsapi_n"
-
-
-def get_content(url):
-    url = url
-    try:
-        response = requests.get(url, timeout=5)
-        content = BeautifulSoup(response.content, "xml")
-        # content = BeautifulSoup(response.content, "html.parser")
-    except Exception:
-        return None
-
-    return content
-
-
-def extract_article(link):
-    logging.debug("Extracting from: {}".format(link))
-    try:
-        article = Article(link)
-        # Do some NLP
-        article.download()  # Downloads the link's HTML content
-        article.parse()  # Parse the article
-        article.nlp()  # Keyword extraction wrapper
-    except Exception as e:
-        logging.error("Fail to extract Article. Error: {}".format(e))
-        return None, False
-
-    return article, True
-
-
-def localtime_to_ust(datetime):
-
-    date_time_naive = parse(datetime)
-    timezone = pytz.timezone(schema['timezone'])
-    local_dt = timezone.localize(date_time_naive, is_dst=None)
-
-    return local_dt
-
-
-def connect():
-    global mydb
-
-    # populate this from env file
+class WebScraper():
+    mydb = None
+    TABLE_NAME = "newsapi_n"
     path_to_json = "./db.json"
 
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
+    DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+    SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 
 
-def save_to_db():
-    connect()
-    for newsObject in newsObject_stack:
-        insert(newsObject)
+    key = ["新型コロナウイルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
+    newsObject_stack = []
+
+    NEWS_URLs = {
+        "ja_JP": [
+            (
+                "https://www3.nhk.or.jp/rss/news/cat0.xml",
+                {"siteName": "www3.nhk.or.jp",
+                "timezone": "Japan"}
+            ),
+            (
+                "http://rss.asahi.com/rss/asahi/newsheadlines.rdf",
+                {"siteName": "www.asahi.com"}
+            )
+        ],
+        "zh_TW": [
+            (
+                "https://www.cna.com.tw/topic/newstopic/2012.aspx",
+                {"siteName": "www.cna.com.tw",
+                "timezone": "Asia/Taipei"}
+            )
+        ]
+
+    }
+
+    def __init__(self):
+        self.mydb = MySQL_Connector(config_path=path_to_json)
 
 
-def insert(data_dict):
-    table_name = TABLE_NAME
-    mycursor = mydb.cursor()
-    sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, countryCode, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title = %s, description = %s, author = %s, content = %s, urlToImage = %s, publishedAt = %s, addedOn = %s, siteName = %s, language = %s, countryCode = %s".format(
-        table_name
-    )
-    val = (
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["url"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-        1,  # Status
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-    )
-    print("SQL query: ", sql)
-    try:
-        mycursor.execute(sql, val)
-        mydb.commit()
-        print(mycursor.rowcount, "record inserted.")
-    except Exception as ex:
-        print(ex)
-        print("Record not inserted")
+    def get_content(self, url):
+        url = url
+        try:
+            response = requests.get(url, timeout=5)
+            content = BeautifulSoup(response.content, "xml")
+            # content = BeautifulSoup(response.content, "html.parser")
+        except Exception:
+            return None
+
+        return content
 
 
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-SPECIAL_LANG = set(["zh_TW", "zh_CN"])
+    def extract_article(self, link):
+        logging.debug("Extracting from: {}".format(link))
+        try:
+            article = Article(link)
+            # Do some NLP
+            article.download()  # Downloads the link's HTML content
+            article.parse()  # Parse the article
+            article.nlp()  # Keyword extraction wrapper
+        except Exception as e:
+            logging.error("Fail to extract Article. Error: {}".format(e))
+            return None, False
+
+        return article, True
 
 
-key = ["新型コロナウイルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
-newsObject_stack = []
+    def localtime_to_ust(self, datetime, schema):
 
-NEWS_URLs = {
-    "ja_JP": [
-        (
-            "https://www3.nhk.or.jp/rss/news/cat0.xml",
-            {"siteName": "www3.nhk.or.jp",
-             "timezone": "Japan"}
-        ),
-        (
-            "http://rss.asahi.com/rss/asahi/newsheadlines.rdf",
-            {"siteName": "www.asahi.com"}
-        )
-    ],
-    "zh_TW": [
-        (
-            "https://www.cna.com.tw/topic/newstopic/2012.aspx",
-            {"siteName": "www.cna.com.tw",
-             "timezone": "Asia/Taipei"}
-        )
-    ]
+        date_time_naive = parse(datetime)
+        timezone = pytz.timezone(schema['timezone'])
+        local_dt = timezone.localize(date_time_naive, is_dst=None)
 
-}
+        return local_dt
 
-# change Start from here
 
-# Check language
-for locale, all_rss in NEWS_URLs.items():
-    for rss in all_rss:
-        locale, root_url_schema = (locale, rss)
-        root_url, schema = root_url_schema
-        if schema['siteName'] == "www.cna.com.tw":
-            site_links = get_content(root_url).findAll(
-                'a', {"class": "menuUrl"})
+    def connect(self):
+        mydb.connect()
 
-        else:
-            print(root_url)
-            site_links_test = get_content(root_url)
-            if site_links_test is None:
-                continue
-            else:
-                site_links = site_links_test.findAll('link')
 
-        links_container = []
+    def save_to_db(self):
+        connect()
+        for newsObject in newsObject_stack:
+            insert(newsObject)
 
-        for link in site_links:
-            if schema['siteName'] == "www.cna.com.tw":
-                links_container.append(link.get("href"))
 
-            else:
-                links_container.append(link.text)
+    def insert(self, data_dict):
+        table_name = TABLE_NAME
+        mydb.insert(target_table=table_name, query=db_queries['news']['query'], data_dict=data_dict)
 
-        for link in links_container:
 
-            # Check if keywords or title matches key
-            link_content = get_content(link)
 
-            if not link_content is None:
-                link_keywords_test = link_content.find(
-                    'meta', {"name": "keywords"})
-                link_title_test = link_content.find("title")
 
-                if not link_keywords_test is None:
-                    link_keywords = link_keywords_test.get("content")
+    def check_language(self):
+    # Check language
+        for locale, all_rss in NEWS_URLs.items():
+            for rss in all_rss:
+                locale, root_url_schema = (locale, rss)
+                root_url, schema = root_url_schema
+                if schema['siteName'] == "www.cna.com.tw":
+                    site_links = get_content(root_url).findAll(
+                        'a', {"class": "menuUrl"})
 
-                    if any(words in link_keywords for words in key):
-                        link_title = link_title_test.text
+                else:
+                    print(root_url)
+                    site_links_test = get_content(root_url)
+                    if site_links_test is None:
+                        continue
+                    else:
+                        site_links = site_links_test.findAll('link')
 
-                    elif not link_title_test is None:
-                        link_title = link_title_test.text
+                links_container = []
 
-                        if any(words in link_title for words in key):
-                            pass
-
-                        else:
-                            continue
+                for link in site_links:
+                    if schema['siteName'] == "www.cna.com.tw":
+                        links_container.append(link.get("href"))
 
                     else:
-                        continue
+                        links_container.append(link.text)
 
-                else:
-                    continue
+                for link in links_container:
 
-            else:
-                continue
-            # Get title
-            news_title = link_title
+                    # Check if keywords or title matches key
+                    link_content = get_content(link)
 
-            # Get content
-            article, status = extract_article(link)
-            if not status:
-                continue
+                    if not link_content is None:
+                        link_keywords_test = link_content.find(
+                            'meta', {"name": "keywords"})
+                        link_title_test = link_content.find("title")
 
-            # Get author and format publishedAt
-            if schema["siteName"] == "www3.nhk.or.jp":
-                news_author = link_content.find(
-                    'meta', {"name": 'author'}).get('content')
+                        if not link_keywords_test is None:
+                            link_keywords = link_keywords_test.get("content")
 
-                date_string = link_content.find('time').get("datetime")
-                local_dt = localtime_to_ust(date_string)
+                            if any(words in link_keywords for words in key):
+                                link_title = link_title_test.text
 
-            elif schema["siteName"] == "www.asahi.com":
-                news_author = link_content.find(
-                    'meta', {"property": "og:site_name"}).get("content")
+                            elif not link_title_test is None:
+                                link_title = link_title_test.text
 
-                date_string_test = link_content.find(
-                    'meta', {"name": "pubdate"})
-                if date_string_test == None:
-                    continue
-                else:
-                    date_string = date_string_test.get("content")
-                    local_dt = parse(date_string)
+                                if any(words in link_title for words in key):
+                                    pass
 
-            elif schema["siteName"] == "www.cna.com.tw":
-                news_author_test = link_content.find(
-                    "meta", {"itemprop": "author"})
-                if news_author_test == None:
-                    continue
-                news_author = news_author_test.get("content")
-                date_string_test = link_content.find(
-                    "meta", {"itemprop": "datePublished"})
-                if date_string_test == None:
-                    continue
-                date_string = date_string_test.get("content")
-                local_dt = localtime_to_ust(date_string)
-
-            utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
-
-            # Get language and country
-            lang_locale = locale.split("_")
-            lang = lang_locale[0]
-            country = lang_locale[1]
-
-            newsObject = {
-
-                'title': news_title,
-                'description': link_content.find('meta', {"name": "description"}).get('content'),
-                'content': article.text,
-                'author': news_author,
-                'url': link,
-                'urlToImage': article.top_image,
-                'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
-                'publishedAt': utc_str,
-                'siteName': schema['siteName'],
-                'language': lang if locale not in SPECIAL_LANG else locale,
-                'countryCode': country,
-                'status': '1'
-            }
-            newsObject_stack.append(newsObject)
-
-
-save_to_db()
-# print(newsObject_stack)
-
-#here is the change that I made
-def webscraper():
-    for locale, all_rss in NEWS_URLs.items():
-        for rss in all_rss:
-            locale, root_url_schema = (locale, rss)
-            root_url, schema = root_url_schema
-            if schema['siteName'] == "www.cna.com.tw":
-                site_links = get_content(root_url).findAll(
-                    'a', {"class": "menuUrl"})
-
-            else:
-                print(root_url)
-                site_links_test = get_content(root_url)
-                if site_links_test is None:
-                    continue
-                else:
-                    site_links = site_links_test.findAll('link')
-
-            links_container = []
-
-            for link in site_links:
-                if schema['siteName'] == "www.cna.com.tw":
-                    links_container.append(link.get("href"))
-
-                else:
-                    links_container.append(link.text)
-
-            for link in links_container:
-
-                # Check if keywords or title matches key
-                link_content = get_content(link)
-
-                if not link_content is None:
-                    link_keywords_test = link_content.find(
-                        'meta', {"name": "keywords"})
-                    link_title_test = link_content.find("title")
-
-                    if not link_keywords_test is None:
-                        link_keywords = link_keywords_test.get("content")
-
-                        if any(words in link_keywords for words in key):
-                            link_title = link_title_test.text
-
-                        elif not link_title_test is None:
-                            link_title = link_title_test.text
-
-                            if any(words in link_title for words in key):
-                                pass
+                                else:
+                                    continue
 
                             else:
                                 continue
@@ -354,74 +185,69 @@ def webscraper():
 
                     else:
                         continue
+                    # Get title
+                    news_title = link_title
 
-                else:
-                    continue
-                # Get title
-                news_title = link_title
-
-                # Get content
-                article, status = extract_article(link)
-                if not status:
-                    continue
-
-                # Get author and format publishedAt
-                if schema["siteName"] == "www3.nhk.or.jp":
-                    news_author = link_content.find(
-                        'meta', {"name": 'author'}).get('content')
-
-                    date_string = link_content.find('time').get("datetime")
-                    local_dt = localtime_to_ust(date_string)
-
-                elif schema["siteName"] == "www.asahi.com":
-                    news_author = link_content.find(
-                        'meta', {"property": "og:site_name"}).get("content")
-
-                    date_string_test = link_content.find(
-                        'meta', {"name": "pubdate"})
-                    if date_string_test == None:
+                    # Get content
+                    article, status = extract_article(link)
+                    if not status:
                         continue
-                    else:
+
+                    # Get author and format publishedAt
+                    if schema["siteName"] == "www3.nhk.or.jp":
+                        news_author = link_content.find(
+                            'meta', {"name": 'author'}).get('content')
+
+                        date_string = link_content.find('time').get("datetime")
+                        local_dt = localtime_to_ust(date_string, schema)
+
+                    elif schema["siteName"] == "www.asahi.com":
+                        news_author = link_content.find(
+                            'meta', {"property": "og:site_name"}).get("content")
+
+                        date_string_test = link_content.find(
+                            'meta', {"name": "pubdate"})
+                        if date_string_test == None:
+                            continue
+                        else:
+                            date_string = date_string_test.get("content")
+                            local_dt = parse(date_string)
+
+                    elif schema["siteName"] == "www.cna.com.tw":
+                        news_author_test = link_content.find(
+                            "meta", {"itemprop": "author"})
+                        if news_author_test == None:
+                            continue
+                        news_author = news_author_test.get("content")
+                        date_string_test = link_content.find(
+                            "meta", {"itemprop": "datePublished"})
+                        if date_string_test == None:
+                            continue
                         date_string = date_string_test.get("content")
-                        local_dt = parse(date_string)
+                        local_dt = localtime_to_ust(date_string, schema)
 
-                elif schema["siteName"] == "www.cna.com.tw":
-                    news_author_test = link_content.find(
-                        "meta", {"itemprop": "author"})
-                    if news_author_test == None:
-                        continue
-                    news_author = news_author_test.get("content")
-                    date_string_test = link_content.find(
-                        "meta", {"itemprop": "datePublished"})
-                    if date_string_test == None:
-                        continue
-                    date_string = date_string_test.get("content")
-                    local_dt = localtime_to_ust(date_string)
+                    utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
 
-                utc_str = local_dt.astimezone(pytz.utc).strftime(DATE_FORMAT)
+                    # Get language and country
+                    lang_locale = locale.split("_")
+                    lang = lang_locale[0]
+                    country = lang_locale[1]
 
-                # Get language and country
-                lang_locale = locale.split("_")
-                lang = lang_locale[0]
-                country = lang_locale[1]
+                    newsObject = {
 
-                newsObject = {
-
-                    'title': news_title,
-                    'description': link_content.find('meta', {"name": "description"}).get('content'),
-                    'content': article.text,
-                    'author': news_author,
-                    'url': link,
-                    'urlToImage': article.top_image,
-                    'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
-                    'publishedAt': utc_str,
-                    'siteName': schema['siteName'],
-                    'language': lang if locale not in SPECIAL_LANG else locale,
-                    'countryCode': country,
-                    'status': '1'
-                }
-                newsObject_stack.append(newsObject)
-
-
-    save_to_db()
-    # print(newsObject_stack)    
+                        'title': news_title,
+                        'description': link_content.find('meta', {"name": "description"}).get('content'),
+                        'content': article.text,
+                        'author': news_author,
+                        'url': link,
+                        'urlToImage': article.top_image,
+                        'addedOn': datetime.utcnow().strftime(DATE_FORMAT),
+                        'publishedAt': utc_str,
+                        'siteName': schema['siteName'],
+                        'language': lang if locale not in SPECIAL_LANG else locale,
+                        'countryCode': country,
+                        'status': '1'
+                    }
+                    newsObject_stack.append(newsObject)
+        save_to_db()
+    # print(newsObject_stack)

@@ -12,7 +12,6 @@ from ScrapeRss.helpers import convert_date_to_datetime_object
 from bs4 import BeautifulSoup
 import logging
 import re
-import NewsContent
 
 
 class NewsParser:
@@ -201,17 +200,6 @@ class NewsParser:
             news_object.description = node_description
             news_object.published_at = published_at_dt_object
             self.news_list.append(news_object)
-
-           def class NewsContent():
-               news_object.news_url = news.url
-               news_oject.node_title = title
-               news_oject.node_author = author
-               news_object.node_description = description
-               news_oject.published_at_dt_object = published_at
-               news_oject.seed_source = seed_source
-            self.news_list.append(news_object)
-        
-
 
     def add_news_to_extraction_queue(self):
         for news_object in self.news_list:

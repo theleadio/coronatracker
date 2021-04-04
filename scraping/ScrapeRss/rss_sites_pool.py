@@ -11,7 +11,7 @@ self.IsCrawl =IsCrawl # shows wether or not a news source should be crawled
 self.SourceName = SourceName #shows source's http source.
 self.SourceGroup = SourceGroup #show NEWS_SOURCES group the source belongs to.
 
-#create all instances that represent all sources that were in list.
+#Create all instances that represent all sources that were in list.
 
 #Crawl
 dailytelegraph-breaking= WebsiteInfo(True, "http://www.dailytelegraph.com.au/news/breaking-news/rss", "en_AU")

@@ -15,7 +15,7 @@ import re
 
 
 class NewsParser:
-    __instance__ = None;
+    __instance__ = None
     def __init__(
         self,
         locale="",
@@ -48,11 +48,11 @@ class NewsParser:
             self.custom_blacklist = self.custom_blacklist.union(
                 set(self.schema["custom_blacklist"])
             )
-            
+
     def get_instance():
         if not NewsParser.__instance__:
-            NewsParser();
-        return NewsParser.__insance__;
+            NewsParser()
+        return NewsParser.__insance__
 
     def validate_required_values(self):
         error = False

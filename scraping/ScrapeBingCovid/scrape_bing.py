@@ -26,46 +26,46 @@ API_URL = "https://bing.com/covid/data"
 from ScrapeRss.helpers import get_seed_page
 
 # BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+import BingCovidBuilder
 
 if __name__ == "__main__":
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()
 
     # whole world
-    wholeWorld = BingCovid(
-        confirmed=res["totalConfirmed"],
-        deaths=res["totalDeaths"],
-        recovered=res["totalRecovered"],
-    )
+    wholeWorld = BingCovidBuilder()\
+            .add_confirmed(res["totalConfirmed"])\
+            .add_deaths(res["totalDeaths"])\
+            .add_recovered(res["totalRecovered"])\
+            .build()
     logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
     db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
 
     # Countries
     for countryData in res["areas"]:
-        currentCountry = BingCovid(
-            confirmed=countryData["totalConfirmed"],
-            deaths=countryData["totalDeaths"],
-            recovered=countryData["totalRecovered"],
-            last_update=countryData["lastUpdated"],
-            lat=countryData["lat"],
-            lng=countryData["long"],
-            country=countryData["country"],
-        )
+        currentCountry = BingCovidBuilder \
+            .add_confirmed(confirmed=countryData["totalConfirmed"])\
+            .add_deaths(countryData["totalDeaths"])\
+            .add_recovered(countryData["totalRecovered"])\
+            .add_last_update(countryData["lastUpdated"])\
+            .add_lat(countryData["lat"])\
+            .add_lng(countryData["long"])\
+            .add_country(countryData["country"])\
+            .build()
         logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
         db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
 
         # States
         for stateData in countryData["areas"]:
-            currentState = BingCovid(
-                confirmed=stateData["totalConfirmed"],
-                deaths=stateData["totalDeaths"],
-                recovered=stateData["totalRecovered"],
-                last_update=stateData["lastUpdated"],
-                lat=stateData["lat"],
-                lng=stateData["long"],
-                state=stateData["displayName"],
-                country=countryData["country"],
-            )
+            currentState = BingCovidBuilder()\
+                .add_confirmed(stateData["totalConfirmed"])\
+                .add_deaths(stateData["totalDeaths"])\
+                .add_recovered(stateData["totalRecovered"])\
+                .add_last_update(stateData["lastUpdated"])\
+                .add_lat(stateData["lat"])\
+                .add_lng(stateData["long"])\
+                .add_state(stateData["displayName"])\
+                .add_country(stateData["country"])\
+                .build()
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
             db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)

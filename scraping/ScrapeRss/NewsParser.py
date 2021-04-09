@@ -15,6 +15,7 @@ import re
 
 
 class NewsParser:
+    __instance__ = None
     def __init__(
         self,
         locale="",
@@ -35,6 +36,11 @@ class NewsParser:
 
         self.parse_schema()
 
+        if NewsParser.__instance__ is None:
+            NewsParser.__instance__ = self
+        else:
+            raise Exception("Only one instance of NewsParser allowed")
+
     def parse_schema(self):
         if "not_xml" in self.schema and self.schema["not_xml"] is True:
             self.is_xml = False
@@ -42,6 +48,11 @@ class NewsParser:
             self.custom_blacklist = self.custom_blacklist.union(
                 set(self.schema["custom_blacklist"])
             )
+
+    def get_instance():
+        if not NewsParser.__instance__:
+            NewsParser()
+        return NewsParser.__insance__
 
     def validate_required_values(self):
         error = False

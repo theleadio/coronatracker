@@ -3,9 +3,15 @@ import json
 
 
 class DatabaseConnector:
+    connection = None
     def __init__(self, config_path="./"):
         self.mysql = None
         self.config_path = config_path
+
+    def newConnection(cls, *args, **kwargs):
+        if not cls.connection:   
+            cls.connection = super().newConnection(*args, **kwargs)
+        return cls.connection
 
     def connect(self):
         with open(self.config_path, "r") as handler:

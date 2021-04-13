@@ -1,8 +1,17 @@
 import mysql.connector
 import json
+from threading import Lock, Thread
 
-
-class DatabaseConnector:
+class singletonMeta(type):
+    instances = {}
+    lock: Lock = Lock()
+    def __call__(cls, *args, **kwargs):
+        with cls.lock:
+            instance = super().__call__(*args, **kwargs)
+            cls.instances[cls] = instance
+        return cls.instances[cls]
+class DatabaseConnector(metaclass = singletonMeta):
+    connection = None
     def __init__(self, config_path="./"):
         self.mysql = None
         self.config_path = config_path

@@ -1,5 +1,6 @@
 import mysql.connector
 import json
+from db_builder import Director
 
 # malaysia_patient_case TABLE_SCHEMA
 # case, status, status_date, confirmed_date, nationality, age, gender, hospital, description
@@ -43,21 +44,12 @@ def insert(data_dict, target_table="test"):
     sql = "INSERT INTO {} (state, increment_count, total_count, hospital_count, recovered_count, death_count, last_updated) VALUES (%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE state = %s, increment_count = %s, total_count = %s, hospital_count = %s, recovered_count = %s, death_count = %s".format(
         table_name
     )
-    val = (
-        data_dict["state"],
-        data_dict["increment_count"],
-        data_dict["total_count"],
-        data_dict["hospital_count"],
-        data_dict["recovered_count"],
-        data_dict["death_count"],
-        data_dict["last_updated"],
-        data_dict["state"],
-        data_dict["increment_count"],
-        data_dict["total_count"],
-        data_dict["hospital_count"],
-        data_dict["recovered_count"],
-        data_dict["death_count"],
-    )
+    
+
+    #passing the value as a dict instead of a tuple
+    #will output the same value once put into the method execute() below
+    val = Director.construct_ms()
+
     print("SQL query: ", sql, val)
     try:
         mycursor.execute(sql, val)

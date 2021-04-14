@@ -1,12 +1,11 @@
 
 class db_bingcovid:
     __instance = None
-   @staticmethod 
-    def getInstance():
-         if db_bingcovid.__instance == None:
-                db_bingcovid()
-            
-      return db_bingcovid.__instance
+    
+    def getInstance(self):
+        if db_bingcovid.__instance == None:
+            db_bingcovid()
+        return db_bingcovid.__instance
      
     import mysql.connector
     import json
@@ -74,10 +73,9 @@ class db_bingcovid:
         except Exception as ex:
             print(ex)
             print("Record not inserted")
-       def __init__(self):
    
-       def __init__(self):
-         if db_bingcovid.__instance != None:
+    def __init__(self):
+        if db_bingcovid.__instance != None:
             raise Exception("This class is a singleton!")
         else:
          db_bingcovid.__instance = self

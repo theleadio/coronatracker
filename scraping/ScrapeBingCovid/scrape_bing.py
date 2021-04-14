@@ -69,3 +69,120 @@ if __name__ == "__main__":
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
             db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+
+
+
+"Creational (Builder) Design Pattern Code"
+from abc import ABCMETA, abstractmethod
+
+class ICovidBuilder(metaclass=ABCMeta):
+    "The IBuilder Interface"
+
+    @staticmethod
+    @abstractmethod
+    def set_number_confirmed(self, value):
+    """Set the confirmed number of cases"""
+
+
+    @staticmethod
+    @abstractmethod
+     def set_number_recovered(self, value):
+         """Set the number of recovered cases"""
+
+
+    @staticmethod
+    @abstractmethod
+    def set_number_deaths(self, value):
+         """Set the number of death"""
+
+
+    @staticmethod
+    @abstractmethod
+    def set_last_update(self, value):
+        """Set the last update"""
+
+
+    @staticmethod
+    @abstractmethod
+    def update_country(self, value):
+        """update country data on Covid-19"""
+
+
+
+    @staticmethod
+    @abstractmethod
+    def update_state(self, value):
+        """update state data on Covid-19"""
+
+
+    @staticmethod
+    @abstractmethod
+    def get_result(self):
+        """Return the Covid cases"""
+
+
+    class CovidBuilder(ICovidBuilder):
+      """The Concrete Builder."""
+
+      def __init__(self):
+          self.covid = CovidUpdate()
+
+    def set_number_confrimed(self, value):
+        self.covid.confirmed = value
+        return self
+
+    def set_number_recovered(self, value):
+        self.covid.recovered = value
+        return self
+
+    def set_number_deaths(self, value):
+        self.covid.deaths = value
+        return self
+
+    def set_last_update(self, value):
+        self.covid.last_update = value
+        return self
+
+    def update_country(self, value):
+        self.covid.country = value
+        return self
+
+    def update_state(self, value):
+         self.covid.state = value
+         return self
+
+    def get_result(self):
+        return self.covid
+
+
+    class CovidUpdate():
+        """The Product"""
+
+      def __init__(self, confirmed=0, recovered=0, deaths=0, country = " ", state = " ")
+
+      self.confirmed = confirmed
+      self.recovered = recovered
+      self.deaths = deaths
+      self.last_update = last_update
+      self.country = country
+      self.state = state
+
+    class Director:
+        """The Director, building a different representation."""
+
+        @staticmethod
+        def construct():
+            return CovidBuilder()\
+                .set_number_comfirmed()\
+                .set_number_recovered()\
+                .set_number_deaths()\
+                .set_last_update()\
+                .update_state()\
+                .ipdate_country()\
+                .get_result()
+
+
+    if __name__ == "__main__":
+        final = Director.construct()
+
+        print(final)

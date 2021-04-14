@@ -5,6 +5,8 @@
 # Author(s):
 #   - samueljklee@gmail.com
 #
+from datetime import datetime
+from dateutil import parser
 
 import sys
 import os
@@ -26,7 +28,35 @@ API_URL = "https://bing.com/covid/data"
 from ScrapeRss.helpers import get_seed_page
 
 # BingCovid
-from ScrapeBingCovid.BingCovid import BingCovid
+class BingCovid:
+    def __init__(self):
+        self._state=None
+        self._country=None
+        self._last_update=None
+        self._lat=None
+        self._lng=None
+        self._confirmed=None
+        self._deaths=None
+        self._recovered=None
+        self._posted_date=datetime.utcnow()
+    def set_state(self):
+        pass
+    def set_country(self):
+        pass
+    def set_last_update(self):
+        last_update = parser.parse(last_update) if last_update else last_update
+    def set_lat(self):
+        pass
+    def set_lng(self):
+        pass
+    def set_confirmed(self):
+        pass
+    def set_deaths(self):
+        pass
+    def set_recovered(self):
+        pass
+    def set_posted_date(self):
+        pass
 
 if __name__ == "__main__":
     db_bingcovid.connect()

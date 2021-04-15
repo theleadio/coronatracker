@@ -124,6 +124,21 @@ formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
+class Target:
+    """
+    The Target is defined as the domain-specific interface used by the client code. 
+    """
+
+class Adapter(Target, NewsParser, NewsContent):
+    #The Target is the domain-specific interface used by the client code and the
+    #NewsParser and NewsContent classes (in this case acting as the Adaptee classes)
+    #contain useful behavior but are not fully
+    #compatible with the target client code.
+
+    def request(self) -> str:
+        return f"Adapter: (TRANSLATED) {self.specific_request()[::-1]}"
+
+
 
 def seed_worker():
     while True:

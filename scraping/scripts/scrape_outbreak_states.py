@@ -9,7 +9,7 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
+from scraping.DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
 
 import requests
 from bs4 import BeautifulSoup
@@ -19,8 +19,9 @@ from dateutil import parser
 TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
-db_malaysia_patient_cases.connect()
-db_malaysia_states.connect()
+
+db_malaysia_patient_cases.Singleton.connect()
+db_malaysia_states.Singleton.connect()
 
 # state details
 def get_state_details():

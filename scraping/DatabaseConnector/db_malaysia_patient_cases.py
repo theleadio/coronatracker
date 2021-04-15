@@ -8,9 +8,19 @@ mydb = None
 TEST_TABLE_NAME = "malaysia_patient_case_temp"
 PROD_TABLE_NAME = "malaysia_patient_case"
 
+#Adding a singleton class
+class SingletonMeta(type):
+    _instances = {}
 
-def connect():
-    global mydb
+    def __call__(a, *args, **kwargs):
+        if a not in a._instances:
+            instance = super().__call__(*args, **kwargs)
+            a._instances[a] = instance
+        return a._instances[a]
+class Singleton(metaclass=SingletonMeta):
+
+    def connect(self):
+        global mydb
 
     # populate this from env file
     path_to_json = "./db.json"
@@ -31,7 +41,7 @@ def connect():
 
 def select():
     mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
+    mycursor.execute("SELECT * FROM {}".format(PROD_TABLE_NAME))
     myresult = mycursor.fetchall()
     for x in myresult:
         print(x)
@@ -63,6 +73,7 @@ def insert(data_dict, target_table="test"):
         data_dict["hospital"],
         data_dict["description"],
     )
+
     print("SQL query: ", sql, val)
     try:
         mycursor.execute(sql, val)

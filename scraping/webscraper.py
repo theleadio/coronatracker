@@ -35,8 +35,18 @@ import logging
 mydb = None
 TABLE_NAME = "newsapi_n"
 
+class Singleton:
+    def __init__(
+        self,
+        url="",
+        link="",
+        data_dict="",
+    ):
+        self.url = url
+        self.link = link
+        self.data_dict = data_dict
 
-def get_content(url):
+    def get_content(self,url):
     url = url
     try:
         response = requests.get(url, timeout=5)
@@ -48,7 +58,7 @@ def get_content(url):
     return content
 
 
-def extract_article(link):
+    def extract_article(self,link):
     logging.debug("Extracting from: {}".format(link))
     try:
         article = Article(link)
@@ -63,7 +73,7 @@ def extract_article(link):
     return article, True
 
 
-def localtime_to_ust(datetime):
+    def localtime_to_ust(datetime):
 
     date_time_naive = parse(datetime)
     timezone = pytz.timezone(schema['timezone'])
@@ -72,7 +82,7 @@ def localtime_to_ust(datetime):
     return local_dt
 
 
-def connect():
+    def connect(self):
     global mydb
 
     # populate this from env file
@@ -92,13 +102,13 @@ def connect():
     print(mydb)
 
 
-def save_to_db():
+    def save_to_db(self):
     connect()
     for newsObject in newsObject_stack:
         insert(newsObject)
 
 
-def insert(data_dict):
+    def insert(self,data_dict):
     table_name = TABLE_NAME
     mycursor = mydb.cursor()
     sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, countryCode, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title = %s, description = %s, author = %s, content = %s, urlToImage = %s, publishedAt = %s, addedOn = %s, siteName = %s, language = %s, countryCode = %s".format(

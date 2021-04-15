@@ -31,7 +31,73 @@ import json
 import os.path
 import logging
 
+#Adding in the builder classes
 
+from abc import ABCMeta, abstractmethod
+
+class IArticleBuilder(metaclass=ABCMeta):
+    "The Article Builder Interface"
+
+@staticmethod
+@abstractmethod
+def build_download():
+    "Build download"
+
+@staticmethod
+@abstractmethod
+def build_parse():
+    "Build parse"
+
+@staticmethod
+@abstractmethod
+def build_nlp():
+    "Build nlp"
+
+@staticmethod
+@abstractmethod
+def get_result():
+    "Return the final article information"
+
+class ArticleBuilder(IArticleBuilder):
+    "The Concrete Builder."
+
+def __init__(self):
+    self.article = Article()
+
+def build_download (self, download):
+    self.article.append(article.download)
+    return self
+
+def build_parse (self, parse):
+    self.article.append(article.parse)
+    return self
+
+def build_nlp (self, nlp):
+    self.article.append(article.nlp)
+    return self
+
+def get_result(self):
+    return self.article
+
+class Article():
+    "The Article"
+
+def __init__(self):
+    self.article = []
+
+class Director:
+    "The Director, building a complex representation."
+
+@staticmethod
+def construct():
+    "Constructs and returns the article"
+    return ArticleBuilder()\
+        .build_download()\
+        .build_parse()\
+        .build_nlp()\
+        .get_result()
+
+#Builder design classes I added end here
 mydb = None
 TABLE_NAME = "newsapi_n"
 
@@ -53,9 +119,12 @@ def extract_article(link):
     try:
         article = Article(link)
         # Do some NLP
-        article.download()  # Downloads the link's HTML content
-        article.parse()  # Parse the article
-        article.nlp()  # Keyword extraction wrapper
+        #article.download()  # Downloads the link's HTML content
+        #article.parse()  # Parse the article
+        #article.nlp()  # Keyword extraction
+        #Getting all of the article NLP information through the director of the builder
+        ArticleContent = Director.construct()
+        article = ArticleContent.article
     except Exception as e:
         logging.error("Fail to extract Article. Error: {}".format(e))
         return None, False

@@ -29,7 +29,9 @@ from ScrapeRss.helpers import get_seed_page
 from ScrapeBingCovid.BingCovid import BingCovid
 
 if __name__ == "__main__":
-    db_bingcovid.connect()
+    
+    adaptorObject = Adaptor()
+    db_bingcovid.client_code(adaptorObject)
     res = get_seed_page(API_URL).json()
 
     # whole world

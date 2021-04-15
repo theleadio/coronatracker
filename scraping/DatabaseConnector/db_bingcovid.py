@@ -8,26 +8,19 @@ mydb = None
 TEST_TABLE_NAME = "bing_covid_temp"
 PROD_TABLE_NAME = "bing_covid"
 
+class Target:
+    def request(self):
+        return None
 
-def connect():
-    global mydb
+class Adaptee:
+    def specific_request(self): 
 
-    # populate this from env file
-    path_to_json = "./db.json"
+class Adaptor(Target, Adaptee):
+    def request(self):
+        return self.specific_request
 
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
-
+def client_code(target: "Target"):
+    target.request()
 
 def select():
     mycursor = mydb.cursor()

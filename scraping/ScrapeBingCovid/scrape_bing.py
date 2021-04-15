@@ -28,44 +28,84 @@ from ScrapeRss.helpers import get_seed_page
 # BingCovid
 from ScrapeBingCovid.BingCovid import BingCovid
 
-if __name__ == "__main__":
-    db_bingcovid.connect()
-    res = get_seed_page(API_URL).json()
 
-    # whole world
-    wholeWorld = BingCovid(
-        confirmed=res["totalConfirmed"],
-        deaths=res["totalDeaths"],
-        recovered=res["totalRecovered"],
-    )
-    logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
-    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
 
-    # Countries
-    for countryData in res["areas"]:
-        currentCountry = BingCovid(
-            confirmed=countryData["totalConfirmed"],
-            deaths=countryData["totalDeaths"],
-            recovered=countryData["totalRecovered"],
-            last_update=countryData["lastUpdated"],
-            lat=countryData["lat"],
-            lng=countryData["long"],
-            country=countryData["country"],
+   
+class AdapterInterface:
+    def __init__(self):
+        self._info = scrape()
+    def get_request(self):
+        pass
+
+#Adaptee
+class Socket(AdapterInterface):
+    def receive_request(self):
+        return self._info.updateinfo()
+
+ #Target interface       
+class MainSocketInterface:
+    def  insert_Scrape(self):
+        pass
+
+#The Adapter
+class Adapter(MainSocketInterface):
+    _socket = None
+
+    def __init__(self, socket):
+        self._socket = socket
+    
+    def insert_Scrape(self):
+        return self.__socket.connect()
+
+#Client
+class BingScrape:
+  
+
+    def  insert_Scrape(self):
+
+        if __name__ == "__main__":
+            db_bingcovid.connect()
+            res = get_seed_page(API_URL).json()
+            # whole world
+
+        wholeWorld = BingCovid(
+            confirmed=res["totalConfirmed"],
+            deaths=res["totalDeaths"],
+            recovered=res["totalRecovered"],
         )
-        logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
-        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+        logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
+        db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
 
-        # States
-        for stateData in countryData["areas"]:
-            currentState = BingCovid(
-                confirmed=stateData["totalConfirmed"],
-                deaths=stateData["totalDeaths"],
-                recovered=stateData["totalRecovered"],
-                last_update=stateData["lastUpdated"],
-                lat=stateData["lat"],
-                lng=stateData["long"],
-                state=stateData["displayName"],
+        # Countries
+        for countryData in res["areas"]:
+            currentCountry = BingCovid(
+                confirmed=countryData["totalConfirmed"],
+                deaths=countryData["totalDeaths"],
+                recovered=countryData["totalRecovered"],
+                last_update=countryData["lastUpdated"],
+                lat=countryData["lat"],
+                lng=countryData["long"],
                 country=countryData["country"],
             )
-            logging.debug("Inserting state data: {}".format(currentState.__dict__))
-            db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+            logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
+            db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+
+            # States
+            for stateData in countryData["areas"]:
+                currentState = BingCovid(
+                    confirmed=stateData["totalConfirmed"],
+                    deaths=stateData["totalDeaths"],
+                    recovered=stateData["totalRecovered"],
+                    last_update=stateData["lastUpdated"],
+                    lat=stateData["lat"],
+                    lng=stateData["long"],
+                    state=stateData["displayName"],
+                    country=countryData["country"],
+                )
+                logging.debug("Inserting state data: {}".format(currentState.__dict__))
+                db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+
+
+
+
+    

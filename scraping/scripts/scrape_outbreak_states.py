@@ -179,6 +179,22 @@ def get_case_details():
     # print(patients)
 
 
-if __name__ == "__main__":
-    get_state_details()
-    get_case_details()
+#if __name__ == "__main__":
+    #get_state_details()
+    #get_case_details()
+class StateDetails:
+    def get():
+        pass
+
+class StateDetailsAdapter(StateDetails，get_state_details()):
+    def get(self):
+        return self.get_state_details()
+
+class CaseDeatils:
+    def get():
+        pass
+
+class CaseDeatilsAdapter(CaseDeatils,get_case_details()):
+    def get(self):
+        return self.get_case_details()                 
+

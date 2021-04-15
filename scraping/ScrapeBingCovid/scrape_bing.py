@@ -29,7 +29,11 @@ from ScrapeRss.helpers import get_seed_page
 from ScrapeBingCovid.BingCovid import BingCovid
 
 if __name__ == "__main__":
-    db_bingcovid.connect()
+    #making an adapter object to be sent to the client code
+    adapter = Adapter()
+
+    #using the client code function and the adapter object to use the function we want which is connect
+    db_bingcovid.clientcode(adapter)
     res = get_seed_page(API_URL).json()
 
     # whole world

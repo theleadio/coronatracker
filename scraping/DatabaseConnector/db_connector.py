@@ -3,6 +3,15 @@ import json
 
 
 class DatabaseConnector:
+
+    singleInstance = None;
+
+    @staticmethod
+    def getSingleInstance():
+        if DatabaseConnector.singleInstance == None:
+            DatabaseConnector()
+                return DatabaseConnector.singleInstance
+
     def __init__(self, config_path="./"):
         self.mysql = None
         self.config_path = config_path

@@ -28,9 +28,21 @@ from ScrapeRss.helpers import get_seed_page
 # BingCovid
 from ScrapeBingCovid.BingCovid import BingCovid
 
-if __name__ == "__main__":
-    db_bingcovid.connect()
-    res = get_seed_page(API_URL).json()
+class target:
+    def __init__(self):
+        self._info = extract()
+    def call(self):
+        pass
+
+class adapter(target):
+    def getInfo(self):
+        return self._info.update_info()
+
+class extract:
+    def addInfo(self):
+        if __name__ == "__main__":
+            db_bingcovid.connect()
+            res = get_seed_page(API_URL).json()
 
     # whole world
     wholeWorld = BingCovid(
@@ -69,3 +81,9 @@ if __name__ == "__main__":
             )
             logging.debug("Inserting state data: {}".format(currentState.__dict__))
             db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+class add:
+    def __init__(self):
+        self.Adapter = Adapter()
+
+    def addInfo(self):
+        return self.Adapter.info()

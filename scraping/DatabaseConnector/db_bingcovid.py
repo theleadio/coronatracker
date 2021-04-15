@@ -7,34 +7,15 @@ import json
 mydb = None
 TEST_TABLE_NAME = "bing_covid_temp"
 PROD_TABLE_NAME = "bing_covid"
-
+db_connector = DatabaseSingleton.getInstance()
 
 def connect():
-    global mydb
+    db_connector.connect()
 
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
-
+    
 
 def select():
-    mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
-    myresult = mycursor.fetchall()
-    for x in myresult:
-        print(x)
+    db_connector.select()
 
 
 def insert(data_dict, target_table="test"):

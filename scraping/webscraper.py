@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 import pytz
 from dateutil.parser import parse
 import re
+import webscraper_info
 
 import mysql.connector
 
@@ -104,30 +105,32 @@ def insert(data_dict):
     sql = "INSERT INTO {} (title, description, author, url, content, urlToImage, publishedAt, addedOn, siteName, language, countryCode, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE title = %s, description = %s, author = %s, content = %s, urlToImage = %s, publishedAt = %s, addedOn = %s, siteName = %s, language = %s, countryCode = %s".format(
         table_name
     )
-    val = (
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["url"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-        1,  # Status
-        data_dict["title"],
-        data_dict["description"],
-        data_dict["author"],
-        data_dict["content"],
-        data_dict["urlToImage"],
-        data_dict["publishedAt"],
-        data_dict["addedOn"],
-        data_dict["siteName"],
-        data_dict["language"],
-        data_dict["countryCode"],
-    )
+    # val = (
+    #     data_dict["title"],
+    #     data_dict["description"],
+    #     data_dict["author"],
+    #     data_dict["url"],
+    #     data_dict["content"],
+    #     data_dict["urlToImage"],
+    #     data_dict["publishedAt"],
+    #     data_dict["addedOn"],
+    #     data_dict["siteName"],
+    #     data_dict["language"],
+    #     data_dict["countryCode"],
+    #     1,  # Status
+    #     data_dict["title"],
+    #     data_dict["description"],
+    #     data_dict["author"],
+    #     data_dict["content"],
+    #     data_dict["urlToImage"],
+    #     data_dict["publishedAt"],
+    #     data_dict["addedOn"],
+    #     data_dict["siteName"],
+    #     data_dict["language"],
+    #     data_dict["countryCode"],
+    # )
+   val = webscraper_info.Builder.construct()
+
     print("SQL query: ", sql)
     try:
         mycursor.execute(sql, val)

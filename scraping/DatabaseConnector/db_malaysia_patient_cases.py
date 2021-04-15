@@ -1,5 +1,7 @@
 import mysql.connector
 import json
+from db_builder import Director
+from db_bridge import DBSources, DBSourcesImplementer
 
 # malaysia_patient_case TABLE_SCHEMA
 # case, status, status_date, confirmed_date, nationality, age, gender, hospital, description
@@ -10,31 +12,13 @@ PROD_TABLE_NAME = "malaysia_patient_case"
 
 
 def connect():
-    global mydb
-
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
+    DBSOURCES = DBSources(DBSourcesImplementer)
+    DBSOURCES.connect()
 
 
 def select():
-    mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
-    myresult = mycursor.fetchall()
-    for x in myresult:
-        print(x)
+    DBSOURCES = DBSources(DBSourcesImplementer)
+    DBSOURCES.select()
 
 
 def insert(data_dict, target_table="test"):
@@ -43,26 +27,10 @@ def insert(data_dict, target_table="test"):
     sql = "INSERT INTO {} (caseId, status, statusDate, confirmedDate, nationality, age, gender, hospital, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE caseId = %s, status = %s, statusDate = %s, confirmedDate = %s, nationality = %s, age = %s, gender = %s, hospital = %s, description = %s".format(
         table_name
     )
-    val = (
-        data_dict["case"],
-        data_dict["status"],
-        data_dict["status_date"],
-        data_dict["confirmed_date"],
-        data_dict["nationality"],
-        data_dict["age"],
-        data_dict["gender"],
-        data_dict["hospital"],
-        data_dict["description"],
-        data_dict["case"],
-        data_dict["status"],
-        data_dict["status_date"],
-        data_dict["confirmed_date"],
-        data_dict["nationality"],
-        data_dict["age"],
-        data_dict["gender"],
-        data_dict["hospital"],
-        data_dict["description"],
-    )
+
+    #passing the value as a dict instead of a tuple
+    #will output the same value once put into the method execute() below
+    val = Director.construct_mpc()
     print("SQL query: ", sql, val)
     try:
         mycursor.execute(sql, val)

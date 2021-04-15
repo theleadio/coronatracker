@@ -3,9 +3,16 @@ import json
 
 
 class DatabaseConnector:
+    __instance__ = None;
     def __init__(self, config_path="./"):
         self.mysql = None
         self.config_path = config_path
+
+if DatabaseConnector.__instance__ is None;
+  DatbaseConnector = self; 
+
+else raise Exception("Once instance per DB Connector")
+
 
     def connect(self):
         with open(self.config_path, "r") as handler:
@@ -22,6 +29,12 @@ class DatabaseConnector:
         cursor = self.mydb.cursor()
         mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
         return cursor.fetchall()
+    
+    
+def get_instance():
+    if not DatabaseConnector.__instance__: 
+DatabaseConnector();
+return DatabaseConnector.__instance__;
 
     # NEWS TABLE_SCHEMA
     # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']

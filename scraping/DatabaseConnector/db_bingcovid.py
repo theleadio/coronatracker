@@ -1,6 +1,7 @@
 import mysql.connector
 import json
 from db_builder import Director
+from db_bridge import DBSources, DBSourcesImplementer
 
 # BING_COVID TABLE_SCHEMA
 # ['nid', 'state', 'country', 'last_update', 'lat', 'lng', 'confirmed', 'deaths', 'recovered', 'posted_date']
@@ -11,31 +12,13 @@ PROD_TABLE_NAME = "bing_covid"
 
 
 def connect():
-    global mydb
-
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
+    DBSOURCES = DBSources(DBSourcesImplementer)
+    DBSOURCES.connect()
 
 
 def select():
-    mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
-    myresult = mycursor.fetchall()
-    for x in myresult:
-        print(x)
+    DBSOURCES = DBSources(DBSourcesImplementer)
+    DBSOURCES.select()
 
 
 def insert(target_table="test"):

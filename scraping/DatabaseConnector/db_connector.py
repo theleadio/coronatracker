@@ -1,5 +1,6 @@
 import mysql.connector
 import json
+from db_bridge import DBConnectionImplementer, DBConnection, db_sql_connect
 
 
 class DatabaseConnector:
@@ -8,24 +9,19 @@ class DatabaseConnector:
         self.config_path = config_path
 
     def connect(self):
-        with open(self.config_path, "r") as handler:
-            info = json.load(handler)
-            self.mydb = mysql.connector.connect(
-                host=info["host"],
-                user=info["user"],
-                passwd=info["passwd"],
-                database=info["database"],
-            )
-        print("Database connected: {}".format(info))
+        DBCONNECTION = DBConnection(DBConnectionImplementer)
+        DBCONNECTION.connect()
 
     def select(self):
-        cursor = self.mydb.cursor()
-        mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
-        return cursor.fetchall()
+        DBCONNECTION = DBConnection(DBConnectionImplementer)
+        DBCONNECTION.select()
 
     # NEWS TABLE_SCHEMA
     # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']
     def insert_news_article(self, data_dict, table_name):
+        with open(self.config_path, "r") as handler:
+            info = json.load(handler)
+            self.mydb = db_sql_connect(info)
         if not table_name:
             raise ValueError("db_connector insert_news_article missing table_name")
         table_name = table_name

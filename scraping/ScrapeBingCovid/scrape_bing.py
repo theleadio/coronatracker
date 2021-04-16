@@ -30,7 +30,9 @@ from ScrapeBingCovid.BingCovid import BingCovid
 
 if __name__ == "__main__":
     db_bingcovid.connect()
-    res = get_seed_page(API_URL).json()
+    res = get_seed_page(API_URL)
+    print("SEED PAGE: ", res)
+    res = res.json()
 
     # whole world
     wholeWorld = BingCovid(
@@ -38,8 +40,8 @@ if __name__ == "__main__":
         deaths=res["totalDeaths"],
         recovered=res["totalRecovered"],
     )
-    logging.debug("Inserting whole_world data: {}".format(wholeWorld.__dict__))
-    db_bingcovid.insert(wholeWorld.__dict__, target_table=DB_TABLE)
+    logging.debug("Inserting whole_world data: {}".format(wholeWorld.getDataAsDict()))
+    db_bingcovid.insert(wholeWorld.getDataAsDict(), target_table=DB_TABLE)
 
     # Countries
     for countryData in res["areas"]:
@@ -52,8 +54,8 @@ if __name__ == "__main__":
             lng=countryData["long"],
             country=countryData["country"],
         )
-        logging.debug("Inserting country data: {}".format(currentCountry.__dict__))
-        db_bingcovid.insert(currentCountry.__dict__, target_table=DB_TABLE)
+        logging.debug("Inserting country data: {}".format(currentCountry.getDataAsDict()))
+        db_bingcovid.insert(currentCountry.getDataAsDict(), target_table=DB_TABLE)
 
         # States
         for stateData in countryData["areas"]:
@@ -67,5 +69,5 @@ if __name__ == "__main__":
                 state=stateData["displayName"],
                 country=countryData["country"],
             )
-            logging.debug("Inserting state data: {}".format(currentState.__dict__))
-            db_bingcovid.insert(currentState.__dict__, target_table=DB_TABLE)
+            logging.debug("Inserting state data: {}".format(currentState.getDataAsDict()))
+            db_bingcovid.insert(currentState.getDataAsDict(), target_table=DB_TABLE)

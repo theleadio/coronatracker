@@ -1,0 +1,367 @@
+2021-04-15-19-45-37 root         341      DEBUG    Reading cache file...
+2021-04-15-19-45-37 root         355      DEBUG    locale: de_DE, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.welt.de/sitemaps/newssitemap/newssitemap.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.welt.de/sitemaps/sitemap/today.xml. Schema: {'url': 'loc', 'title': 'image:title', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.welt.de/sitemaps/newssitemap/newssitemap.xml
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.focus.de/. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.welt.de/sitemaps/sitemap/today.xml
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.faz.net/aktuell/. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.focus.de/
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_AU, Number of websites: 6
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.faz.net/aktuell/
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.theage.com.au/rss/feed.xml. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.news.com.au/content-feeds/latest-news-world/. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.news.com.au/content-feeds/latest-news-national/. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.dailytelegraph.com.au/news/breaking-news/rss. Schema: {'title': 'title', 'description': 'description', 'url': 'link'}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.dailytelegraph.com.au/newslocal/rss. Schema: {'title': 'title', 'description': 'description', 'url': 'link'}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.sbs.com.au/news/topic/latest/feed. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_CN, Number of websites: 1
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.theage.com.au/rss/feed.xml
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.news.com.au/content-feeds/latest-news-world/
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.news.com.au/content-feeds/latest-news-national/
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.shine.cn/sitemap-news.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_IN, Number of websites: 1
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: http://www.dailytelegraph.com.au/news/breaking-news/rss
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: http://www.dailytelegraph.com.au/newslocal/rss
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.thehindu.com/sitemap/googlenews.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_TW, Number of websites: 2
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.sbs.com.au/news/topic/latest/feed
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.taipeitimes.com/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.taiwannews.com.tw/en/sitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%d')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_SG, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml. Schema: {'title': 'title', 'description': 'news:keywords', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_HK, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.scmp.com/rss/318208/feed. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_KR, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://english.chosun.com/site/data/rss/rss.xml. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('dc:date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.koreatimes.co.kr/www/rss/world.xml. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'author': 'author'}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.koreatimes.co.kr/www/rss/nation.xml. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'author': 'author'}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://koreajoongangdaily.joins.com/sitemap_google_news.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%d')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: hi_IN, Number of websites: 3
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.livehindustan.com/news-sitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.bhaskar.com/sitemapgoogle/topnews_1.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.jagran.com/news-sitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: ko_KR, Number of websites: 5
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.chosun.com/google/rss.html. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'date_xml': ('pubDate', None)}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.chosun.com/site/data/rss/rss.xml. Schema: {'title': 'title', 'description': 'description', 'url': 'link', 'author': 'author', 'date_xml': ('dc:date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.joins.com/sitemap/latest-articles. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.donga.com/sitemap/donga-newsmap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.hani.co.kr/arti/RSS/sitemap_www.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_QA, Number of websites: 1
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.theage.com.au:443
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%d')}
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.news.com.au:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.welt.de:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.faz.net:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.welt.de:443
+2021-04-15-19-45-37 root         355      DEBUG    locale: id_ID, Number of websites: 1
+2021-04-15-19-45-37 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.dailytelegraph.com.au:80
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.focus.de:443
+2021-04-15-19-45-37 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.dailytelegraph.com.au:80
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.news.com.au:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.sbs.com.au:443
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.kompas.com/web/sitemap.xml. Schema: {'url': 'loc'}
+2021-04-15-19-45-37 root         355      DEBUG    locale: it_IT, Number of websites: 3
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.ilmessaggero.it/?sez=XML&p=MapNews. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.leggo.it/?sez=XML&p=MapNews. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.lastampa.it/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: ja_JP, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://toyokeizai.net/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.news24.jp/sitemap_society.xml. Schema: {'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.news24.jp/sitemap_economy.xml. Schema: {'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.news24.jp/sitemap_international.xml. Schema: {'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: ta_IN, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.dailythanthi.com/Sitemap/googlesitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.maalaimalar.com/Sitemap/googlesitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.hindutamil.in/feed/news-corona-virus-518.xml. Schema: {'title': 'news:title', 'url': 'loc', 'keywords': 'news:keywords', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.timestamilnews.com/. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         355      DEBUG    locale: th_TH, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://thestandard.co/coronavirus-coverage/. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.thairath.co.th/sitemap-daily.xml. Schema: {'url': 'loc', 'title': 'image:title'}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://rss.komchadluek.net/latest_news_google_news.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://rss.komchadluek.net/latest_news_google_news.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: en_MY, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.malaymail.com/sitemap.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: ms_MY, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.projekmm.com/sitemap.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: nl_NL, Number of websites: 3
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.nu.nl/sitemap_news.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.rivm.nl/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z'), 'custom_blacklist': ['/en/']}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.nrc.nl/sitemap/index.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: zh_MY, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.orientaldaily.com.my/sitemap.xml. Schema: {'url': 'loc', 'title': 'news:title', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: vi_VN, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.tienphong.vn/event/virus-covid19-2302.tpo. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://baomoi.com/sitemaps/sitemap-news.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://vnexpress.net/google-news-sitemap.xml. Schema: {'url': 'loc', 'title': 'news:title', 'keywords': 'news:keywords', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://vietnamnews.vn/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%d')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: zh_CN, Number of websites: 1
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: http://www.gov.cn/google.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%dT%H:%M:%S%z')}
+2021-04-15-19-45-37 root         355      DEBUG    locale: zh_TW, Number of websites: 4
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.cts.com.tw/sitemap.xml. Schema: {'url': 'loc', 'date_xml': ('lastmod', '%Y-%m-%d')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://news.pts.org.tw/dailynews.php. Schema: {'not_xml': True}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.taiwannews.com.tw/ch/sitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%d')}
+2021-04-15-19-45-37 root         362      DEBUG    Adding seed url to queue: https://www.ettoday.net/news-sitemap.xml. Schema: {'title': 'news:title', 'url': 'loc', 'date_xml': ('news:publication_date', '%Y-%m-%dT%H:%M%z')}
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    https://www.news.com.au:443 "GET /content-feeds/latest-news-world/ HTTP/1.1" 200 2657
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.shine.cn/sitemap-news.xml
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.shine.cn:443
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    https://www.news.com.au:443 "GET /content-feeds/latest-news-national/ HTTP/1.1" 200 32189
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.thehindu.com/sitemap/googlenews.xml
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    http://www.dailytelegraph.com.au:80 "GET /newslocal/rss HTTP/1.1" 301 0
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    http://www.dailytelegraph.com.au:80 "GET /news/breaking-news/rss HTTP/1.1" 301 0
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.dailytelegraph.com.au:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.thehindu.com:443
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.dailytelegraph.com.au:443
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    https://www.theage.com.au:443 "GET /rss/feed.xml HTTP/1.1" 200 8919
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: http://www.taipeitimes.com/sitemap.xml
+2021-04-15-19-45-37 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.taipeitimes.com:80
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    https://www.faz.net:443 "GET /aktuell/ HTTP/1.1" 200 136715
+2021-04-15-19-45-37 urllib3.connectionpool 428      DEBUG    https://www.sbs.com.au:443 "GET /news/topic/latest/feed HTTP/1.1" 200 11187
+2021-04-15-19-45-37 root         64       DEBUG    Get seed url: https://www.taiwannews.com.tw/en/sitemap.xml
+2021-04-15-19-45-37 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.taiwannews.com.tw:443
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.focus.de:443 "GET / HTTP/1.1" 200 None
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.welt.de:443 "GET /sitemaps/newssitemap/newssitemap.xml HTTP/1.1" 200 None
+2021-04-15-19-45-38 root         64       DEBUG    Get seed url: https://www.channelnewsasia.com/googlenews/cna_news_sitemap.xml
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.welt.de:443 "GET /sitemaps/sitemap/today.xml HTTP/1.1" 200 None
+2021-04-15-19-45-38 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.channelnewsasia.com:443
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.dailytelegraph.com.au:443 "GET /newslocal/rss HTTP/1.1" 200 4322
+2021-04-15-19-45-38 root         64       DEBUG    Get seed url: https://www.scmp.com/rss/318208/feed
+2021-04-15-19-45-38 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.scmp.com:443
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.dailytelegraph.com.au:443 "GET /news/breaking-news/rss HTTP/1.1" 200 5023
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    http://www.taipeitimes.com:80 "GET /sitemap.xml HTTP/1.1" 404 None
+2021-04-15-19-45-38 root         64       DEBUG    Get seed url: http://english.chosun.com/site/data/rss/rss.xml
+2021-04-15-19-45-38 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): english.chosun.com:80
+2021-04-15-19-45-38 urllib3.connectionpool 428      DEBUG    https://www.scmp.com:443 "GET /rss/318208/feed HTTP/1.1" 200 21134
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1251 Russian confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    KOI8-R Russian confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    ISO-8859-5 Russian confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    MacCyrillic Russian confidence = 0.022089948627630213
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    IBM866 Russian confidence = 0.06527176406548395
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    IBM855 Russian confidence = 0.049949250312950784
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    ISO-8859-7 Greek confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1253 Greek confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    ISO-8859-5 Bulgairan confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1251 Bulgarian confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    TIS-620 Thai confidence = 0.03971041125704605
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    ISO-8859-9 Turkish confidence = 0.4978772073395648
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-38 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: http://www.koreatimes.co.kr/www/rss/world.xml
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    http://english.chosun.com:80 "GET /site/data/rss/rss.xml HTTP/1.1" 200 30395
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    https://www.channelnewsasia.com:443 "GET /googlenews/cna_news_sitemap.xml HTTP/1.1" 200 90659
+2021-04-15-19-45-39 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.koreatimes.co.kr:80
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: http://www.koreatimes.co.kr/www/rss/nation.xml
+2021-04-15-19-45-39 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.koreatimes.co.kr:80
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    https://www.thehindu.com:443 "GET /sitemap/googlenews.xml HTTP/1.1" 200 None
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: http://koreajoongangdaily.joins.com/sitemap_google_news.xml
+2021-04-15-19-45-39 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): koreajoongangdaily.joins.com:80
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: https://www.livehindustan.com/news-sitemap.xml
+2021-04-15-19-45-39 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.livehindustan.com:443
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: https://www.bhaskar.com/sitemapgoogle/topnews_1.xml
+2021-04-15-19-45-39 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.bhaskar.com:443
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    http://www.koreatimes.co.kr:80 "GET /www/rss/world.xml HTTP/1.1" 200 11261
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230420539/US-Praesident-Biden-Nord-Stream-2-ist-kompliziertes-Thema.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230418823/Thomas-Kutschaty-Unbelehrbare-die-immer-noch-Partys-feiern.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230419773/Tuerkei-Besuch-von-griechischem-Aussenminister-endet-in-Eklat.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230419283/Berlin-Protest-gegen-Mietendeckel-Urteil-Auseinandersetzungen-mit-Polizei.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/live230214969/Union-CDU-Spitze-macht-Druck-Bouffier-fordert-Rueckzug-Soeders.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230419603/Michael-Kretschmer-loescht-Twitter-Eintrag-ueber-die-AfD.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230418135/Lockdown-Plan-So-kritisieren-Buergermeister-die-Bundesregierung.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230418825/Berlin-Prozess-um-mutmasslichen-Autobahn-Anschlag-hat-begonnen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230416453/Truppenabzug-aus-Afghanistan-Sorge-vor-der-naechsten-Fluechtlingskrise.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230414777/Bremen-Der-eine-BAMF-Skandal-der-keiner-war.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230410993/Kitas-Hohe-Auslastung-kaum-Impfungen-und-Angst-vor-Ansteckungen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230372215/Mietendeckel-gekippt-Michael-Mueller-fordert-Mietenmoratorium.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230409875/Dresden-untersagt-auch-Corona-Protest-der-AfD.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230410195/Ex-AfD-Landeschefin-klagt-erfolgreich-gegen-Parteiausschluss.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230408847/Gericht-Keine-Ausnahmen-bei-Regeln-fuer-genesene-Corona-Patienten.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230409035/USA-weisen-nach-Hackerangriff-zehn-russische-Diplomaten-aus.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    https://www.taiwannews.com.tw:443 "GET /en/sitemap.xml HTTP/1.1" 200 None
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    http://www.koreatimes.co.kr:80 "GET /www/rss/nation.xml HTTP/1.1" 200 23508
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230384163/Impfkampagne-Ab-jetzt-ohne-AstraZeneca-warum-Daenemark-das-kann.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230395107/Claus-Ruhe-Madsens-Plan-Lockdown-fuer-Rostock-aber-ganz-anders.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230395181/Ukraine-droht-entweder-Nato-Mitgliedschaft-oder-atomare-Aufruestung.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230367023/Afghanistan-Nato-leitet-Rueckzug-ein-Bundeswehrabzug-bis-Mitte-August.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: https://www.jagran.com/news-sitemap.xml
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230399919/AstraZeneca-Bundeskanzlerin-Merkel-laesst-sich-am-Freitag-impfen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230310765/Kritik-an-Berlins-Regierung-Kommunikation-mit-Buergern-unterirdisch.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230378757/SPD-Gesundheitsexperte-Lauterbach-ist-schon-vor-Jahren-aus-der-Kirche-ausgetreten.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230323321/Corona-Impfungen-Warum-die-Todeszahlen-in-Italien-konstant-ansteigen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    http://koreajoongangdaily.joins.com:80 "GET /sitemap_google_news.xml HTTP/1.1" 302 244
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230367763/Ukraine-Konflikt-Merkel-und-Biden-fordern-Rueckzug-russischer-Truppen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 urllib3.connectionpool 428      DEBUG    https://www.shine.cn:443 "GET /sitemap-news.xml HTTP/1.1" 200 None
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230370499/Jens-Spahn-Ueberlastung-des-Gesundheitssystems-vermeiden-bleibt-Ziel.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.jagran.com:443
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230369511/Intensivmediziner-Janssens-zur-Situation-auf-den-Intesivstationen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): koreajoongangdaily.joins.com:443
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230330187/Corona-Bekaempfung-Das-Impf-Paradox-das-auch-Deutschland-droht.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230368545/Daunte-Wright-Polizistin-in-Minnesota-wegen-Totschlags-angeklagt.html, check: is_valid_url, valid: False
+2021-04-15-19-45-39 root         64       DEBUG    Get seed url: https://news.chosun.com/google/rss.html
+2021-04-15-19-45-39 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): news.chosun.com:443
+2021-04-15-19-45-40 urllib3.connectionpool 428      DEBUG    https://www.bhaskar.com:443 "GET /sitemapgoogle/topnews_1.xml HTTP/1.1" 200 386
+2021-04-15-19-45-40 root         64       DEBUG    Get seed url: https://news.chosun.com/site/data/rss/rss.xml
+2021-04-15-19-45-40 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): news.chosun.com:443
+2021-04-15-19-45-40 root         64       DEBUG    Get seed url: https://news.joins.com/sitemap/latest-articles
+2021-04-15-19-45-40 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): news.joins.com:443
+2021-04-15-19-45-40 root         64       DEBUG    Get seed url: http://www.donga.com/sitemap/donga-newsmap.xml
+2021-04-15-19-45-40 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.donga.com:80
+2021-04-15-19-45-40 urllib3.connectionpool 428      DEBUG    https://news.chosun.com:443 "GET /site/data/rss/rss.xml HTTP/1.1" 200 69336
+2021-04-15-19-45-40 urllib3.connectionpool 428      DEBUG    https://www.livehindustan.com:443 "GET /news-sitemap.xml HTTP/1.1" 200 220963
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230420539/US-Praesident-Biden-Nord-Stream-2-ist-kompliziertes-Thema.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230418823/Thomas-Kutschaty-Unbelehrbare-die-immer-noch-Partys-feiern.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230419773/Tuerkei-Besuch-von-griechischem-Aussenminister-endet-in-Eklat.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230419283/Berlin-Protest-gegen-Mietendeckel-Urteil-Auseinandersetzungen-mit-Polizei.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/live230214969/Union-CDU-Spitze-macht-Druck-Bouffier-fordert-Rueckzug-Soeders.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230419603/Michael-Kretschmer-loescht-Twitter-Eintrag-ueber-die-AfD.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230418135/Lockdown-Plan-So-kritisieren-Buergermeister-die-Bundesregierung.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 urllib3.connectionpool 428      DEBUG    https://www.jagran.com:443 "GET /news-sitemap.xml HTTP/1.1" 200 31233
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230418825/Berlin-Prozess-um-mutmasslichen-Autobahn-Anschlag-hat-begonnen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 urllib3.connectionpool 428      DEBUG    http://www.donga.com:80 "GET /sitemap/donga-newsmap.xml HTTP/1.1" 302 0
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230416453/Truppenabzug-aus-Afghanistan-Sorge-vor-der-naechsten-Fluechtlingskrise.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230414777/Bremen-Der-eine-BAMF-Skandal-der-keiner-war.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230410993/Kitas-Hohe-Auslastung-kaum-Impfungen-und-Angst-vor-Ansteckungen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230372215/Mietendeckel-gekippt-Michael-Mueller-fordert-Mietenmoratorium.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230409875/Dresden-untersagt-auch-Corona-Protest-der-AfD.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230410195/Ex-AfD-Landeschefin-klagt-erfolgreich-gegen-Parteiausschluss.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230408847/Gericht-Keine-Ausnahmen-bei-Regeln-fuer-genesene-Corona-Patienten.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230409035/USA-weisen-nach-Hackerangriff-zehn-russische-Diplomaten-aus.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230384163/Impfkampagne-Ab-jetzt-ohne-AstraZeneca-warum-Daenemark-das-kann.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230395107/Claus-Ruhe-Madsens-Plan-Lockdown-fuer-Rostock-aber-ganz-anders.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.donga.com:443
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230395181/Ukraine-droht-entweder-Nato-Mitgliedschaft-oder-atomare-Aufruestung.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230367023/Afghanistan-Nato-leitet-Rueckzug-ein-Bundeswehrabzug-bis-Mitte-August.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230399919/AstraZeneca-Bundeskanzlerin-Merkel-laesst-sich-am-Freitag-impfen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230310765/Kritik-an-Berlins-Regierung-Kommunikation-mit-Buergern-unterirdisch.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230378757/SPD-Gesundheitsexperte-Lauterbach-ist-schon-vor-Jahren-aus-der-Kirche-ausgetreten.html, check: is_valid_url, valid: False
+2021-04-15-19-45-40 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230323321/Corona-Impfungen-Warum-die-Todeszahlen-in-Italien-konstant-ansteigen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230367763/Ukraine-Konflikt-Merkel-und-Biden-fordern-Rueckzug-russischer-Truppen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230370499/Jens-Spahn-Ueberlastung-des-Gesundheitssystems-vermeiden-bleibt-Ziel.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230369511/Intensivmediziner-Janssens-zur-Situation-auf-den-Intesivstationen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230330187/Corona-Bekaempfung-Das-Impf-Paradox-das-auch-Deutschland-droht.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230368545/Daunte-Wright-Polizistin-in-Minnesota-wegen-Totschlags-angeklagt.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/plus230335985/Pakistans-Aussenminister-Qureshi-Taliban-muessen-als-Partner-behandelt-werden.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230245921/Verhetzende-Beleidigung-Streit-ueber-Schutz-von-Muslimen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/plus230344973/Infektionsschutzgesetz-Corona-Eingriffe-kippen-Das-kann-schwerer-werden.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230363843/Tuerkei-Deutsche-in-Istanbul-wegen-Terrorvorwuerfen-vor-Gericht.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230328475/Corona-Notbremse-des-Bundes-Das-sind-die-geplanten-Regeln.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230292019/Minnesota-US-Polizistin-nach-Toetung-eines-Schwarzen-wegen-Totschlags-angeklagt.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/ausland/article230359911/Joe-Biden-Es-ist-Zeit-Amerikas-laengsten-Krieg-zu-beenden.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230336057/Bundestagswahl-FDP-will-schneller-als-Gruene-Einbuergerungen-ermoeglichen.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         159      DEBUG    url: https://www.welt.de/politik/deutschland/article230322949/Remmo-Clan-Goldmuenzen-Dieb-Wissam-in-Erwachsenengefaengnis-verlegt.html, check: is_valid_url, valid: False
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: http://www.hani.co.kr/arti/RSS/sitemap_www.xml
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://www.aljazeera.com/xml/sslsitemaps/sitemap2020_1.xml
+2021-04-15-19-45-41 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.hani.co.kr:80
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.aljazeera.com:443
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://news.kompas.com/web/sitemap.xml
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): news.kompas.com:443
+2021-04-15-19-45-41 urllib3.connectionpool 428      DEBUG    https://koreajoongangdaily.joins.com:443 "GET /sitemap_google_news.xml HTTP/1.1" 404 1876
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1251 Russian confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    KOI8-R Russian confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    ISO-8859-5 Russian confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    MacCyrillic Russian confidence = 0.005290458095646703
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    IBM866 Russian confidence = 0.058024379113544494
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    IBM855 Russian confidence = 0.03605191202275375
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    ISO-8859-7 Greek confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1253 Greek confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    ISO-8859-5 Bulgairan confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1251 Bulgarian confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    TIS-620 Thai confidence = 0.03969640468269932
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    ISO-8859-9 Turkish confidence = 0.37851588661078356
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-41 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://www.ilmessaggero.it/?sez=XML&p=MapNews
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.ilmessaggero.it:443
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://www.leggo.it/?sez=XML&p=MapNews
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.leggo.it:443
+2021-04-15-19-45-41 urllib3.connectionpool 428      DEBUG    https://news.chosun.com:443 "GET /google/rss.html HTTP/1.1" 200 None
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://www.lastampa.it/sitemap.xml
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.lastampa.it:443
+2021-04-15-19-45-41 root         64       DEBUG    Get seed url: https://toyokeizai.net/sitemap.xml
+2021-04-15-19-45-41 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): toyokeizai.net:443
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://www.donga.com:443 "GET /sitemap/donga-newsmap.xml HTTP/1.1" 200 None
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://www.aljazeera.com:443 "GET /xml/sslsitemaps/sitemap2020_1.xml HTTP/1.1" 404 None
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://www.leggo.it:443 "GET /?sez=XML&p=MapNews HTTP/1.1" 200 14107
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://www.lastampa.it:443 "GET /sitemap.xml HTTP/1.1" 200 359
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://www.ilmessaggero.it:443 "GET /?sez=XML&p=MapNews HTTP/1.1" 200 9539
+2021-04-15-19-45-42 urllib3.connectionpool 428      DEBUG    https://news.kompas.com:443 "GET /web/sitemap.xml HTTP/1.1" 200 None
+2021-04-15-19-45-43 urllib3.connectionpool 428      DEBUG    https://news.joins.com:443 "GET /sitemap/latest-articles HTTP/1.1" 200 None
+2021-04-15-19-45-44 root         64       DEBUG    Get seed url: http://www.news24.jp/sitemap_society.xml
+2021-04-15-19-45-44 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.news24.jp:80
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1251 Russian confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    KOI8-R Russian confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    ISO-8859-5 Russian confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    MacCyrillic Russian confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    IBM866 Russian confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    IBM855 Russian confidence = 0.07250636938083327
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    ISO-8859-7 Greek confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1253 Greek confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    ISO-8859-5 Bulgairan confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1251 Bulgarian confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    TIS-620 Thai confidence = 0.1638447208866922
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    ISO-8859-9 Turkish confidence = 0.1227381025432752
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    windows-1255 Hebrew confidence = 0.0
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    utf-8  confidence = 0.99
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    SHIFT_JIS Japanese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-JP Japanese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    GB2312 Chinese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-KR Korean confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    CP949 Korean confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    Big5 Chinese confidence = 0.01
+2021-04-15-19-45-44 chardet.charsetprober 100      DEBUG    EUC-TW Taiwan confidence = 0.01
+2021-04-15-19-45-44 urllib3.connectionpool 428      DEBUG    http://www.news24.jp:80 "GET /sitemap_society.xml HTTP/1.1" 301 183
+2021-04-15-19-45-44 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.news24.jp:443
+2021-04-15-19-45-44 root         64       DEBUG    Get seed url: http://www.news24.jp/sitemap_economy.xml
+2021-04-15-19-45-44 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.news24.jp:80
+2021-04-15-19-45-44 urllib3.connectionpool 428      DEBUG    http://www.news24.jp:80 "GET /sitemap_economy.xml HTTP/1.1" 301 183
+2021-04-15-19-45-44 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.news24.jp:443
+2021-04-15-19-45-44 urllib3.connectionpool 428      DEBUG    https://toyokeizai.net:443 "GET /sitemap.xml HTTP/1.1" 200 1671
+2021-04-15-19-45-44 root         64       DEBUG    Get seed url: http://www.news24.jp/sitemap_international.xml
+2021-04-15-19-45-44 urllib3.connectionpool 221      DEBUG    Starting new HTTP connection (1): www.news24.jp:80
+2021-04-15-19-45-44 root         64       DEBUG    Get seed url: https://www.dailythanthi.com/Sitemap/googlesitemap.xml
+2021-04-15-19-45-44 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.dailythanthi.com:443
+2021-04-15-19-45-44 urllib3.connectionpool 428      DEBUG    http://www.news24.jp:80 "GET /sitemap_international.xml HTTP/1.1" 301 183
+2021-04-15-19-45-44 urllib3.connectionpool 955      DEBUG    Starting new HTTPS connection (1): www.news24.jp:443

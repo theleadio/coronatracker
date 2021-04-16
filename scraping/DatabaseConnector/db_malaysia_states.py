@@ -3,6 +3,7 @@ import json
 
 # malaysia_patient_case TABLE_SCHEMA
 # case, status, status_date, confirmed_date, nationality, age, gender, hospital, description
+from scraping.webscraper import TABLE_NAME
 
 mydb = None
 TEST_TABLE_NAME = "malaysia_states_temp"

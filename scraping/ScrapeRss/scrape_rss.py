@@ -64,13 +64,15 @@ RSS_STACK = {}
 CACHE = set()
 
 # Database configurations
-from DatabaseConnector.db_connector import DatabaseConnector
+from DatabaseConnector.db_connector import DatabaseConnector, DatabaseConnectorWrapper
 
-db_connector = DatabaseConnector(config_path="./db.json")
+#db_connector = DatabaseConnector(config_path="./db.json")
+db_connector = DatabaseConnectorWrapper.getInstance().getDb(config_path="./db.json")
 db_connector.connect()
 
 # temporary solution as migrating to new db prod instance
-db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+#db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+db_connector_prodv2 = DatabaseConnectorWrapper.getInstance().getDb(config_path="./db.prodv2.json")
 db_connector_prodv2.connect()
 
 

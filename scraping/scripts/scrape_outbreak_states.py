@@ -9,7 +9,8 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector import db_malaysia_patient_cases, db_malaysia_states
+from DatabaseConnector import db_connection
+from db.connection import Factory_Demo
 
 import requests
 from bs4 import BeautifulSoup
@@ -19,8 +20,9 @@ from dateutil import parser
 TABLE = "test" # "prod"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 HEADER = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko)"}
-db_malaysia_patient_cases.connect()
-db_malaysia_states.connect()
+name1 = Factory("Malaysia_patient_case") #name1= Malaysia_patient_case (previous db.malaysia_patient_case)
+name2 = Factory("Maylasia_states_temp")  #name2 = Malaysia_states_temp (previous db.malaysia_states_temp)
+Factory_Demo.connect()
 
 # state details
 def get_state_details():
@@ -61,7 +63,7 @@ def get_state_details():
 
     # output: [State name, increment count, total, hospital, recovered, death, last_updated]
     for data in state_details:
-        db_malaysia_states.insert(
+        name2.insert(
             {
                 "state": data[0],
                 "increment_count": data[1],
@@ -159,7 +161,7 @@ def get_case_details():
                 break
             idx += 1
         patients.append(patient)
-        db_malaysia_patient_cases.insert(patient, TABLE)
+        name1.insert(patient, TABLE)
     # print(patients)
 
 

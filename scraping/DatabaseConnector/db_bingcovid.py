@@ -1,6 +1,6 @@
 import mysql.connector
 import json
-
+from abc import ABCMeta, abstactmethod
 # BING_COVID TABLE_SCHEMA
 # ['nid', 'state', 'country', 'last_update', 'lat', 'lng', 'confirmed', 'deaths', 'recovered', 'posted_date']
 
@@ -8,6 +8,13 @@ mydb = None
 TEST_TABLE_NAME = "bing_covid_temp"
 PROD_TABLE_NAME = "bing_covid"
 
+
+class IA(metaclass=ABCMeta):
+    @staticmethod
+    @abstractmethod
+    def method_a():
+        
+class ClassBing(IA)
 
 def connect():
     global mydb
@@ -28,7 +35,11 @@ def connect():
 
     print(mydb)
 
-
+class IB(metaclass=ABCMeta):
+    @staticmethod
+    @abstractmethod
+    def method_b():
+ class Covid(IB)       
 def select():
     mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
@@ -67,3 +78,7 @@ def insert(data_dict, target_table="test"):
     except Exception as ex:
         print(ex)
         print("Record not inserted")
+
+class ClassBAdapter(IA):
+    def _init_(self):
+        self.classB = Covid()

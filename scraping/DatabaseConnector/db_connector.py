@@ -157,3 +157,31 @@ class DatabaseConnector:
         except Exception as ex:
             print(ex)
             print("Record not inserted")
+
+
+class DatabaseConnectorWrapper:
+    __instance__ = None
+
+    def __init__(self):
+        if DatabaseConnectorWrapper.__instance__ is None:
+            self.config_dbc_dict = {}
+            DatabaseConnectorWrapper.__instance__ = self
+        else:
+            raise Exception("Cannot create another object of DatabaseConnectorWrapper class as it is singleton. Please use getInstance()")
+    
+    @staticmethod
+    def getInstance():
+        if DatabaseConnectorWrapper.__instance__ is None:
+            DatabaseConnectorWrapper()
+
+        return DatabaseConnectorWrapper.__instance__
+
+
+    def getDb(self, config_path="./"):
+        if config_path not in self.config_dbc_dict:
+            self.config_dbc_dict[config_path] = DatabaseConnector(config_path)
+
+        return self.config_dbc_dict[config_path]
+
+    def getAllDBConnections(self):
+        return self.config_dbc_dict

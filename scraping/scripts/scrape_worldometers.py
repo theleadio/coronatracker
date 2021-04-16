@@ -15,13 +15,15 @@ CURRENT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(CURRENT_DIR, PARENT_DIR)))
 
-from DatabaseConnector.db_connector import DatabaseConnector
+from DatabaseConnector.db_connector import DatabaseConnector, DatabaseConnectorWrapper
 
-db_connector = DatabaseConnector(config_path="./db.json")
+#db_connector = DatabaseConnector(config_path="./db.json")
+db_connector = DatabaseConnectorWrapper.getInstance().getDb(config_path="./db.json")
 db_connector.connect()
 
 # temporary solution as migrating to new db prod instance
-db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+#db_connector_prodv2 = DatabaseConnector(config_path="./db.prodv2.json")
+db_connector_prodv2 = DatabaseConnectorWrapper.getInstance().getDb(config_path="./db.prodv2.json")
 db_connector_prodv2.connect()
 
 import requests

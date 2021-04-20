@@ -23,6 +23,12 @@ class DatabaseConnector:
         mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
         return cursor.fetchall()
 
+    def select_iterator(self, offset = 0):
+        cursor = self.mydb.cursor()
+        cursor.execute(f"SELECT * FROM {TABLE_NAME} OFFSET {offset}")
+        for row in cursor:
+            yield row
+
     # NEWS TABLE_SCHEMA
     # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']
     def insert_news_article(self, data_dict, table_name):

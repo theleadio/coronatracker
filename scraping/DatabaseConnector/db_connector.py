@@ -2,7 +2,19 @@ import mysql.connector
 import json
 
 
-class DatabaseConnector:
+
+"""Adapter Design Pattern"""
+
+from abc import ABCMeta, abstractmethod
+
+class IA(metaclass=ABCMeta):
+@staticmethod
+@abstractmethod
+
+def method_a():
+"""an abstract method"""
+
+class DatabaseConnector(IA):
     def __init__(self, config_path="./"):
         self.mysql = None
         self.config_path = config_path
@@ -18,6 +30,12 @@ class DatabaseConnector:
             )
         print("Database connected: {}".format(info))
 
+class IB(metaclass=ABCMeta):
+    @staticmethod
+    @abstractmethod
+    def method_b():
+
+class NewsArticle(IB):
     def select(self):
         cursor = self.mydb.cursor()
         mycursor.execute("SELECT * FROM {}".format(TABLE_NAME))
@@ -66,9 +84,29 @@ class DatabaseConnector:
             print(ex)
             print("Record not inserted")
 
+  class NewsAticleAdapter(IA):
+      def __init__(self):
+          self.classNA = NewsArticle()
+
+          def method_a(self):
+              """Calls class NewsArticle method insert_news_article"""
+          self.NewsArticle.insert_news_aticle()
+
+RESULT = NewsArticleAdapter()
+RESULT.method_a()
+
+
     # worldometers TABLE_SCHEMA
     # country, total_cases, total_deaths, total_recovered, total_tests, new_cases, new_deaths, active_cases, serious_critical_cases, total_cases_per_million_pop, total_tests_per_million_pop, last_updated
-    def insert_worldometer_stats(self, data_dict, table_name):
+
+
+class IC(metaclass=ABCMeta):
+    @staticmethod
+    @abstractmethod
+    def method_c():
+
+   class Worldometers(IC):
+   def insert_worldometer_stats(self, data_dict, table_name):
         if not table_name:
             raise ValueError("db_connector insert_worldometer missing table_name")
         table_name = table_name

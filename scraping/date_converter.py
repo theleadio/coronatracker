@@ -11,3 +11,5 @@ datetime_object = datetime.strptime(datetime_str, '%d %b %Y %H:%M:%S %z')
 print(type(datetime_object))
 print(datetime_object)  # printed in default format
 print(datetime_object.astimezone(timezone.utc))
+
+

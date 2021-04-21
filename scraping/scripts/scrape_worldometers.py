@@ -78,11 +78,11 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
 
     if df["Country,Other"] != "Total:":
-        db_connector.insert_worldometer_stats(data, stats_table)
-        db_connector_prodv2.insert_worldometer_stats(data, stats_table)
+        db_connector.insert(data, stats_table)
+        db_connector_prodv2.insert(data, stats_table)
     else:
-        db_connector.insert_worldometers_total_sum(data, overview_table)
-        db_connector_prodv2.insert_worldometers_total_sum(data, overview_table)
+        db_connector.insert(data, overview_table)
+        db_connector_prodv2.insert(data, overview_table)
 
 
 if __name__ == "__main__":

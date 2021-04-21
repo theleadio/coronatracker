@@ -67,3 +67,36 @@ def insert(data_dict, target_table="test"):
     except Exception as ex:
         print(ex)
         print("Record not inserted")
+
+from abc import ABCMeta
+
+class IIterator(metaclass=ABCMeta):
+
+"Iterator Interface"
+    @staticmethod
+    @abstractmethod
+    def has_next():
+
+
+    @staticmethod
+    @abstractmethod
+    def next():
+    "return the object in collection"
+
+    class Iterable(IIterator):
+        def __init__(self, val):
+            self.index = 0
+            self.val = val
+
+        def next(Self):
+            if self.index < len(Self.val):
+                val = self.val[self.index]
+                return val
+                raise Exception("AtEndOfIteratorException", "At the End of Iterator")
+
+        def has_next(Self):
+            return self.index < len(Self.val)
+
+            ITERABLE = Iterable(val)
+            while ITERABLE.has_next():
+                ITERABLE.next().method()

@@ -279,8 +279,8 @@ def save_to_db(table_name):
     logging.debug("Saving to db to {} table".format(table_name))
     for locale, rss_records in RSS_STACK.items():
         for rss_record in rss_records:
-            db_connector.insert_news_article(rss_record, table_name)
-            db_connector_prodv2.insert_news_article(rss_record, table_name)
+            db_connector.insert(rss_record, table_name)
+            db_connector_prodv2.insert(rss_record, table_name)
 
 
 def parser():

@@ -1,6 +1,6 @@
 import mysql.connector
 import json
-import DatabaseConnectorBuilder
+import Country
 
 class DatabaseConnector:
     def __init__(self, config_path="./"):

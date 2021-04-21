@@ -28,6 +28,38 @@ from ScrapeRss.helpers import get_seed_page
 # BingCovid
 from ScrapeBingCovid.BingCovid import BingCovid
 
+#Iterator Pattern
+class Iterator(Iterator):
+    _position:int=None
+    _reverse:bool=False
+
+    def __init__(self,collection:AreasCollection,reverse:bool=False)->None:
+        self._collection=collection
+        self._reverse=reverse
+        self._position=-1 if reverse else 0
+
+    def __next__(self):
+        try:
+            value=self._collection[self._position]
+            self._position+=-1 if self._reverse else 1
+        except IndexError:
+            raise StopIteration()
+        return value
+
+#collection class : areas
+class AreasCollection(Iterable):
+    def __init__(self,collection:List[Any]=[])->None:
+        self._collection=collection
+
+    def __iter__(self)->Iterator:
+        return Iterator(self._collection)
+
+    def get_reverse_iterator(self)->Iterator:
+        return Iterator(self._collection,True)
+
+    def add_item(self,item:Any):
+        self._collection.append(item)
+
 if __name__ == "__main__":
     db_bingcovid.connect()
     res = get_seed_page(API_URL).json()

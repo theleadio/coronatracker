@@ -7,6 +7,7 @@ import os
 import sys
 import logging
 import argparse
+from WebScraperRoot import get_and_parse
 
 # Connect to # db_connector from parent directory
 PARENT_DIR = ".."
@@ -78,20 +79,18 @@ def convertKeyAndWriteToDB(df, stats_table, overview_table):
     data["last_updated"] = datetime.utcnow().strftime(DATETIME_FORMAT)
 
     if df["Country,Other"] != "Total:":
-        db_connector.insert_worldometer_stats(data, stats_table)
-        db_connector_prodv2.insert_worldometer_stats(data, stats_table)
+        db_connector.insert(data, stats_table)
+        db_connector_prodv2.insert(data, stats_table)
     else:
-        db_connector.insert_worldometers_total_sum(data, overview_table)
-        db_connector_prodv2.insert_worldometers_total_sum(data, overview_table)
+        db_connector.insert(data, overview_table)
+        db_connector_prodv2.insert(data, overview_table)
 
 
 if __name__ == "__main__":
     args = parser()
 
     url = "https://www.worldometers.info/coronavirus/"
-    res = requests.get(url, headers=HEADER)
-    df = pandas.read_html(res.content)
-    df[0].fillna(0, inplace=True)
+    df = get_and_parse(url, parser="HTML", headers=HEADER)
     df[0].apply(
         lambda dataframe: convertKeyAndWriteToDB(
             dataframe, args.stats_table, args.overview_table

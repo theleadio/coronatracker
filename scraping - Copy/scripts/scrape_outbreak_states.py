@@ -2,6 +2,8 @@ import sys
 import os
 import logging
 
+#test edit made by Jonathan Basilious March 15 2021
+
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."
 CURRENT_DIR = os.path.dirname(

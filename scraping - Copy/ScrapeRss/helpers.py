@@ -14,6 +14,8 @@ from dateutil import parser
 import logging
 import requests
 import re
+import URLParser
+
 
 TODAY_TIME = datetime.now()
 
@@ -62,7 +64,7 @@ def get_description_from_for_html(node):
 def get_seed_page(url):
     try:
         logging.debug("Get seed url: {}".format(url))
-        res = requests.get(url, headers=HEADER, timeout=REQUEST_TIMEOUT)
+        res = URLParser(url, parser="HTML", headers=HEADER, timeout=REQUEST_TIMEOUT).parse
         return res
     except Exception as e:
         logging.error("Fail to get url: {}".format(url))

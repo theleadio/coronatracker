@@ -147,20 +147,6 @@ def seed_worker():
         SEED_QUEUE.task_done()
 
 
-<<<<<<< Updated upstream
-class RSS:
-    def __init__(self, records):
-        self.records = records
-
-    def save_to_db(self):
-        logging.debug("Saving to db to {} table".format(self.records))
-        for locale, rss_records in RSS_STACK.items():
-            for rss_record in rss_records:
-                db_connector.insert_news_article(rss_record, self.records)
-                db_connector_prodv2.insert_news_article(rss_record, self.records)
-
-=======
->>>>>>> Stashed changes
 def extract_worker():
     while True:
         approx_queue_size = EXTRACT_QUEUE.qsize()

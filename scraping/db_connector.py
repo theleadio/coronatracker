@@ -1,6 +1,38 @@
 import mysql.connector
 import json
 
+from abc import ABCMeta
+
+class IIterator(metaclass=ABCMeta):
+
+"Iterator Interface"
+    @staticmethod
+    @abstractmethod
+    def has_next():
+
+
+    @staticmethod
+    @abstractmethod
+    def next():
+    
+    class Iterable(IIterator):
+        def __init__(self, val):
+            self.index = 0
+            self.val = val
+
+        def next(Self):
+            if self.index < len(Self.val):
+                val = self.val[self.index]
+                return val
+                raise Exception("AtEndOfIteratorException", "At End of Iterator")
+
+        def has_next(Self):
+            return self.index < len(Self.val)
+
+            ITERABLE = Iterable(val)
+            while ITERABLE.has_next():
+                ITERABLE.next().method()
+
 # TABLE_SCHEMA
 # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']
 

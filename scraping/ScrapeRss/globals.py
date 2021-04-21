@@ -1,11 +1,16 @@
 # CONSTANT VALUES
 
 import queue
+from NewsContent import *
 
 SEED_QUEUE = queue.Queue()
 EXTRACT_QUEUE = queue.Queue()
+Extract_News = NewsCollection()
+News_Iter = iter(NewsCollection)
 RSS_STACK = {}
 CACHE = set()
+
+
 
 
 # "Sat, 25 Jan 2020 01:52:22 +0000"

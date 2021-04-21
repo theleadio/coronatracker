@@ -1,7 +1,7 @@
-from ScrapeRss.NewsContent import NewsContent
+from ScrapeRss.NewsContent import *
 
 from ScrapeRss.globals import URL_BLACKLIST_KEYWORDS, CORONA_KEYWORDS
-from ScrapeRss.globals import SEED_QUEUE, EXTRACT_QUEUE
+from ScrapeRss.globals import SEED_QUEUE, Extract_News, EXTRACT_QUEUE, News_Iter
 
 from ScrapeRss.helpers import is_valid_url, is_article_uploaded_today
 from ScrapeRss.helpers import get_title_from_for_html, get_description_from_for_html
@@ -32,8 +32,8 @@ class NewsParser:
         self.is_xml = is_xml
         self.news_list = news_list
         self.custom_blacklist = set(custom_blacklist)
-
         self.parse_schema()
+
 
     def parse_schema(self):
         if "not_xml" in self.schema and self.schema["not_xml"] is True:
@@ -105,7 +105,7 @@ class NewsParser:
             if not is_valid_url(news_object.news_url, self.custom_blacklist):
                 continue
 
-            self.news_list.append(news_object)
+            Extract_News.add_item(news_object)
 
     def parse_soup_page_for_xml(self):
         # common nodes for sitemaps
@@ -199,8 +199,10 @@ class NewsParser:
             news_object.title = node_title
             news_object.description = node_description
             news_object.published_at = published_at_dt_object
-            self.news_list.append(news_object)
+            Extract_News.add_item(news_object)
 
     def add_news_to_extraction_queue(self):
-        for news_object in self.news_list:
-            EXTRACT_QUEUE.put(news_object)
+        i = 1
+        while i <= Extract_News.length:
+            news = next(News_Iter)
+            EXTRACT_QUEUE.put(news)

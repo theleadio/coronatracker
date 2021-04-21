@@ -30,6 +30,7 @@ import mysql.connector
 import json
 import os.path
 import logging
+from webscraper_state import Context, ConcreteSaveState, ConcreteConnectState
 
 
 mydb = None
@@ -74,28 +75,14 @@ def localtime_to_ust(datetime):
 
 def connect():
     global mydb
-
-    # populate this from env file
-    path_to_json = "./db.json"
-
-    with open(path_to_json, "r") as handler:
-        info = json.load(handler)
-        print(info)
-
-        mydb = mysql.connector.connect(
-            host=info["host"],
-            user=info["user"],
-            passwd=info["passwd"],
-            database=info["database"],
-        )
-
-    print(mydb)
+    
+    context = Context(ConcreteConnectState())
+    context.request_connect()
 
 
 def save_to_db():
-    connect()
-    for newsObject in newsObject_stack:
-        insert(newsObject)
+    context = Context(ConcreteSaveState())
+    context.request_connect()
 
 
 def insert(data_dict):
@@ -143,6 +130,7 @@ SPECIAL_LANG = set(["zh_TW", "zh_CN"])
 
 
 key = ["新型コロナウイルス", "新型肺炎", "新型ウィルス", "武漢肺炎", "新型冠狀病毒"]
+global newsObject_stack
 newsObject_stack = []
 
 NEWS_URLs = {

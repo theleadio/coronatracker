@@ -3,6 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 import pymysql
+from query_iterator import query, Iterable
 
 import json
 
@@ -28,5 +29,7 @@ query_list = ['SET SQL_SAFE_UPDATES=0',
               "UPDATE newsapi_n SET publishedAt = DATE_SUB(publishedAt, INTERVAL 8 hour) WHERE publishedAt > CURRENT_TIMESTAMP() and siteName = 'news.cts.com.tw'",
               "UPDATE newsapi_n SET publishedAt = DATE_SUB(publishedAt, INTERVAL 8 hour) WHERE publishedAt > CURRENT_TIMESTAMP() and siteName = 'scmp.com'"]
 
-for query_line in query_list:
-    sql_query(query_line)
+ITERABLE = Iterable(query_list)
+
+while ITERABLE.has_next():
+    query(ITERABLE.next())

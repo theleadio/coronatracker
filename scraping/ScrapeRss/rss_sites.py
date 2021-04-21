@@ -73,7 +73,6 @@ from ScrapeRss.globals import (
     YEAR_MONTH_DAY_FORMAT,
 )
 
-
 NEWS_SOURCES = {
     "de_DE": [
         (
@@ -566,3 +565,20 @@ NEWS_SOURCES = {
         ),
     ],
 }
+
+class NewsSources:
+    def __init__(self, items = NEWS_SOURCES):
+        self.index = 0
+        self._items = items
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            result = self._items[self.index]
+        except IndexError:
+            raise StopIteration
+
+        self.index += 1
+        return result

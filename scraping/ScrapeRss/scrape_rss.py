@@ -75,7 +75,7 @@ db_connector_prodv2.connect()
 
 
 # import all news sources
-from ScrapeRss.rss_sites import NEWS_SOURCES
+from ScrapeRss.rss_sites import NewsIterator
 
 # NewsParser
 from ScrapeRss.NewsParser import NewsParser
@@ -349,7 +349,7 @@ if __name__ == "__main__":
         THREADS.append(t)
 
     # place initial seed urls to seed queue to process
-    for locale, list_url_schema in NEWS_SOURCES.items():
+    for locale, list_url_schema in NewsIterator():
         logging.debug(
             "locale: {}, Number of websites: {}".format(locale, len(list_url_schema))
         )

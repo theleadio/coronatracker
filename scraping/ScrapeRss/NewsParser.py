@@ -230,9 +230,6 @@ class NewsParser:
                     if word === blacklist_word:
                         self.news_obejcts.flag = True
             
-
-
-
     def add_news_to_extraction_queue(self):
         # for news_object in self.news_list:
         #     EXTRACT_QUEUE.put(news_object)

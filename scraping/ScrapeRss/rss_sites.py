@@ -73,6 +73,7 @@ from ScrapeRss.globals import (
     YEAR_MONTH_DAY_FORMAT,
 )
 
+from collections.abc import Iterable, Iterator
 
 NEWS_SOURCES = {
     "de_DE": [
@@ -566,3 +567,32 @@ NEWS_SOURCES = {
         ),
     ],
 }
+
+class NewsIterator(Iterator):
+    
+    _position: int = None
+    collection = NEWS_SOURCES
+
+    def __init__(self, collection)
+        self._collection = collection
+        self._position = 0  
+
+    #Returns the next item in the collection
+    #Must raise StopIteration
+    def __next__(self):
+        try:
+            value = self._collection[self._position]
+            self._position += 1
+        except IndexError:
+            raise StopIteration()
+        
+        return value
+
+class NewsIterable(Iterable)
+    def __init__(self, collection = NEWS_SOURCES):
+        self._collection = collection
+
+    #Returns the iterator object itself
+    def __iter__(self):
+        return NewsIterator(self._collection)
+    

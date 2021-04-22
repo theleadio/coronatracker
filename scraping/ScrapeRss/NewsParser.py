@@ -201,6 +201,46 @@ class NewsParser:
             news_object.published_at = published_at_dt_object
             self.news_list.append(news_object)
 
+
+    class IIterator():
+        def has_next():
+            # returns boolean whether it is at the end of collection or not
+
+        def next():
+            # returns next object in collection
+
+    class Iterable(IIterator):
+        def __init__(self, news_obejcts):
+            self.index = 0
+            self.news_objects = news_objects
+        
+        def next(self):
+            if self.index < len(self.news_objects):
+                self.index += 1
+                return news_obejcts
+            raise Exception("AtEndOfIterator", "Reached the end of iterator")
+
+        def has_next(self):
+            return self.index < len(self.news_obejcts)
+
+    class Aggregate():
+        def check_filter(self):
+            for word in self.news_obejcts:
+                for blacklist_word in self.blacklist:
+                    if word === blacklist_word:
+                        self.news_obejcts.flag = True
+            
     def add_news_to_extraction_queue(self):
-        for news_object in self.news_list:
-            EXTRACT_QUEUE.put(news_object)
+        # for news_object in self.news_list:
+        #     EXTRACT_QUEUE.put(news_object)
+        filter_news(self.news_list)
+
+    def filter_news(self, news_list):
+        for news_obejcts in news_list:
+            news_obejcts.filter = False
+            ITERABLE = Iterable(news_obejcts)
+            while ITERABLE.has_next():
+                ITERABLE.next().check_filter()
+            EXTRACT_QUEUE(self.news_list)
+
+            

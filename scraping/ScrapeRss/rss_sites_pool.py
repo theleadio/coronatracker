@@ -4,8 +4,15 @@ from ScrapeRss.globals import (
     YEAR_MONTH_DAY_FORMAT,
 )
 import rss_sites
+from contracts import contract
 
+
+
+
+# Preconditions: IsCrawl should be a boolean whose value is determined by whether or not the site is crawled. SourceName should be non empty (as shown in the contract) and should be a valid link that leads to a valid site. SourceGroup should also be a non empty string that is also a valid locale.
+@contract(IsCrawl='boolean',SourceGroup='str[>0]',SourceName='str[>0]')
 class WebsiteInfo: # Uses name of website in the links, along with extra tidbits to deal with similar links.
+
 def _init_(self, IsCrawl, SourceName, SourceGroup):
 self.IsCrawl =IsCrawl # shows wether or not a news source should be crawled
 self.SourceName = SourceName #shows source's http source.

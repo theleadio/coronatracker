@@ -30,7 +30,7 @@ import mysql.connector
 import json
 import os.path
 import logging
-
+from contracts import contract
 
 mydb = None
 TABLE_NAME = "newsapi_n"
@@ -276,8 +276,9 @@ for locale, all_rss in NEWS_URLs.items():
             country = lang_locale[1]
 
           
-            class NewsObect:
+            class NewsObject:
             #this class replaces newsObject struture, however, each of the attributes are determined in the same way. as well the attributes are also the same as the newsObject structure
+           
             def_init_(self, title, description,content,author,url,urlToImage,addedOn,publishedAt,siteName,language, countryCode,status):
             title= news_title
             description= link_content.find('meta', {"name": "description"}).get('content')

@@ -1,3 +1,4 @@
+
 class NewsContent:
     def __init__(
         self,

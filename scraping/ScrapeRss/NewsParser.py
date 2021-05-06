@@ -13,8 +13,9 @@ from bs4 import BeautifulSoup
 import logging
 import re
 
-
+from contracts import contract
 class NewsParser:
+
     def __init__(
         self,
         locale="",
@@ -32,7 +33,6 @@ class NewsParser:
         self.is_xml = is_xml
         self.news_list = news_list
         self.custom_blacklist = set(custom_blacklist)
-
         self.parse_schema()
 
     def parse_schema(self):

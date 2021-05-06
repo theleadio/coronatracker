@@ -6,9 +6,9 @@
 #   - samueljklee@gmail.com
 #
 
-import sys
-import os
 import logging
+import os
+import sys
 
 # Connect to db_connector from parent directory
 PARENT_DIR = ".."

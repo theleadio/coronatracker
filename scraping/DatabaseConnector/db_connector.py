@@ -25,6 +25,10 @@ class DatabaseConnector:
 
     # NEWS TABLE_SCHEMA
     # ['nid', 'title', 'description', 'author', 'url', 'content', 'urlToImage', 'publishedAt', 'addedOn', 'siteName', 'language', 'countryCode', 'status']
+    
+    
+    
+    
     def insert_news_article(self, data_dict, table_name):
         if not table_name:
             raise ValueError("db_connector insert_news_article missing table_name")
